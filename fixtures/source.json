@@ -1,0 +1,7 @@
+{
+  "synthetic": true,
+  "source": "data/synthetic-fixture.mp4",
+  "sha256": "1f869e95fe687a63c30e4e87a90a1bad72f2b00b6f85c4dec3bbb98b56eafdc3",
+  "duration_s": 12,
+  "generator": "scripts.make_fixtures"
+}

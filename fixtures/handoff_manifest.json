@@ -1,0 +1,28 @@
+{
+  "schema_version": "0.1.0",
+  "video_id": "fixture-video",
+  "run_id": "fixture-static-v1",
+  "inference_mode": "fixture",
+  "artifacts": {
+    "semantic_plan": "fixtures/semantic_plan.json",
+    "action_graph": "fixtures/action_graph.json",
+    "tracks": "fixtures/tracks.parquet",
+    "normalized_manifest": "data/fixture-normalized/manifest.json",
+    "tracking_report": "fixtures/perception/tracking_report.json",
+    "masks_shot_000_hand.json.gz": "fixtures/perception/masks_shot_000_hand.json.gz",
+    "masks_shot_000_mug.json.gz": "fixtures/perception/masks_shot_000_mug.json.gz",
+    "masks_shot_000_bowl.json.gz": "fixtures/perception/masks_shot_000_bowl.json.gz"
+  },
+  "entities": [
+    "hand",
+    "mug",
+    "bowl"
+  ],
+  "ready_for_geometry": false,
+  "review_reasons": [
+    "Synthetic fixture: not real model inference or a human demonstration"
+  ],
+  "metric_scale_valid": false,
+  "coordinates": "normalized-video pixels; x right, y down; half-open boxes; zero-based frames; seconds from normalized start",
+  "certification": "2d_perception_only"
+}

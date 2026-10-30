@@ -1,0 +1,2723 @@
+{
+  "$defs": {
+    "ActionGraph": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "nodes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Nodes",
+          "type": "array"
+        },
+        "edges": {
+          "items": {
+            "$ref": "#/$defs/Edge"
+          },
+          "title": "Edges",
+          "type": "array"
+        }
+      },
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "title": "ActionGraph",
+      "type": "object"
+    },
+    "ActionSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "start_s": {
+          "minimum": 0,
+          "title": "Start S",
+          "type": "number"
+        },
+        "end_s": {
+          "minimum": 0,
+          "title": "End S",
+          "type": "number"
+        },
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "primitive": {
+          "$ref": "#/$defs/Primitive"
+        },
+        "actor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actor"
+        },
+        "object": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        },
+        "part": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Part"
+        },
+        "timing_source": {
+          "const": "semantic",
+          "default": "semantic",
+          "title": "Timing Source",
+          "type": "string"
+        },
+        "requires_contact": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requires Contact"
+        },
+        "preconditions": {
+          "items": {
+            "$ref": "#/$defs/Predicate"
+          },
+          "title": "Preconditions",
+          "type": "array"
+        },
+        "effects": {
+          "items": {
+            "$ref": "#/$defs/Predicate"
+          },
+          "title": "Effects",
+          "type": "array"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "uncertainty_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Uncertainty Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "start_s",
+        "end_s",
+        "action_id",
+        "primitive"
+      ],
+      "title": "ActionSegment",
+      "type": "object"
+    },
+    "Anchor": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "entity_id": {
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "frame_index": {
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "mask_ref": {
+          "title": "Mask Ref",
+          "type": "string"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "shot_id",
+        "frame_index",
+        "mask_ref",
+        "method"
+      ],
+      "title": "Anchor",
+      "type": "object"
+    },
+    "ArtifactManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "artifact_id": {
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "uri": {
+          "title": "Uri",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "byte_count": {
+          "title": "Byte Count",
+          "type": "integer"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        },
+        "stage": {
+          "title": "Stage",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "input_hashes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Input Hashes",
+          "type": "array"
+        },
+        "config_hash": {
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "code_hash": {
+          "title": "Code Hash",
+          "type": "string"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
+        "model_revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Revision"
+        },
+        "prompt_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Hash"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "uri",
+        "sha256",
+        "byte_count",
+        "media_type",
+        "stage",
+        "run_id",
+        "input_hashes",
+        "config_hash",
+        "code_hash",
+        "created_at",
+        "inference_mode"
+      ],
+      "title": "ArtifactManifest",
+      "type": "object"
+    },
+    "ArtifactView": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "artifact_id": {
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "uri": {
+          "title": "Uri",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "byte_count": {
+          "title": "Byte Count",
+          "type": "integer"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        },
+        "stage": {
+          "title": "Stage",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "input_hashes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Input Hashes",
+          "type": "array"
+        },
+        "config_hash": {
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "code_hash": {
+          "title": "Code Hash",
+          "type": "string"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
+        "model_revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Revision"
+        },
+        "prompt_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Hash"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "uri",
+        "sha256",
+        "byte_count",
+        "media_type",
+        "stage",
+        "run_id",
+        "input_hashes",
+        "config_hash",
+        "code_hash",
+        "created_at",
+        "inference_mode",
+        "name",
+        "url"
+      ],
+      "title": "ArtifactView",
+      "type": "object"
+    },
+    "ArtifactsResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "artifacts": {
+          "items": {
+            "$ref": "#/$defs/ArtifactView"
+          },
+          "title": "Artifacts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "run_id",
+        "inference_mode",
+        "artifacts"
+      ],
+      "title": "ArtifactsResponse",
+      "type": "object"
+    },
+    "Correction": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_job_id": {
+          "title": "Source Job Id",
+          "type": "string"
+        },
+        "entity_id": {
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "frame_index": {
+          "minimum": 0,
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "kind": {
+          "enum": [
+            "point",
+            "box",
+            "association"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "point": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Point"
+        },
+        "bbox_xyxy": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 4,
+              "minItems": 4,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox Xyxy"
+        },
+        "provider_track_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Track Id"
+        }
+      },
+      "required": [
+        "source_job_id",
+        "entity_id",
+        "shot_id",
+        "frame_index",
+        "kind"
+      ],
+      "title": "Correction",
+      "type": "object"
+    },
+    "Edge": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "precondition",
+            "temporal",
+            "task_dependency"
+          ],
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "target",
+        "reason"
+      ],
+      "title": "Edge",
+      "type": "object"
+    },
+    "Entity": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "entity_id": {
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "category": {
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "semantic_name": {
+          "minLength": 1,
+          "title": "Semantic Name",
+          "type": "string"
+        },
+        "sam_prompt": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Sam Prompt",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "actor",
+            "manipulated_object",
+            "target",
+            "support",
+            "other"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "motion": {
+          "enum": [
+            "manipulated",
+            "static",
+            "unknown"
+          ],
+          "title": "Motion",
+          "type": "string"
+        },
+        "handedness": {
+          "default": "unknown",
+          "enum": [
+            "left",
+            "right",
+            "unknown"
+          ],
+          "title": "Handedness",
+          "type": "string"
+        },
+        "visibility_intervals": {
+          "items": {
+            "$ref": "#/$defs/Interval"
+          },
+          "title": "Visibility Intervals",
+          "type": "array"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "uncertainty_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Uncertainty Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "entity_id",
+        "category",
+        "semantic_name",
+        "sam_prompt",
+        "role",
+        "motion"
+      ],
+      "title": "Entity",
+      "type": "object"
+    },
+    "ErrorResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable"
+      ],
+      "title": "ErrorResponse",
+      "type": "object"
+    },
+    "HealthResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "ready"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scope"
+        }
+      },
+      "required": [
+        "status",
+        "inference_mode"
+      ],
+      "title": "HealthResponse",
+      "type": "object"
+    },
+    "Interval": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "start_s": {
+          "minimum": 0,
+          "title": "Start S",
+          "type": "number"
+        },
+        "end_s": {
+          "minimum": 0,
+          "title": "End S",
+          "type": "number"
+        }
+      },
+      "required": [
+        "start_s",
+        "end_s"
+      ],
+      "title": "Interval",
+      "type": "object"
+    },
+    "JobDetail": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "job_id": {
+          "title": "Job Id",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stage"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "source_job_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Job Id"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "stages": {
+          "items": {
+            "$ref": "#/$defs/StageView"
+          },
+          "title": "Stages",
+          "type": "array"
+        },
+        "model_runs": {
+          "items": {
+            "$ref": "#/$defs/ModelRunView"
+          },
+          "title": "Model Runs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "job_id",
+        "video_id",
+        "run_id",
+        "status",
+        "stage",
+        "inference_mode",
+        "created_at",
+        "stages",
+        "model_runs"
+      ],
+      "title": "JobDetail",
+      "type": "object"
+    },
+    "JobEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "sequence": {
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "job_id": {
+          "title": "Job Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stage"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "detail": {
+          "additionalProperties": true,
+          "title": "Detail",
+          "type": "object"
+        }
+      },
+      "required": [
+        "sequence",
+        "job_id",
+        "status",
+        "stage",
+        "created_at"
+      ],
+      "title": "JobEvent",
+      "type": "object"
+    },
+    "JobView": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "job_id": {
+          "title": "Job Id",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stage"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "source_job_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Job Id"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "job_id",
+        "video_id",
+        "run_id",
+        "status",
+        "stage",
+        "inference_mode",
+        "created_at"
+      ],
+      "title": "JobView",
+      "type": "object"
+    },
+    "LayerOneHandoffManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "artifacts": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Artifacts",
+          "type": "object"
+        },
+        "entities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Entities",
+          "type": "array"
+        },
+        "ready_for_geometry": {
+          "title": "Ready For Geometry",
+          "type": "boolean"
+        },
+        "review_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Reasons",
+          "type": "array"
+        },
+        "metric_scale_valid": {
+          "const": false,
+          "default": false,
+          "title": "Metric Scale Valid",
+          "type": "boolean"
+        },
+        "coordinates": {
+          "const": "normalized-video pixels; x right, y down; half-open boxes; zero-based frames; seconds from normalized start",
+          "default": "normalized-video pixels; x right, y down; half-open boxes; zero-based frames; seconds from normalized start",
+          "title": "Coordinates",
+          "type": "string"
+        },
+        "certification": {
+          "const": "2d_perception_only",
+          "default": "2d_perception_only",
+          "title": "Certification",
+          "type": "string"
+        }
+      },
+      "required": [
+        "video_id",
+        "run_id",
+        "inference_mode",
+        "artifacts",
+        "entities",
+        "ready_for_geometry",
+        "review_reasons"
+      ],
+      "title": "LayerOneHandoffManifest",
+      "type": "object"
+    },
+    "ModelRun": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "model_run_id": {
+          "title": "Model Run Id",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revision"
+        },
+        "stage": {
+          "title": "Stage",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "input_hash": {
+          "title": "Input Hash",
+          "type": "string"
+        },
+        "config_hash": {
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "prompt_hash": {
+          "title": "Prompt Hash",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Id"
+        },
+        "latency_ms": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latency Ms"
+        },
+        "usage": {
+          "additionalProperties": true,
+          "title": "Usage",
+          "type": "object"
+        },
+        "actual_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Cost Usd"
+        },
+        "estimated_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Cost Usd"
+        },
+        "attempt": {
+          "default": 1,
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "model_run_id",
+        "model",
+        "stage",
+        "inference_mode",
+        "input_hash",
+        "config_hash",
+        "prompt_hash",
+        "status"
+      ],
+      "title": "ModelRun",
+      "type": "object"
+    },
+    "ModelRunView": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "model_run_id": {
+          "title": "Model Run Id",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revision"
+        },
+        "stage": {
+          "title": "Stage",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "input_hash": {
+          "title": "Input Hash",
+          "type": "string"
+        },
+        "config_hash": {
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "prompt_hash": {
+          "title": "Prompt Hash",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Id"
+        },
+        "latency_ms": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latency Ms"
+        },
+        "usage": {
+          "additionalProperties": true,
+          "title": "Usage",
+          "type": "object"
+        },
+        "actual_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Cost Usd"
+        },
+        "estimated_cost_usd": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Cost Usd"
+        },
+        "attempt": {
+          "default": 1,
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "raw_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Ref"
+        }
+      },
+      "required": [
+        "model_run_id",
+        "model",
+        "stage",
+        "inference_mode",
+        "input_hash",
+        "config_hash",
+        "prompt_hash",
+        "status"
+      ],
+      "title": "ModelRunView",
+      "type": "object"
+    },
+    "Predicate": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "relation": {
+          "title": "Relation",
+          "type": "string"
+        },
+        "entity_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Entity Ids",
+          "type": "array"
+        },
+        "negated": {
+          "default": false,
+          "title": "Negated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "relation",
+        "entity_ids"
+      ],
+      "title": "Predicate",
+      "type": "object"
+    },
+    "Primitive": {
+      "enum": [
+        "REACH",
+        "GRASP",
+        "LIFT",
+        "TRANSPORT",
+        "ROTATE",
+        "POUR",
+        "INSERT",
+        "PUSH",
+        "PULL",
+        "OPEN",
+        "CLOSE",
+        "PLACE",
+        "RELEASE",
+        "WIPE",
+        "PRESS",
+        "UNKNOWN"
+      ],
+      "title": "Primitive",
+      "type": "string"
+    },
+    "ProcessRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Idempotency Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "idempotency_key"
+      ],
+      "title": "ProcessRequest",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_uri": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Uri"
+        },
+        "rights_status": {
+          "enum": [
+            "team_recorded",
+            "licensed",
+            "user_supplied",
+            "synthetic",
+            "unknown"
+          ],
+          "title": "Rights Status",
+          "type": "string"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        },
+        "consent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consent"
+        },
+        "uploader": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Uploader"
+        }
+      },
+      "required": [
+        "rights_status"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "RLEMask": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "encoding": {
+          "const": "row-major-rle-v1",
+          "title": "Encoding",
+          "type": "string"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        },
+        "counts": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Counts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "encoding",
+        "height",
+        "width",
+        "counts"
+      ],
+      "title": "RLEMask",
+      "type": "object"
+    },
+    "SemanticPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task": {
+          "minLength": 1,
+          "title": "Task",
+          "type": "string"
+        },
+        "canonical_skill": {
+          "minLength": 1,
+          "title": "Canonical Skill",
+          "type": "string"
+        },
+        "duration_s": {
+          "exclusiveMinimum": 0,
+          "title": "Duration S",
+          "type": "number"
+        },
+        "entities": {
+          "items": {
+            "$ref": "#/$defs/Entity"
+          },
+          "minItems": 1,
+          "title": "Entities",
+          "type": "array"
+        },
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/ActionSegment"
+          },
+          "minItems": 1,
+          "title": "Actions",
+          "type": "array"
+        },
+        "action_graph": {
+          "$ref": "#/$defs/ActionGraph"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task",
+        "canonical_skill",
+        "duration_s",
+        "entities",
+        "actions",
+        "action_graph"
+      ],
+      "title": "SemanticPlan",
+      "type": "object"
+    },
+    "Shot": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "start_frame": {
+          "minimum": 0,
+          "title": "Start Frame",
+          "type": "integer"
+        },
+        "end_frame": {
+          "exclusiveMinimum": 0,
+          "title": "End Frame",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "shot_id",
+        "start_frame",
+        "end_frame"
+      ],
+      "title": "Shot",
+      "type": "object"
+    },
+    "StageResult": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "stage": {
+          "title": "Stage",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "artifact_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Artifact Ids",
+          "type": "array"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "stage",
+        "run_id",
+        "status",
+        "artifact_ids",
+        "warnings"
+      ],
+      "title": "StageResult",
+      "type": "object"
+    },
+    "StageView": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "stage": {
+          "title": "Stage",
+          "type": "string"
+        },
+        "attempt": {
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error"
+        }
+      },
+      "required": [
+        "stage",
+        "attempt",
+        "status",
+        "error"
+      ],
+      "title": "StageView",
+      "type": "object"
+    },
+    "TrackFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "frame_index": {
+          "minimum": 0,
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "timestamp": {
+          "minimum": 0,
+          "title": "Timestamp",
+          "type": "number"
+        },
+        "source_timestamp": {
+          "title": "Source Timestamp",
+          "type": "number"
+        },
+        "entity_id": {
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "track_id": {
+          "title": "Track Id",
+          "type": "string"
+        },
+        "provider_track_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Track Id"
+        },
+        "mask_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mask Ref"
+        },
+        "bbox_xyxy": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 4,
+              "minItems": 4,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox Xyxy"
+        },
+        "centroid": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Centroid"
+        },
+        "centroid_normalized": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Centroid Normalized"
+        },
+        "provider_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Confidence"
+        },
+        "tracking_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tracking Confidence"
+        },
+        "observed": {
+          "title": "Observed",
+          "type": "boolean"
+        },
+        "visibility": {
+          "enum": [
+            "VISIBLE",
+            "PARTIALLY_OCCLUDED",
+            "FULLY_OCCLUDED",
+            "CANDIDATE_REAPPEARANCE",
+            "LOST"
+          ],
+          "title": "Visibility",
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "measured",
+            "interpolated",
+            "predicted",
+            "missing"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "identity_status": {
+          "enum": [
+            "associated",
+            "ambiguous",
+            "unverified",
+            "lost"
+          ],
+          "title": "Identity Status",
+          "type": "string"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        },
+        "model_run_id": {
+          "title": "Model Run Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "video_id",
+        "shot_id",
+        "frame_index",
+        "timestamp",
+        "source_timestamp",
+        "entity_id",
+        "track_id",
+        "observed",
+        "visibility",
+        "origin",
+        "identity_status",
+        "model_run_id"
+      ],
+      "title": "TrackFrame",
+      "type": "object"
+    },
+    "TrackSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "entity_id": {
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "track_id": {
+          "title": "Track Id",
+          "type": "string"
+        },
+        "observed_frame_coverage": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Observed Frame Coverage",
+          "type": "number"
+        },
+        "expected_visible_frame_coverage": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Visible Frame Coverage"
+        },
+        "missing_frames": {
+          "title": "Missing Frames",
+          "type": "integer"
+        },
+        "longest_missing_run": {
+          "title": "Longest Missing Run",
+          "type": "integer"
+        },
+        "reinitializations": {
+          "title": "Reinitializations",
+          "type": "integer"
+        },
+        "verified_id_switches": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verified Id Switches"
+        },
+        "anomaly_count": {
+          "title": "Anomaly Count",
+          "type": "integer"
+        },
+        "identity_status": {
+          "title": "Identity Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "track_id",
+        "observed_frame_coverage",
+        "missing_frames",
+        "longest_missing_run",
+        "reinitializations",
+        "anomaly_count",
+        "identity_status"
+      ],
+      "title": "TrackSummary",
+      "type": "object"
+    },
+    "TrackingReport": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "calibration": {
+          "title": "Calibration",
+          "type": "string"
+        },
+        "summaries": {
+          "items": {
+            "$ref": "#/$defs/TrackSummary"
+          },
+          "title": "Summaries",
+          "type": "array"
+        },
+        "anchors": {
+          "items": {
+            "$ref": "#/$defs/Anchor"
+          },
+          "title": "Anchors",
+          "type": "array"
+        },
+        "review_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Reasons",
+          "type": "array"
+        },
+        "mask_bundles": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Mask Bundles",
+          "type": "array"
+        },
+        "reprojection": {
+          "const": "not_evaluated",
+          "title": "Reprojection",
+          "type": "string"
+        },
+        "physical_feasibility": {
+          "const": "not_evaluated",
+          "title": "Physical Feasibility",
+          "type": "string"
+        }
+      },
+      "required": [
+        "inference_mode",
+        "calibration",
+        "summaries",
+        "anchors",
+        "review_reasons",
+        "mask_bundles",
+        "reprojection",
+        "physical_feasibility"
+      ],
+      "title": "TrackingReport",
+      "type": "object"
+    },
+    "TracksResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "total": {
+          "title": "Total",
+          "type": "integer"
+        },
+        "offset": {
+          "title": "Offset",
+          "type": "integer"
+        },
+        "tracks": {
+          "items": {
+            "$ref": "#/$defs/TrackFrame"
+          },
+          "title": "Tracks",
+          "type": "array"
+        },
+        "masks": {
+          "additionalProperties": {
+            "$ref": "#/$defs/RLEMask"
+          },
+          "title": "Masks",
+          "type": "object"
+        }
+      },
+      "required": [
+        "total",
+        "offset",
+        "tracks",
+        "masks"
+      ],
+      "title": "TracksResponse",
+      "type": "object"
+    },
+    "UploadCompleteResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "probe": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Probe"
+        }
+      },
+      "required": [
+        "video_id",
+        "status"
+      ],
+      "title": "UploadCompleteResponse",
+      "type": "object"
+    },
+    "UploadRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "filename": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Filename",
+          "type": "string"
+        },
+        "byte_count": {
+          "exclusiveMinimum": 0,
+          "title": "Byte Count",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      },
+      "required": [
+        "filename",
+        "byte_count",
+        "sha256",
+        "provenance"
+      ],
+      "title": "UploadRequest",
+      "type": "object"
+    },
+    "UploadResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "upload_url": {
+          "title": "Upload Url",
+          "type": "string"
+        },
+        "upload_headers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Upload Headers",
+          "type": "object"
+        },
+        "expires_in": {
+          "title": "Expires In",
+          "type": "integer"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        }
+      },
+      "required": [
+        "video_id",
+        "upload_url",
+        "upload_headers",
+        "expires_in",
+        "inference_mode"
+      ],
+      "title": "UploadResponse",
+      "type": "object"
+    },
+    "VideoAsset": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "original_ref": {
+          "title": "Original Ref",
+          "type": "string"
+        },
+        "source_hash": {
+          "title": "Source Hash",
+          "type": "string"
+        },
+        "byte_count": {
+          "title": "Byte Count",
+          "type": "integer"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      },
+      "required": [
+        "video_id",
+        "original_ref",
+        "source_hash",
+        "byte_count",
+        "provenance"
+      ],
+      "title": "VideoAsset",
+      "type": "object"
+    },
+    "VideoDetail": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "filename": {
+          "title": "Filename",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "probe": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Probe"
+        },
+        "jobs": {
+          "items": {
+            "$ref": "#/$defs/JobView"
+          },
+          "title": "Jobs",
+          "type": "array"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Url"
+        }
+      },
+      "required": [
+        "video_id",
+        "filename",
+        "status",
+        "provenance",
+        "probe",
+        "jobs",
+        "source_url"
+      ],
+      "title": "VideoDetail",
+      "type": "object"
+    },
+    "VideoListItem": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "filename": {
+          "title": "Filename",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "video_id",
+        "filename",
+        "status"
+      ],
+      "title": "VideoListItem",
+      "type": "object"
+    },
+    "VideoListResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "videos": {
+          "items": {
+            "$ref": "#/$defs/VideoListItem"
+          },
+          "title": "Videos",
+          "type": "array"
+        }
+      },
+      "required": [
+        "videos"
+      ],
+      "title": "VideoListResponse",
+      "type": "object"
+    },
+    "VideoManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0",
+          "default": "0.1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "original": {
+          "additionalProperties": true,
+          "title": "Original",
+          "type": "object"
+        },
+        "normalized_ref": {
+          "title": "Normalized Ref",
+          "type": "string"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        },
+        "fps_num": {
+          "exclusiveMinimum": 0,
+          "title": "Fps Num",
+          "type": "integer"
+        },
+        "fps_den": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "title": "Fps Den",
+          "type": "integer"
+        },
+        "frame_count": {
+          "exclusiveMinimum": 0,
+          "title": "Frame Count",
+          "type": "integer"
+        },
+        "duration_s": {
+          "minimum": 0,
+          "title": "Duration S",
+          "type": "number"
+        },
+        "pixel_format": {
+          "default": "yuv420p",
+          "title": "Pixel Format",
+          "type": "string"
+        },
+        "normalization_hash": {
+          "title": "Normalization Hash",
+          "type": "string"
+        },
+        "frame_map_ref": {
+          "title": "Frame Map Ref",
+          "type": "string"
+        },
+        "shots": {
+          "items": {
+            "$ref": "#/$defs/Shot"
+          },
+          "title": "Shots",
+          "type": "array"
+        },
+        "keyframe_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Keyframe Refs",
+          "type": "array"
+        },
+        "diagnostics": {
+          "additionalProperties": true,
+          "title": "Diagnostics",
+          "type": "object"
+        }
+      },
+      "required": [
+        "video_id",
+        "original",
+        "normalized_ref",
+        "width",
+        "height",
+        "fps_num",
+        "frame_count",
+        "duration_s",
+        "normalization_hash",
+        "frame_map_ref",
+        "shots",
+        "keyframe_refs",
+        "diagnostics"
+      ],
+      "title": "VideoManifest",
+      "type": "object"
+    }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/$defs/ActionGraph"
+    },
+    {
+      "$ref": "#/$defs/ArtifactManifest"
+    },
+    {
+      "$ref": "#/$defs/Correction"
+    },
+    {
+      "$ref": "#/$defs/Entity"
+    },
+    {
+      "$ref": "#/$defs/ErrorResponse"
+    },
+    {
+      "$ref": "#/$defs/JobEvent"
+    },
+    {
+      "$ref": "#/$defs/LayerOneHandoffManifest"
+    },
+    {
+      "$ref": "#/$defs/ModelRun"
+    },
+    {
+      "$ref": "#/$defs/ProcessRequest"
+    },
+    {
+      "$ref": "#/$defs/Provenance"
+    },
+    {
+      "$ref": "#/$defs/SemanticPlan"
+    },
+    {
+      "$ref": "#/$defs/StageResult"
+    },
+    {
+      "$ref": "#/$defs/TrackFrame"
+    },
+    {
+      "$ref": "#/$defs/TrackSummary"
+    },
+    {
+      "$ref": "#/$defs/UploadRequest"
+    },
+    {
+      "$ref": "#/$defs/VideoAsset"
+    },
+    {
+      "$ref": "#/$defs/VideoManifest"
+    },
+    {
+      "$ref": "#/$defs/ArtifactsResponse"
+    },
+    {
+      "$ref": "#/$defs/HealthResponse"
+    },
+    {
+      "$ref": "#/$defs/JobDetail"
+    },
+    {
+      "$ref": "#/$defs/JobView"
+    },
+    {
+      "$ref": "#/$defs/TrackingReport"
+    },
+    {
+      "$ref": "#/$defs/TracksResponse"
+    },
+    {
+      "$ref": "#/$defs/UploadCompleteResponse"
+    },
+    {
+      "$ref": "#/$defs/UploadResponse"
+    },
+    {
+      "$ref": "#/$defs/VideoDetail"
+    },
+    {
+      "$ref": "#/$defs/VideoListResponse"
+    }
+  ],
+  "title": "Video2RobotContracts"
+}

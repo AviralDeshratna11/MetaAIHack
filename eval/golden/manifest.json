@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.1.0",
+  "benchmark_target_clips": [24, 40],
+  "thoroughly_annotated_target_clips": [8, 12],
+  "clips": [
+    {"scenario": "pouring", "status": "missing_source", "task": "pick mug, pour above bowl, return and release", "view": "third_person", "objects": ["hand", "mug", "bowl"], "annotation_status": "unknown"},
+    {"scenario": "pick_place", "status": "missing_source", "task": "pick a rigid object and place on a visible target", "view": "third_person", "objects": ["hand", "object", "target"], "annotation_status": "unknown"},
+    {"scenario": "open_close", "status": "missing_source", "task": "open and close a lid or drawer", "view": "third_person", "objects": ["hand", "lid_or_drawer"], "annotation_status": "unknown"},
+    {"scenario": "partial_occlusion", "status": "missing_source", "task": "manipulation with brief partial hand/object occlusion", "annotation_status": "unknown"},
+    {"scenario": "similar_objects", "status": "missing_source", "task": "manipulate one of two visually similar objects", "annotation_status": "unknown"},
+    {"scenario": "hard_cut", "status": "missing_source", "task": "negative: edit during manipulation", "annotation_status": "unknown"},
+    {"scenario": "hidden_blur", "status": "missing_source", "task": "negative: critical interaction hidden or blurred", "annotation_status": "unknown"}
+  ]
+}

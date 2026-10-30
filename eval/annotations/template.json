@@ -1,0 +1,15 @@
+{
+  "schema_version": "0.1.0",
+  "video_id": "REPLACE_WITH_IMPORTED_SOURCE_ID",
+  "source_sha256": "unknown",
+  "annotator": "unknown",
+  "coordinate_space": "normalized_video",
+  "actions": null,
+  "entities": null,
+  "selected_masks": null,
+  "identity_frames": null,
+  "visibility_intervals": null,
+  "occlusion_recovery": null,
+  "expected_action_order": null,
+  "usability": "unknown"
+}

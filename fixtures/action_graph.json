@@ -1,0 +1,50 @@
+{
+  "schema_version": "0.1.0",
+  "nodes": [
+    "a00",
+    "a01",
+    "a02",
+    "a03",
+    "a04",
+    "a05",
+    "a06"
+  ],
+  "edges": [
+    {
+      "schema_version": "0.1.0",
+      "source": "a00",
+      "target": "a01",
+      "reason": "temporal"
+    },
+    {
+      "schema_version": "0.1.0",
+      "source": "a01",
+      "target": "a02",
+      "reason": "temporal"
+    },
+    {
+      "schema_version": "0.1.0",
+      "source": "a02",
+      "target": "a03",
+      "reason": "temporal"
+    },
+    {
+      "schema_version": "0.1.0",
+      "source": "a03",
+      "target": "a04",
+      "reason": "temporal"
+    },
+    {
+      "schema_version": "0.1.0",
+      "source": "a04",
+      "target": "a05",
+      "reason": "temporal"
+    },
+    {
+      "schema_version": "0.1.0",
+      "source": "a05",
+      "target": "a06",
+      "reason": "temporal"
+    }
+  ]
+}

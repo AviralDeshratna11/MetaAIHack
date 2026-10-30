@@ -1,0 +1,241 @@
+{
+  "schema_version": "0.1.0",
+  "task": "Synthetic mug-to-bowl workflow",
+  "canonical_skill": "pour",
+  "duration_s": 12.0,
+  "entities": [
+    {
+      "schema_version": "0.1.0",
+      "entity_id": "hand",
+      "category": "human hand",
+      "semantic_name": "synthetic human hand",
+      "sam_prompt": "human hand",
+      "role": "actor",
+      "motion": "manipulated",
+      "handedness": "unknown",
+      "visibility_intervals": [],
+      "confidence": null,
+      "uncertainty_reasons": [
+        "Synthetic fixture; not model inference"
+      ]
+    },
+    {
+      "schema_version": "0.1.0",
+      "entity_id": "mug",
+      "category": "mug",
+      "semantic_name": "synthetic mug",
+      "sam_prompt": "mug",
+      "role": "manipulated_object",
+      "motion": "manipulated",
+      "handedness": "unknown",
+      "visibility_intervals": [],
+      "confidence": null,
+      "uncertainty_reasons": [
+        "Synthetic fixture; not model inference"
+      ]
+    },
+    {
+      "schema_version": "0.1.0",
+      "entity_id": "bowl",
+      "category": "bowl",
+      "semantic_name": "synthetic bowl",
+      "sam_prompt": "bowl",
+      "role": "target",
+      "motion": "static",
+      "handedness": "unknown",
+      "visibility_intervals": [],
+      "confidence": null,
+      "uncertainty_reasons": [
+        "Synthetic fixture; not model inference"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "schema_version": "0.1.0",
+      "start_s": 0.0,
+      "end_s": 1.7142857142857142,
+      "action_id": "a00",
+      "primitive": "REACH",
+      "actor": "hand",
+      "object": "mug",
+      "target": null,
+      "part": null,
+      "timing_source": "semantic",
+      "requires_contact": false,
+      "preconditions": [],
+      "effects": [],
+      "confidence": null,
+      "uncertainty_reasons": [
+        "Synthetic timing; not inferred from video"
+      ]
+    },
+    {
+      "schema_version": "0.1.0",
+      "start_s": 1.7142857142857142,
+      "end_s": 3.4285714285714284,
+      "action_id": "a01",
+      "primitive": "GRASP",
+      "actor": "hand",
+      "object": "mug",
+      "target": null,
+      "part": null,
+      "timing_source": "semantic",
+      "requires_contact": true,
+      "preconditions": [],
+      "effects": [],
+      "confidence": null,
+      "uncertainty_reasons": [
+        "Synthetic timing; not inferred from video"
+      ]
+    },
+    {
+      "schema_version": "0.1.0",
+      "start_s": 3.4285714285714284,
+      "end_s": 5.142857142857143,
+      "action_id": "a02",
+      "primitive": "LIFT",
+      "actor": "hand",
+      "object": "mug",
+      "target": null,
+      "part": null,
+      "timing_source": "semantic",
+      "requires_contact": true,
+      "preconditions": [],
+      "effects": [],
+      "confidence": null,
+      "uncertainty_reasons": [
+        "Synthetic timing; not inferred from video"
+      ]
+    },
+    {
+      "schema_version": "0.1.0",
+      "start_s": 5.142857142857143,
+      "end_s": 6.857142857142857,
+      "action_id": "a03",
+      "primitive": "TRANSPORT",
+      "actor": "hand",
+      "object": "mug",
+      "target": null,
+      "part": null,
+      "timing_source": "semantic",
+      "requires_contact": true,
+      "preconditions": [],
+      "effects": [],
+      "confidence": null,
+      "uncertainty_reasons": [
+        "Synthetic timing; not inferred from video"
+      ]
+    },
+    {
+      "schema_version": "0.1.0",
+      "start_s": 6.857142857142857,
+      "end_s": 8.571428571428571,
+      "action_id": "a04",
+      "primitive": "POUR",
+      "actor": "hand",
+      "object": "mug",
+      "target": "bowl",
+      "part": null,
+      "timing_source": "semantic",
+      "requires_contact": true,
+      "preconditions": [],
+      "effects": [],
+      "confidence": null,
+      "uncertainty_reasons": [
+        "Synthetic timing; not inferred from video"
+      ]
+    },
+    {
+      "schema_version": "0.1.0",
+      "start_s": 8.571428571428571,
+      "end_s": 10.285714285714286,
+      "action_id": "a05",
+      "primitive": "PLACE",
+      "actor": "hand",
+      "object": "mug",
+      "target": null,
+      "part": null,
+      "timing_source": "semantic",
+      "requires_contact": true,
+      "preconditions": [],
+      "effects": [],
+      "confidence": null,
+      "uncertainty_reasons": [
+        "Synthetic timing; not inferred from video"
+      ]
+    },
+    {
+      "schema_version": "0.1.0",
+      "start_s": 10.285714285714286,
+      "end_s": 12.0,
+      "action_id": "a06",
+      "primitive": "RELEASE",
+      "actor": "hand",
+      "object": "mug",
+      "target": null,
+      "part": null,
+      "timing_source": "semantic",
+      "requires_contact": true,
+      "preconditions": [],
+      "effects": [],
+      "confidence": null,
+      "uncertainty_reasons": [
+        "Synthetic timing; not inferred from video"
+      ]
+    }
+  ],
+  "action_graph": {
+    "schema_version": "0.1.0",
+    "nodes": [
+      "a00",
+      "a01",
+      "a02",
+      "a03",
+      "a04",
+      "a05",
+      "a06"
+    ],
+    "edges": [
+      {
+        "schema_version": "0.1.0",
+        "source": "a00",
+        "target": "a01",
+        "reason": "temporal"
+      },
+      {
+        "schema_version": "0.1.0",
+        "source": "a01",
+        "target": "a02",
+        "reason": "temporal"
+      },
+      {
+        "schema_version": "0.1.0",
+        "source": "a02",
+        "target": "a03",
+        "reason": "temporal"
+      },
+      {
+        "schema_version": "0.1.0",
+        "source": "a03",
+        "target": "a04",
+        "reason": "temporal"
+      },
+      {
+        "schema_version": "0.1.0",
+        "source": "a04",
+        "target": "a05",
+        "reason": "temporal"
+      },
+      {
+        "schema_version": "0.1.0",
+        "source": "a05",
+        "target": "a06",
+        "reason": "temporal"
+      }
+    ]
+  },
+  "warnings": [
+    "FIXTURE MODE: deterministic synthetic semantics; not real model evidence"
+  ]
+}
