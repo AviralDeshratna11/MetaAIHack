@@ -16,14 +16,17 @@ TRACK_SCHEMA = pa.schema([
     ("schema_version", pa.string()), ("video_id", pa.string()), ("shot_id", pa.string()),
     ("frame_index", pa.int64()), ("timestamp", pa.float64()), ("source_timestamp", pa.float64()),
     ("entity_id", pa.string()), ("track_id", pa.string()), ("provider_track_id", pa.string()),
-    ("mask_ref", pa.string()), ("bbox_xyxy", pa.list_(pa.float64(), 4)),
-    ("centroid", pa.list_(pa.float64(), 2)), ("centroid_normalized", pa.list_(pa.float64(), 2)),
+    # Parquet cannot round-trip nullable fixed-size lists in the pinned Arrow
+    # version. Row validation enforces coordinate lengths before serialization.
+    ("mask_ref", pa.string()), ("bbox_xyxy", pa.list_(pa.float64())),
+    ("centroid", pa.list_(pa.float64())), ("centroid_normalized", pa.list_(pa.float64())),
     ("provider_confidence", pa.float64()), ("tracking_confidence", pa.float64()),
     ("observed", pa.bool_()), ("visibility", pa.string()), ("origin", pa.string()),
     ("identity_status", pa.string()), ("warnings", pa.list_(pa.string())), ("model_run_id", pa.string())])
 
 
-def build_tracklets(records, entity, shot, manifest, frame_map, video_id, model_run_id, bundle_ref, correction=None):
+def build_tracklets(records, entity, shot, manifest, frame_map, video_id, model_run_id, bundle_ref, correction=None,
+                    shared_concept=False):
     indexed = defaultdict(dict)
     for rec in records:
         frame = rec["frame"]
@@ -40,30 +43,35 @@ def build_tracklets(records, entity, shot, manifest, frame_map, video_id, model_
         candidates = [selected]
     rows, masks, summaries = [], {}, []
     for candidate in candidates:
-        ambiguous = len(candidates) > 1 and candidate != selected
+        ambiguous = (len(candidates) > 1 or shared_concept) and candidate != selected
         associated = not ambiguous and (len(candidates) == 1 or candidate == selected)
         segment = 0
         missing = 0
         seen = False
-        previous_box = None
+        previous_area = previous_centroid = None
         track_rows = []
         for local in range(shot.end_frame - shot.start_frame):
             global_frame = shot.start_frame + local
             rec = indexed[local].get(candidate)
             warnings = []
-            reappeared = bool(rec and seen and missing >= 3)
+            # Empty rasters are missing observations, including for identity state.
+            box = None
+            if rec is not None:
+                if rec["mask"].shape != (manifest.height, manifest.width):
+                    raise DomainError("E_SAM_COORDINATES", "Mask shape differs from normalized video")
+                box = bbox(rec["mask"])
+                if box is None:
+                    rec = None
+            reappeared = bool(rec and seen and missing >= 1)
             if reappeared:
                 segment += 1
                 # A same provider ordinal is not proof of identity after full occlusion.
                 associated = False
                 warnings.append("Identity after missing run is unverified")
             track_id = f"{entity.entity_id}:{shot.shot_id}:{candidate}:{segment}"
-            mask_ref = box = centroid = normalized = None
+            mask_ref = centroid = normalized = None
             if rec:
                 mask = rec["mask"]
-                if mask.shape != (manifest.height, manifest.width):
-                    raise DomainError("E_SAM_COORDINATES", "Mask shape differs from normalized video")
-                box = bbox(mask)
                 if box is None:
                     rec = None
                 else:
@@ -73,21 +81,22 @@ def build_tracklets(records, entity, shot, manifest, frame_map, video_id, model_
                     mask_key = f"{global_frame}/{candidate}"
                     masks[mask_key] = encode_rle(mask)
                     mask_ref = f"{bundle_ref}#{mask_key}"
-                    if previous_box:
-                        area = (box[2] - box[0]) * (box[3] - box[1])
-                        prior_area = (previous_box[2] - previous_box[0]) * (previous_box[3] - previous_box[1])
-                        jump = np.linalg.norm(np.array(box[:2]) - np.array(previous_box[:2]))
-                        if area / max(1, prior_area) > 2.5 or area / max(1, prior_area) < .4:
+                    area = len(xs)
+                    if previous_area is not None:
+                        jump = np.linalg.norm(np.array(centroid) - np.array(previous_centroid))
+                        if area / previous_area > 2.5 or area / previous_area < .4:
                             warnings.append("mask_area_jump")
                         if jump > .15 * max(manifest.width, manifest.height):
                             warnings.append("centroid_motion_jump")
-                    previous_box = box
+                    previous_area, previous_centroid = area, centroid
             if rec:
                 seen, missing = True, 0
             else:
                 missing += 1
             if ambiguous:
-                warnings.append("Multiple candidates; semantic association needs review")
+                warnings.append("Shared concept or multiple candidates; semantic association needs review")
+            if rec and not associated and not ambiguous and not reappeared:
+                warnings.append("Identity after missing run remains unverified")
             row = TrackFrame(video_id=video_id, shot_id=shot.shot_id, frame_index=global_frame,
                 timestamp=global_frame * manifest.fps_den / manifest.fps_num,
                 source_timestamp=frame_map[global_frame]["source_timestamp"], entity_id=entity.entity_id,
@@ -119,6 +128,7 @@ def build_tracklets(records, entity, shot, manifest, frame_map, video_id, model_
 def tracking(provider, video, manifest, plan, frame_map, output: Path, prefix, record, corrections):
     output.mkdir(parents=True, exist_ok=True)
     rows, summaries, refs, anchors = [], [], [], []
+    concepts = [e.sam_prompt.strip().casefold() for e in plan.entities]
     for shot in manifest.shots:
         shot_file = output / f"{shot.shot_id}.mp4"
         extract_shot(video, shot_file, shot)
@@ -129,7 +139,9 @@ def tracking(provider, video, manifest, plan, frame_map, output: Path, prefix, r
             name = f"masks_{shot.shot_id}_{entity.entity_id}.json.gz"
             ref = f"{prefix}/{name}"
             group, masks, stats = build_tracklets(predictions, entity, shot, manifest, frame_map,
-                manifest.video_id, record.last_id, ref, next((c for c in relevant if c["kind"] == "association"), None))
+                manifest.video_id, record.last_id, ref, next((c for c in relevant if c["kind"] == "association"), None),
+                shared_concept=concepts.count(entity.sam_prompt.strip().casefold()) > 1 and not any(
+                    c["kind"] in ("point", "box") for c in relevant))
             rows.extend(group)
             summaries.extend(stats)
             (output / name).write_bytes(gzip.compress(json.dumps(masks).encode(), mtime=0))
@@ -151,6 +163,10 @@ def tracking(provider, video, manifest, plan, frame_map, output: Path, prefix, r
             reasons.append(f"{entity.entity_id}: associated measured coverage {coverage:.1%} below heuristic 80% gate")
     if any(r["identity_status"] == "ambiguous" for r in rows):
         reasons.append("Ambiguous semantic-to-track association")
+    if any(r["observed"] and r["identity_status"] == "unverified" for r in rows):
+        reasons.append("Unverified identity after missing observations")
+    if any(r["observed"] and any(w in ("mask_area_jump", "centroid_motion_jump") for w in r["warnings"]) for r in rows):
+        reasons.append("Mask area or motion anomalies require review")
     if len(manifest.shots) > 1:
         reasons.append("Hard scene cuts: tracklets are shot-local; cross-shot identity unverified")
     report = {"schema_version": "0.1.0", "inference_mode": record.mode,

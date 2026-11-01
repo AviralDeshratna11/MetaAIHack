@@ -7,7 +7,7 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("task", choices=["up", "down", "api", "worker", "dispatch", "web", "test", "media-tests", "smoke", "schemas", "check", "golden"])
+    parser.add_argument("task", choices=["up", "down", "api", "worker", "dispatch", "web", "test", "media-tests", "smoke", "phase2-smoke", "schemas", "check", "golden"])
     task = parser.parse_args().task
     npm = "npm.cmd" if os.name == "nt" else "npm"
     tasks = {
@@ -20,6 +20,7 @@ def main():
         "test": [[sys.executable, "-m", "pytest", "-q"]],
         "media-tests": [["docker", "compose", "run", "--rm", "api", "python", "-m", "pytest", "-q", "tests/test_media.py"]],
         "smoke": [[sys.executable, "-m", "scripts.smoke"]],
+        "phase2-smoke": [[sys.executable, "-m", "scripts.smoke_reconstruction"]],
         "schemas": [[sys.executable, "-m", "scripts.export_schemas"], [npm, "run", "schemas"]],
         "check": [[sys.executable, "-m", "pytest", "-q"], [sys.executable, "-m", "scripts.export_schemas", "--check"],
                   [npm, "run", "schemas:check"], [npm, "run", "typecheck"], [npm, "run", "build"]],

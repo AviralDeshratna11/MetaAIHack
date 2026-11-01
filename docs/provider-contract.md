@@ -1,8 +1,11 @@
 # Meta provider contract
 
-Documentation checked on 2026-10-30; account availability remains unverified until
-the project owner supplies credentials for a later live test. No paid calls are
-required or made by the offline tests. The default is `INFERENCE_MODE=fixture`.
+Documentation rechecked on 2026-11-01. Account model listing and a live 22.88-second
+pouring/stirring test verified access to `muse-spark-1.3` and `sam-3.1`, Files video
+uploads, non-streaming Responses, segmentation parsing and 343-frame SAM outputs.
+See `eval/reports/live-smoke.json`. Output quality still needs association review
+and independent annotations. Offline tests use mocked/fixture inference. The checked-in
+default remains fixture mode; the current local `.env` and services select live mode.
 
 - [Muse video understanding](https://dev.meta.ai/docs/video-understanding): Files
   upload with purpose `user_data`, then Responses `input_file` with `file_id`.
@@ -36,10 +39,28 @@ record remains null. Derived tracking confidence (.9 on an ordinary measured row
 .65 when warnings apply) is an explicitly uncalibrated heuristic, not a probability
 from Meta. A post-occlusion candidate is unverified even when its ordinal is unchanged.
 
+The adapter rejects unexpected plain text instead of interpreting it as zero
+matches, validates wire frame dimensions before placing masks, and checks raster
+quotas before invoking the parser. Tests cover both lossless and one-bit masks,
+inclusive wire boxes converted to half-open bounds, confidence, sparse unordered
+frame indices, zero matches and malformed output.
+
+Any missing observation interrupts verified continuity. A later mask starts a new
+unverified tracklet, even after a single missing frame; this is deliberately
+conservative because missing output does not distinguish sampling, exit and full
+occlusion. Unverified observations and geometric anomalies independently block the
+handoff gate even if total associated coverage exceeds 80%. Entities with the same
+trimmed, case-insensitive concept remain ambiguous without an explicit association
+or visual prompt. More general semantic/appearance association is not implemented.
+
 Visual corrections use the official `build_object_prompt` helper with media size,
 frame, point or half-open box. Corrections are recorded in a new run; fixture masks
 are fixed color outputs and do not react to point/box prompts. Association corrections
 choose a provider candidate explicitly. The UI labels fixture correction behavior.
+Point coordinates are floored to pixel indices; half-open boxes are rounded outward.
+Points on the right/bottom image boundary are rejected. Point and box corrections on
+the same frame are combined into one object prompt. Anchors on different frames are
+retained, and a new visual prompt invalidates older provider-ordinal associations.
 
 The per-job default of 16 provider requests includes Files uploads and retries.
 Timeouts after transmission are unknown outcomes and block automatic replay.

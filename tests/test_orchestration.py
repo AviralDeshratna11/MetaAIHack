@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from apps.api.orchestration import claim, heartbeat, reconcile, schedule
 from packages.common.utils import DomainError
-from workers.pipeline import stage_start
+from workers.pipeline import all_corrections, stage_start
 
 
 def seed(db):
@@ -68,3 +68,20 @@ def test_stage_recovery_has_bounded_attempts(database):
     for _ in range(3): stage_start(job.id, token, "tracking", "same")
     with pytest.raises(DomainError) as exc: stage_start(job.id, token, "tracking", "same")
     assert exc.value.code == "E_STAGE_RETRIES"
+
+
+def test_visual_correction_keeps_other_anchors_and_invalidates_old_provider_association(database):
+    db = database
+    job = seed(db)
+    corrections = [
+        {"entity_id": "mug", "shot_id": "shot_000", "kind": "association", "frame_index": 0, "provider_track_id": "2"},
+        {"entity_id": "mug", "shot_id": "shot_000", "kind": "point", "frame_index": 1, "point": [4., 5.]},
+        {"entity_id": "mug", "shot_id": "shot_000", "kind": "point", "frame_index": 7, "point": [7., 5.]},
+    ]
+    with db.transaction() as s:
+        for i, correction in enumerate(corrections):
+            child = schedule(s, s.get(db.Video, "video"), f"correction-{i}", job.config, job.id)
+            s.add(db.CorrectionRecord(video_id="video", job_id=child.id, data=correction))
+            job = child
+    effective = all_corrections(job)
+    assert effective == corrections[1:]

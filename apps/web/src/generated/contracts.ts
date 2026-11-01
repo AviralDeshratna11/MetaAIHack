@@ -27,7 +27,22 @@ export type Video2RobotContracts =
   | UploadCompleteResponse
   | UploadResponse
   | VideoDetail
-  | VideoListResponse;
+  | VideoListResponse
+  | ReconstructionRequest
+  | ReconstructionConfig
+  | Pose3D
+  | Alignment
+  | CameraFrame
+  | PoseFrame
+  | RelativeFrame
+  | ContactFrame
+  | InteractionEvent
+  | RefinedAction
+  | AffordancePatch
+  | ReconstructionReport
+  | LayerTwoHandoff
+  | GeometryWindow
+  | InteractionTrajectory;
 export type SchemaVersion = "0.1.0";
 export type Nodes = string[];
 export type SchemaVersion1 = "0.1.0";
@@ -271,6 +286,7 @@ export type RunId5 = string;
 export type Status4 = string;
 export type Stage5 = string | null;
 export type InferenceMode6 = "fixture" | "live";
+export type Pipeline = "perception" | "reconstruction";
 export type Error2 = {
   [k: string]: unknown;
 } | null;
@@ -312,6 +328,7 @@ export type RunId6 = string;
 export type Status7 = string;
 export type Stage8 = string | null;
 export type InferenceMode8 = "fixture" | "live";
+export type Pipeline1 = "perception" | "reconstruction";
 export type Error5 = {
   [k: string]: unknown;
 } | null;
@@ -367,6 +384,208 @@ export type VideoId9 = string;
 export type Filename2 = string;
 export type Status10 = string;
 export type Videos = VideoListItem[];
+export type SchemaVersion38 = "0.2.0";
+export type SourceJobId3 = string;
+export type IdempotencyKey1 = string;
+export type SchemaVersion39 = "0.2.0";
+export type Backend = "fixture" | "vggt";
+export type BodyBackend = "none" | "sam3d";
+export type SampleFps = number;
+export type MaxFramesPerShot = number;
+export type MaxTotalFrames = number;
+export type MaxPointsPerEntity = number;
+export type ContactDistance2DPx = number;
+export type ContactDistance3DRelative = number;
+export type ContactOn = number;
+export type ContactOff = number;
+export type PersistenceFrames = number;
+export type BoundaryWindowS = number;
+export type MaxAlignmentRelativeRmse = number;
+export type AllowReviewSource = boolean;
+export type SchemaVersion40 = "0.2.0";
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type PositionXyz = [number, number, number];
+export type QuaternionXyzw = [number, number, number, number] | null;
+export type Confidence2 = number | null;
+export type MetricScaleValid1 = false;
+export type SchemaVersion41 = "0.2.0";
+export type AlignmentId = string;
+export type SourceFrame = string;
+export type TargetFrame = string;
+export type Rotation = [number, number, number][];
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type Translation = [number, number, number];
+export type Scale = number;
+export type Rmse = number;
+export type CorrespondenceCount = number;
+export type Method1 = string;
+export type Uncertainty = string;
+export type SchemaVersion42 = "0.2.0";
+export type VideoId10 = string;
+export type ShotId4 = string;
+export type FrameIndex3 = number;
+export type Timestamp1 = number;
+export type WorldFrame = string;
+export type Intrinsic = [number, number, number][];
+export type WorldFromCamera = [number, number, number, number][];
+export type ImageWidth = number;
+export type ImageHeight = number;
+export type Source1 = string;
+export type Origin1 = "estimated" | "synthetic";
+export type MetricScaleValid2 = false;
+export type SchemaVersion43 = "0.2.0";
+export type VideoId11 = string;
+export type ShotId5 = string;
+export type FrameIndex4 = number;
+export type Timestamp2 = number;
+export type EntityId5 = string;
+export type TrackId2 = string;
+export type WorldFrame1 = string;
+export type PointsWorld = [number, number, number][];
+export type KeypointNames = string[];
+export type KeypointsWorld = [number, number, number][];
+export type LinearVelocity = [number, number, number] | null;
+export type AngularVelocity = [number, number, number] | null;
+export type ProjectedCentroid = [number, number] | null;
+export type ReprojectionErrorPx = number | null;
+export type Origin2 = "estimated" | "synthetic" | "missing";
+export type Representation = "surface_centroid" | "wrist" | "point_tracks" | "missing";
+export type OrientationStatus = "unknown" | "pca_hypothesis" | "synthetic";
+export type Source2 = string;
+export type AlignmentId1 = string | null;
+export type Warnings5 = string[];
+export type SchemaVersion44 = "0.2.0";
+export type ShotId6 = string;
+export type FrameIndex5 = number;
+export type Timestamp3 = number;
+export type WorldFrame2 = string;
+export type HandId = string;
+export type ObjectId = string;
+export type HandTrackId = string;
+export type ObjectTrackId = string;
+export type RelativePositionWorldXyz = [number, number, number] | null;
+export type Origin3 = "estimated" | "synthetic" | "missing";
+export type Warnings6 = string[];
+export type SchemaVersion45 = "0.2.0";
+export type ShotId7 = string;
+export type FrameIndex6 = number;
+export type Timestamp4 = number;
+export type HandId1 = string;
+export type ObjectId1 = string;
+export type HandTrackId1 = string | null;
+export type ObjectTrackId1 = string | null;
+export type State = "CONTACT" | "NO_CONTACT" | "CANDIDATE" | "UNKNOWN";
+export type Probability = number | null;
+export type ProbabilityCalibrated = false;
+export type Distance2DPx = number | null;
+export type Distance3DRelative = number | null;
+export type GeometryAgeS = number | null;
+export type GeometryOrigin = "sampled" | "held" | "missing";
+export type MotionCoupling = number | null;
+export type SemanticPrior = number | null;
+export type ContactPointsObject = [number, number, number][];
+export type EvidenceOrigin = "estimated" | "synthetic" | "missing";
+export type Warnings7 = string[];
+export type SchemaVersion46 = "0.2.0";
+export type EventId = string;
+export type ShotId8 = string;
+export type FrameIndex7 = number;
+export type Timestamp5 = number;
+export type HandId2 = string;
+export type ObjectId2 = string;
+export type Kind1 = "contact_on" | "contact_off" | "grasp_candidate" | "release_candidate";
+export type Confidence3 = number | null;
+export type ValidatedGrasp = false;
+export type Reasons = string[];
+export type SchemaVersion47 = "0.2.0";
+export type ActionId1 = string;
+export type SemanticStartS = number;
+export type SemanticEndS = number;
+export type RefinedStartS = number | null;
+export type RefinedEndS = number | null;
+export type TimingSource1 = "semantic" | "contact_candidate";
+export type EvidenceEventIds = string[];
+export type ReviewReasons2 = string[];
+export type SchemaVersion48 = "0.2.0";
+export type ObjectId3 = string;
+export type HandId3 = string;
+export type ShotId9 = string;
+export type FrameIndex8 = number;
+export type Primitive1 = "contact";
+export type PartName = string | null;
+export type ContactPatchObjectXyz = [number, number, number][];
+export type ApproachDirection = [number, number, number] | null;
+export type ObservedGrasp = false;
+export type Source3 = "estimated_surface_proximity" | "synthetic";
+export type SchemaVersion49 = "0.2.0";
+export type SourceRunId = string;
+export type Backend1 = string;
+export type InferenceMode11 = "fixture" | "live";
+export type ScaleMode = "relative";
+export type MetricScaleValid3 = false;
+export type WorldFrames = string[];
+export type SampledFrames = number[];
+export type CameraFrames = number;
+export type HandPoseFrames = number;
+export type ObjectPoseFrames = number;
+export type RelativePoseFrames = number;
+export type ContactFrames = number;
+export type ContactEvents = number;
+export type ReprojectionMedianPx = number | null;
+export type ReprojectionMetric = string;
+export type ReviewReasons3 = string[];
+export type PhysicalFeasibility1 = "not_evaluated";
+export type SchemaVersion50 = "0.2.0";
+export type VideoId12 = string;
+export type RunId7 = string;
+export type SourceRunId1 = string;
+export type InferenceMode12 = "fixture" | "live";
+export type ReadyForRobotization = boolean;
+export type MetricScaleValid4 = false;
+export type ScaleMode1 = "relative";
+export type Certification1 = "interaction_hypotheses_only";
+export type ReviewReasons4 = string[];
+export type Coordinates1 = string;
+export type SchemaVersion51 = "0.2.0";
+export type Total1 = number;
+export type Offset1 = number;
+export type Cameras = CameraFrame[];
+export type Hands = PoseFrame[];
+export type Objects = PoseFrame[];
+export type Relative = RelativeFrame[];
+export type Contacts = ContactFrame[];
+export type SchemaVersion52 = "0.2.0";
+export type VideoId13 = string;
+export type RunId8 = string;
+export type SourceRunId2 = string;
+export type Task1 = string;
+export type CanonicalSkill1 = string;
+export type Entities2 = Entity[];
+export type RefinedActions = RefinedAction[];
+export type SchemaVersion53 = "0.2.0";
+export type ShotId10 = string;
+export type WorldFrame3 = string;
+export type FrameIndex9 = number;
+export type Timestamp6 = number;
+export type CameraFrameIndex = number | null;
+export type SchemaVersion54 = "0.2.0";
+export type EntityId6 = string;
+export type TrackId3 = string;
+export type Origin4 = "estimated" | "synthetic" | "missing";
+export type Representation1 = string;
+export type Hands1 = InteractionPose[];
+export type Objects1 = InteractionPose[];
+export type Contacts1 = ContactFrame[];
+export type CurrentActionIds = string[];
+export type Frames = InteractionFrame[];
+export type ScaleMode2 = "relative";
+export type MetricScaleValid5 = false;
 
 export interface ActionGraph {
   schema_version?: SchemaVersion;
@@ -658,6 +877,7 @@ export interface JobDetail {
   status: Status4;
   stage: Stage5;
   inference_mode: InferenceMode6;
+  pipeline?: Pipeline;
   error?: Error2;
   source_job_id?: SourceJobId1;
   created_at: CreatedAt3;
@@ -703,6 +923,7 @@ export interface JobView {
   status: Status7;
   stage: Stage8;
   inference_mode: InferenceMode8;
+  pipeline?: Pipeline1;
   error?: Error5;
   source_job_id?: SourceJobId2;
   created_at: CreatedAt4;
@@ -779,4 +1000,244 @@ export interface VideoListItem {
   video_id: VideoId9;
   filename: Filename2;
   status: Status10;
+}
+export interface ReconstructionRequest {
+  schema_version?: SchemaVersion38;
+  source_job_id: SourceJobId3;
+  idempotency_key: IdempotencyKey1;
+  config?: ReconstructionConfig;
+  allow_review_source?: AllowReviewSource;
+}
+export interface ReconstructionConfig {
+  schema_version?: SchemaVersion39;
+  backend?: Backend;
+  body_backend?: BodyBackend;
+  sample_fps?: SampleFps;
+  max_frames_per_shot?: MaxFramesPerShot;
+  max_total_frames?: MaxTotalFrames;
+  max_points_per_entity?: MaxPointsPerEntity;
+  contact_distance_2d_px?: ContactDistance2DPx;
+  contact_distance_3d_relative?: ContactDistance3DRelative;
+  contact_on?: ContactOn;
+  contact_off?: ContactOff;
+  persistence_frames?: PersistenceFrames;
+  boundary_window_s?: BoundaryWindowS;
+  max_alignment_relative_rmse?: MaxAlignmentRelativeRmse;
+}
+export interface Pose3D {
+  schema_version?: SchemaVersion40;
+  position_xyz: PositionXyz;
+  quaternion_xyzw?: QuaternionXyzw;
+  confidence?: Confidence2;
+  metric_scale_valid?: MetricScaleValid1;
+}
+export interface Alignment {
+  schema_version?: SchemaVersion41;
+  alignment_id: AlignmentId;
+  source_frame: SourceFrame;
+  target_frame: TargetFrame;
+  rotation: Rotation;
+  translation: Translation;
+  scale: Scale;
+  rmse: Rmse;
+  correspondence_count: CorrespondenceCount;
+  method: Method1;
+  uncertainty?: Uncertainty;
+}
+export interface CameraFrame {
+  schema_version?: SchemaVersion42;
+  video_id: VideoId10;
+  shot_id: ShotId4;
+  frame_index: FrameIndex3;
+  timestamp: Timestamp1;
+  world_frame: WorldFrame;
+  intrinsic: Intrinsic;
+  world_from_camera: WorldFromCamera;
+  image_width: ImageWidth;
+  image_height: ImageHeight;
+  source: Source1;
+  origin: Origin1;
+  metric_scale_valid?: MetricScaleValid2;
+}
+export interface PoseFrame {
+  schema_version?: SchemaVersion43;
+  video_id: VideoId11;
+  shot_id: ShotId5;
+  frame_index: FrameIndex4;
+  timestamp: Timestamp2;
+  entity_id: EntityId5;
+  track_id: TrackId2;
+  world_frame: WorldFrame1;
+  pose?: Pose3D | null;
+  points_world?: PointsWorld;
+  keypoint_names?: KeypointNames;
+  keypoints_world?: KeypointsWorld;
+  linear_velocity?: LinearVelocity;
+  angular_velocity?: AngularVelocity;
+  projected_centroid?: ProjectedCentroid;
+  reprojection_error_px?: ReprojectionErrorPx;
+  origin: Origin2;
+  representation: Representation;
+  orientation_status?: OrientationStatus;
+  source: Source2;
+  alignment_id?: AlignmentId1;
+  warnings?: Warnings5;
+}
+export interface RelativeFrame {
+  schema_version?: SchemaVersion44;
+  shot_id: ShotId6;
+  frame_index: FrameIndex5;
+  timestamp: Timestamp3;
+  world_frame: WorldFrame2;
+  hand_id: HandId;
+  object_id: ObjectId;
+  hand_track_id: HandTrackId;
+  object_track_id: ObjectTrackId;
+  hand_in_object?: Pose3D | null;
+  relative_position_world_xyz?: RelativePositionWorldXyz;
+  object_delta?: Pose3D | null;
+  origin: Origin3;
+  warnings?: Warnings6;
+}
+export interface ContactFrame {
+  schema_version?: SchemaVersion45;
+  shot_id: ShotId7;
+  frame_index: FrameIndex6;
+  timestamp: Timestamp4;
+  hand_id: HandId1;
+  object_id: ObjectId1;
+  hand_track_id?: HandTrackId1;
+  object_track_id?: ObjectTrackId1;
+  state: State;
+  probability?: Probability;
+  probability_calibrated?: ProbabilityCalibrated;
+  distance_2d_px?: Distance2DPx;
+  distance_3d_relative?: Distance3DRelative;
+  geometry_age_s?: GeometryAgeS;
+  geometry_origin?: GeometryOrigin;
+  motion_coupling?: MotionCoupling;
+  semantic_prior?: SemanticPrior;
+  contact_points_object?: ContactPointsObject;
+  evidence_origin: EvidenceOrigin;
+  warnings?: Warnings7;
+}
+export interface InteractionEvent {
+  schema_version?: SchemaVersion46;
+  event_id: EventId;
+  shot_id: ShotId8;
+  frame_index: FrameIndex7;
+  timestamp: Timestamp5;
+  hand_id: HandId2;
+  object_id: ObjectId2;
+  kind: Kind1;
+  confidence?: Confidence3;
+  validated_grasp?: ValidatedGrasp;
+  reasons: Reasons;
+}
+export interface RefinedAction {
+  schema_version?: SchemaVersion47;
+  action_id: ActionId1;
+  primitive: Primitive;
+  semantic_start_s: SemanticStartS;
+  semantic_end_s: SemanticEndS;
+  refined_start_s?: RefinedStartS;
+  refined_end_s?: RefinedEndS;
+  timing_source?: TimingSource1;
+  evidence_event_ids?: EvidenceEventIds;
+  review_reasons?: ReviewReasons2;
+}
+export interface AffordancePatch {
+  schema_version?: SchemaVersion48;
+  object_id: ObjectId3;
+  hand_id: HandId3;
+  shot_id: ShotId9;
+  frame_index: FrameIndex8;
+  primitive?: Primitive1;
+  part_name?: PartName;
+  contact_patch_object_xyz: ContactPatchObjectXyz;
+  approach_direction?: ApproachDirection;
+  observed_grasp?: ObservedGrasp;
+  source: Source3;
+}
+export interface ReconstructionReport {
+  schema_version?: SchemaVersion49;
+  source_run_id: SourceRunId;
+  backend: Backend1;
+  inference_mode: InferenceMode11;
+  scale_mode?: ScaleMode;
+  metric_scale_valid?: MetricScaleValid3;
+  world_frames: WorldFrames;
+  sampled_frames: SampledFrames;
+  camera_frames: CameraFrames;
+  hand_pose_frames: HandPoseFrames;
+  object_pose_frames: ObjectPoseFrames;
+  relative_pose_frames: RelativePoseFrames;
+  contact_frames?: ContactFrames;
+  contact_events?: ContactEvents;
+  reprojection_median_px?: ReprojectionMedianPx;
+  reprojection_metric?: ReprojectionMetric;
+  review_reasons: ReviewReasons3;
+  physical_feasibility?: PhysicalFeasibility1;
+}
+export interface LayerTwoHandoff {
+  schema_version?: SchemaVersion50;
+  video_id: VideoId12;
+  run_id: RunId7;
+  source_run_id: SourceRunId1;
+  inference_mode: InferenceMode12;
+  artifacts: Artifacts2;
+  ready_for_robotization: ReadyForRobotization;
+  metric_scale_valid?: MetricScaleValid4;
+  scale_mode?: ScaleMode1;
+  certification?: Certification1;
+  review_reasons: ReviewReasons4;
+  coordinates?: Coordinates1;
+}
+export interface Artifacts2 {
+  [k: string]: string;
+}
+export interface GeometryWindow {
+  schema_version?: SchemaVersion51;
+  total: Total1;
+  offset: Offset1;
+  cameras?: Cameras;
+  hands?: Hands;
+  objects?: Objects;
+  relative?: Relative;
+  contacts?: Contacts;
+}
+export interface InteractionTrajectory {
+  schema_version?: SchemaVersion52;
+  video_id: VideoId13;
+  run_id: RunId8;
+  source_run_id: SourceRunId2;
+  task: Task1;
+  canonical_skill: CanonicalSkill1;
+  entities: Entities2;
+  action_graph: ActionGraph;
+  refined_actions: RefinedActions;
+  frames: Frames;
+  scale_mode?: ScaleMode2;
+  metric_scale_valid?: MetricScaleValid5;
+  quality: ReconstructionReport;
+}
+export interface InteractionFrame {
+  schema_version?: SchemaVersion53;
+  shot_id: ShotId10;
+  world_frame: WorldFrame3;
+  frame_index: FrameIndex9;
+  timestamp: Timestamp6;
+  camera_frame_index?: CameraFrameIndex;
+  hands: Hands1;
+  objects: Objects1;
+  contacts: Contacts1;
+  current_action_ids: CurrentActionIds;
+}
+export interface InteractionPose {
+  schema_version?: SchemaVersion54;
+  entity_id: EntityId6;
+  track_id: TrackId3;
+  pose: Pose3D | null;
+  origin: Origin4;
+  representation: Representation1;
 }

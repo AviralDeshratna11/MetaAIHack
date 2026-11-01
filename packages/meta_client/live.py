@@ -1,7 +1,8 @@
 import asyncio
-import dataclasses
 import json
+import math
 import random
+import re
 import time
 from pathlib import Path
 from typing import Protocol
@@ -36,8 +37,18 @@ def parse_sam_text(text: str):
 
 
 def sam_records(text, width, height):
+    # The parser validates boxes against their wire dimensions, but does not retain
+    # those dimensions in records. Check them before placing masks on our timeline.
+    for token in re.findall(r"<\|box;([^|]*)\|>", text):
+        fields = dict(part.split("=", 1) for part in token.split(";") if "=" in part)
+        if fields.get("w") != str(width) or fields.get("h") != str(height):
+            raise DomainError("E_SAM_COORDINATES", "Provider frame size differs from normalized video")
+    for h, w in re.findall(r";data=(\d+),(\d+),", text):
+        if int(h) * int(w) > 100_000_000:
+            raise DomainError("E_SAM_MASK", "Mask payload exceeds decode quota")
     parsed = parse_sam_text(text)
-    if parsed.outcome.status != "completed" or parsed.diagnostics:
+    if (parsed.outcome.status != "completed" or parsed.diagnostics
+            or any(rec.kind == "text" and rec.text.strip() for rec in parsed.records)):
         raise DomainError("E_SAM_PARSE", "SAM output incomplete or malformed; inspect raw provider output")
     records = []
     for rec in parsed.records:
@@ -148,9 +159,15 @@ class LiveProvider:
         file_id = self.upload(video, record)
         visual = [c for c in corrections if c["kind"] in ("point", "box")]
         if visual:
-            prompts = [FramePrompt(frame=c["frame_index"],
-                box=PromptBox(*c["bbox_xyxy"]) if c["kind"] == "box" else None,
-                points=[PromptPoint(*c["point"])] if c["kind"] == "point" else None) for c in visual]
+            frames = {}
+            for correction in visual:
+                frame = frames.setdefault(correction["frame_index"], {"box": None, "points": []})
+                if correction["kind"] == "box":
+                    x1, y1, x2, y2 = correction["bbox_xyxy"]
+                    frame["box"] = PromptBox(math.floor(x1), math.floor(y1), math.ceil(x2), math.ceil(y2))
+                else:
+                    frame["points"].append(PromptPoint(*(math.floor(v) for v in correction["point"])))
+            prompts = [FramePrompt(frame=index, **values) for index, values in sorted(frames.items())]
             prompt = build_object_prompt(size=(width, height), objects=[PromptObject(id=0, prompts=prompts)])
         payload = {"model": self.sam_model, "stream": False,
             "input": [{"role": "user", "content": [{"type": "input_text", "text": prompt},

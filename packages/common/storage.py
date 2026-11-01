@@ -1,4 +1,5 @@
 from pathlib import Path
+import hashlib
 
 import boto3
 from botocore.config import Config
@@ -41,12 +42,20 @@ class Storage:
                 raise DomainError("E_UPLOAD_MISSING", "Uploaded object not found", 409) from exc
             raise
 
-    def upload(self, path: Path, key: str, media_type: str):
+    def upload(self, path: Path, key: str, media_type: str, *, reuse_identical=False):
         # Conditional write ensures a run-scoped artifact is never overwritten.
-        with path.open("rb") as stream:
-            self.client.put_object(Bucket=self.bucket, Key=key, Body=stream,
-                                   ContentType=media_type, IfNoneMatch="*",
-                                   Metadata={"sha256": file_hash(path)})
+        try:
+            with path.open("rb") as stream:
+                self.client.put_object(Bucket=self.bucket, Key=key, Body=stream,
+                                       ContentType=media_type, IfNoneMatch="*",
+                                       Metadata={"sha256": file_hash(path)})
+        except ClientError as exc:
+            if not reuse_identical or str(exc.response["Error"]["Code"]) not in ("412", "PreconditionFailed"):
+                raise
+            # Recovery after an object write but before the DB commit may reuse
+            # identical bytes. Never replace an existing, different artifact.
+            if hashlib.sha256(self.read(key)).hexdigest() != file_hash(path):
+                raise DomainError("E_ARTIFACT_CONFLICT", "Existing immutable artifact has different content", 409) from exc
         head = self.client.head_object(Bucket=self.bucket, Key=key)
         if head["ContentLength"] != path.stat().st_size or head["Metadata"].get("sha256") != file_hash(path):
             raise DomainError("E_ARTIFACT_WRITE", "Stored artifact verification failed", 500)

@@ -24,8 +24,8 @@ from packages.schemas.api import (ArtifactsResponse, HealthResponse, JobDetail, 
                                   TracksResponse, UploadCompleteResponse, UploadResponse, VideoDetail, VideoListResponse)
 from packages.video.processing import probe
 
-app = FastAPI(title="Video-to-Robot-Data · Layer One", version="0.1.0",
-    description="Single-project local development API. Semantic plans and 2D perception only; no physical validation.",
+app = FastAPI(title="Video-to-Robot-Data · Perception and Interaction", version="0.2.0",
+    description="Single-project local API for semantic plans, 2D perception and relative 3D interaction hypotheses; no robot feasibility certification.",
     responses={422: {"model": ErrorResponse}, 409: {"model": ErrorResponse}})
 app.add_middleware(CORSMiddleware, allow_origins=[settings().web_origin], allow_methods=["*"], allow_headers=["*"])
 
@@ -59,7 +59,8 @@ def job_or_error(s, job_id):
 def job_view(job):
     return {"job_id": job.id, "video_id": job.video_id, "run_id": job.run_id, "status": job.status,
             "stage": job.stage, "inference_mode": job.mode, "error": job.error,
-            "source_job_id": job.source_job_id, "created_at": datetime.fromtimestamp(job.created_at, timezone.utc).isoformat()}
+            "source_job_id": job.source_job_id, "pipeline": job.config.get("pipeline", "perception"),
+            "created_at": datetime.fromtimestamp(job.created_at, timezone.utc).isoformat()}
 
 
 def run_config():
@@ -92,7 +93,7 @@ def artifact_for(video_id, run_id, name):
 
 @app.get("/health/live", response_model=HealthResponse)
 def health_live() -> dict:
-    return {"status": "ok", "inference_mode": settings().inference_mode, "scope": "2d_perception_only"}
+    return {"status": "ok", "inference_mode": settings().inference_mode, "scope": "perception_and_interaction_hypotheses"}
 
 
 @app.get("/health/ready", response_model=HealthResponse)
@@ -303,7 +304,7 @@ def corrections(video_id: str, body: Correction) -> dict:
     with transaction() as s:
         video = video_or_error(s, video_id, True)
         source = job_or_error(s, body.source_job_id)
-        if source.video_id != video_id or source.status not in ("COMPLETED", "NEEDS_REVIEW"):
+        if source.video_id != video_id or source.status not in ("COMPLETED", "NEEDS_REVIEW") or source.config.get("pipeline") == "reconstruction":
             raise DomainError("E_CORRECTION_SOURCE", "Correction source must be a completed run of this video", 409)
         if source.mode != settings().inference_mode:
             raise DomainError("E_CORRECTION_MODE", "Select the source run's inference mode before correcting it", 409)
@@ -317,6 +318,8 @@ def corrections(video_id: str, body: Correction) -> dict:
         if not shot or not shot["start_frame"] <= body.frame_index < shot["end_frame"] or body.entity_id not in {e["entity_id"] for e in plan["entities"]}:
             raise DomainError("E_CORRECTION_REFERENCE", "Invalid frame, shot, or entity reference")
         coords = [body.point] if body.point else []
+        if body.point and not (0 <= body.point[0] < manifest["width"] and 0 <= body.point[1] < manifest["height"]):
+            raise DomainError("E_CORRECTION_COORDINATES", "Point must lie inside normalized image pixels")
         if body.bbox_xyxy:
             coords += [body.bbox_xyxy[:2], body.bbox_xyxy[2:]]
         if any(not (0 <= p[0] <= manifest["width"] and 0 <= p[1] <= manifest["height"]) for p in coords):
@@ -336,3 +339,7 @@ def demo_source(background_tasks: BackgroundTasks):
     make_video(path)
     background_tasks.add_task(directory.cleanup)
     return FileResponse(path, media_type="video/mp4", filename="synthetic-fixture.mp4", background=background_tasks)
+
+
+from apps.api.reconstruction import router as reconstruction_router
+app.include_router(reconstruction_router)

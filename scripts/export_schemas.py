@@ -10,13 +10,19 @@ from packages.schemas.models import (ActionGraph, ArtifactManifest, Correction, 
     TrackFrame, TrackSummary, UploadRequest, VideoAsset, VideoManifest)
 from packages.schemas.api import (ArtifactsResponse, HealthResponse, JobDetail, JobView, TrackingReport,
     TracksResponse, UploadCompleteResponse, UploadResponse, VideoDetail, VideoListResponse)
+from packages.schemas.reconstruction import (ReconstructionRequest, ReconstructionConfig, Pose3D,
+    Alignment, CameraFrame, PoseFrame, RelativeFrame, ContactFrame, InteractionEvent, RefinedAction,
+    AffordancePatch, ReconstructionReport, LayerTwoHandoff, GeometryWindow, InteractionTrajectory)
 
 
 def main():
     types = Union[ActionGraph, ArtifactManifest, Correction, Entity, ErrorResponse, JobEvent,
         LayerOneHandoffManifest, ModelRun, ProcessRequest, Provenance, SemanticPlan, StageResult,
         TrackFrame, TrackSummary, UploadRequest, VideoAsset, VideoManifest, ArtifactsResponse, HealthResponse,
-        JobDetail, JobView, TrackingReport, TracksResponse, UploadCompleteResponse, UploadResponse, VideoDetail, VideoListResponse]
+        JobDetail, JobView, TrackingReport, TracksResponse, UploadCompleteResponse, UploadResponse, VideoDetail, VideoListResponse,
+        ReconstructionRequest, ReconstructionConfig, Pose3D, Alignment, CameraFrame, PoseFrame, RelativeFrame,
+        ContactFrame, InteractionEvent, RefinedAction, AffordancePatch, ReconstructionReport, LayerTwoHandoff,
+        GeometryWindow, InteractionTrajectory]
     schema = TypeAdapter(types).json_schema()
     schema["title"] = "Video2RobotContracts"
     content = json.dumps(schema, indent=2, ensure_ascii=False) + "\n"

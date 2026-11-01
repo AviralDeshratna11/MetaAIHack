@@ -63,7 +63,8 @@ class Recorder:
         self.last_id = model_id
         data = ModelRun(model_run_id=model_id, model=event["model"], stage=self.stage.stage,
             inference_mode=self.mode, input_hash=key, config_hash=digest(self.job.config),
-            prompt_hash=digest(PROMPT if self.stage.stage == "semantic_parsing" else "sam-concepts-v1"),
+            prompt_hash=digest(PROMPT if self.stage.stage == "semantic_parsing" else self.job.config.get("reconstruction", {})
+                              if self.stage.stage == "geometry" else "sam-concepts-v1"),
             status=status, request_id=event.get("request_id"), latency_ms=event.get("latency_ms"),
             usage=event.get("usage", {}), attempt=event.get("attempt", 1), error=event.get("error")).model_dump(mode="json")
         if "raw_output" in event:
@@ -145,9 +146,18 @@ def all_corrections(job):
             if row:
                 corrections.insert(0, row.data)
             current = s.get(Job, current.source_job_id) if current.source_job_id else None
-    # Latest correction of each kind wins, without mutating earlier model output.
-    latest = {(c["entity_id"], c["shot_id"], c["kind"]): c for c in corrections}
-    return list(latest.values())
+    # Keep anchors on different frames. A new visual prompt creates a new provider
+    # ID namespace, so an older association must not select its previous ordinal.
+    last_visual = {(c["entity_id"], c["shot_id"]): i for i, c in enumerate(corrections)
+                   if c["kind"] in ("point", "box")}
+    latest = {}
+    for i, correction in enumerate(corrections):
+        scope = (correction["entity_id"], correction["shot_id"])
+        if correction["kind"] == "association" and i < last_visual.get(scope, -1):
+            continue
+        key = (*scope, correction["kind"], correction["frame_index"] if correction["kind"] != "association" else None)
+        latest[key] = (i, correction)
+    return [correction for _, correction in sorted(latest.values(), key=lambda item: item[0])]
 
 
 def run_job(job_id):
@@ -173,6 +183,10 @@ def run_job(job_id):
             video = s.get(Video, job.video_id)
         if job.config["code_hash"] != code_hash():
             raise DomainError("E_CODE_CHANGED", "Compiler code changed after submission; create a new processing run to preserve provenance", 409)
+        if job.config.get("pipeline") == "reconstruction":
+            from workers.reconstruction import execute
+            execute(job, token, Storage())
+            return
         provider = FixtureProvider() if job.mode == "fixture" else LiveProvider(config=job.config)
         store = Storage()
         corrections = all_corrections(job)
@@ -239,7 +253,7 @@ def run_job(job_id):
             path = Path(tmp) / "handoff_manifest.json"
             path.write_text(handoff.model_dump_json(indent=2), encoding="utf-8")
             key = f"videos/{job.video_id}/runs/{job.run_id}/handoff_manifest.json"
-            store.upload(path, key, "application/json")
+            store.upload(path, key, "application/json", reuse_identical=True)
             manifest = ArtifactManifest(artifact_id=uid("art"), uri=key, sha256=file_hash(path), byte_count=path.stat().st_size,
                 media_type="application/json", stage="handoff", run_id=job.run_id, input_hashes=[video.sha256],
                 config_hash=digest(job.config), code_hash=job.config["code_hash"], created_at=now(), inference_mode=job.mode)

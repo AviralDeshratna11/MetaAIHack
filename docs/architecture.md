@@ -1,5 +1,9 @@
 # First-layer architecture
 
+The repository now also implements Module B. See [phase 2](phase-two.md) for the
+reconstruction, relative trajectories, contact fusion, ITR, API and GPU setup.
+This page describes the preserved first-layer contracts and infrastructure.
+
 This repository implements the foundation and Module A of the supplied blueprint,
 plus the durable orchestration subset of Module D. Its output is semantic plans
 and identity-aware **2D** perception, not robot actions or a physically validated dataset.

@@ -168,6 +168,186 @@
       "title": "ActionSegment",
       "type": "object"
     },
+    "AffordancePatch": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "object_id": {
+          "title": "Object Id",
+          "type": "string"
+        },
+        "hand_id": {
+          "title": "Hand Id",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "frame_index": {
+          "minimum": 0,
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "primitive": {
+          "const": "contact",
+          "default": "contact",
+          "title": "Primitive",
+          "type": "string"
+        },
+        "part_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Part Name"
+        },
+        "contact_patch_object_xyz": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "title": "Contact Patch Object Xyz",
+          "type": "array"
+        },
+        "approach_direction": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approach Direction"
+        },
+        "observed_grasp": {
+          "const": false,
+          "default": false,
+          "title": "Observed Grasp",
+          "type": "boolean"
+        },
+        "source": {
+          "enum": [
+            "estimated_surface_proximity",
+            "synthetic"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "object_id",
+        "hand_id",
+        "shot_id",
+        "frame_index",
+        "contact_patch_object_xyz",
+        "source"
+      ],
+      "title": "AffordancePatch",
+      "type": "object"
+    },
+    "Alignment": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "alignment_id": {
+          "title": "Alignment Id",
+          "type": "string"
+        },
+        "source_frame": {
+          "title": "Source Frame",
+          "type": "string"
+        },
+        "target_frame": {
+          "title": "Target Frame",
+          "type": "string"
+        },
+        "rotation": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "title": "Rotation",
+          "type": "array"
+        },
+        "translation": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Translation",
+          "type": "array"
+        },
+        "scale": {
+          "exclusiveMinimum": 0,
+          "title": "Scale",
+          "type": "number"
+        },
+        "rmse": {
+          "minimum": 0,
+          "title": "Rmse",
+          "type": "number"
+        },
+        "correspondence_count": {
+          "minimum": 3,
+          "title": "Correspondence Count",
+          "type": "integer"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "uncertainty": {
+          "default": "uncalibrated; correspondence residual only",
+          "title": "Uncertainty",
+          "type": "string"
+        }
+      },
+      "required": [
+        "alignment_id",
+        "source_frame",
+        "target_frame",
+        "rotation",
+        "translation",
+        "scale",
+        "rmse",
+        "correspondence_count",
+        "method"
+      ],
+      "title": "Alignment",
+      "type": "object"
+    },
     "Anchor": {
       "additionalProperties": false,
       "properties": {
@@ -493,6 +673,309 @@
       "title": "ArtifactsResponse",
       "type": "object"
     },
+    "CameraFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "frame_index": {
+          "minimum": 0,
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "timestamp": {
+          "minimum": 0,
+          "title": "Timestamp",
+          "type": "number"
+        },
+        "world_frame": {
+          "title": "World Frame",
+          "type": "string"
+        },
+        "intrinsic": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "title": "Intrinsic",
+          "type": "array"
+        },
+        "world_from_camera": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "title": "World From Camera",
+          "type": "array"
+        },
+        "image_width": {
+          "exclusiveMinimum": 0,
+          "title": "Image Width",
+          "type": "integer"
+        },
+        "image_height": {
+          "exclusiveMinimum": 0,
+          "title": "Image Height",
+          "type": "integer"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "estimated",
+            "synthetic"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "metric_scale_valid": {
+          "const": false,
+          "default": false,
+          "title": "Metric Scale Valid",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "video_id",
+        "shot_id",
+        "frame_index",
+        "timestamp",
+        "world_frame",
+        "intrinsic",
+        "world_from_camera",
+        "image_width",
+        "image_height",
+        "source",
+        "origin"
+      ],
+      "title": "CameraFrame",
+      "type": "object"
+    },
+    "ContactFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "frame_index": {
+          "minimum": 0,
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "timestamp": {
+          "minimum": 0,
+          "title": "Timestamp",
+          "type": "number"
+        },
+        "hand_id": {
+          "title": "Hand Id",
+          "type": "string"
+        },
+        "object_id": {
+          "title": "Object Id",
+          "type": "string"
+        },
+        "hand_track_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hand Track Id"
+        },
+        "object_track_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Track Id"
+        },
+        "state": {
+          "enum": [
+            "CONTACT",
+            "NO_CONTACT",
+            "CANDIDATE",
+            "UNKNOWN"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "probability": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Probability"
+        },
+        "probability_calibrated": {
+          "const": false,
+          "default": false,
+          "title": "Probability Calibrated",
+          "type": "boolean"
+        },
+        "distance_2d_px": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distance 2D Px"
+        },
+        "distance_3d_relative": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distance 3D Relative"
+        },
+        "geometry_age_s": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Geometry Age S"
+        },
+        "geometry_origin": {
+          "default": "missing",
+          "enum": [
+            "sampled",
+            "held",
+            "missing"
+          ],
+          "title": "Geometry Origin",
+          "type": "string"
+        },
+        "motion_coupling": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Motion Coupling"
+        },
+        "semantic_prior": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Semantic Prior"
+        },
+        "contact_points_object": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "title": "Contact Points Object",
+          "type": "array"
+        },
+        "evidence_origin": {
+          "enum": [
+            "estimated",
+            "synthetic",
+            "missing"
+          ],
+          "title": "Evidence Origin",
+          "type": "string"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "shot_id",
+        "frame_index",
+        "timestamp",
+        "hand_id",
+        "object_id",
+        "state",
+        "evidence_origin"
+      ],
+      "title": "ContactFrame",
+      "type": "object"
+    },
     "Correction": {
       "additionalProperties": false,
       "properties": {
@@ -751,6 +1234,66 @@
       "title": "ErrorResponse",
       "type": "object"
     },
+    "GeometryWindow": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "total": {
+          "title": "Total",
+          "type": "integer"
+        },
+        "offset": {
+          "title": "Offset",
+          "type": "integer"
+        },
+        "cameras": {
+          "items": {
+            "$ref": "#/$defs/CameraFrame"
+          },
+          "title": "Cameras",
+          "type": "array"
+        },
+        "hands": {
+          "items": {
+            "$ref": "#/$defs/PoseFrame"
+          },
+          "title": "Hands",
+          "type": "array"
+        },
+        "objects": {
+          "items": {
+            "$ref": "#/$defs/PoseFrame"
+          },
+          "title": "Objects",
+          "type": "array"
+        },
+        "relative": {
+          "items": {
+            "$ref": "#/$defs/RelativeFrame"
+          },
+          "title": "Relative",
+          "type": "array"
+        },
+        "contacts": {
+          "items": {
+            "$ref": "#/$defs/ContactFrame"
+          },
+          "title": "Contacts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "total",
+        "offset"
+      ],
+      "title": "GeometryWindow",
+      "type": "object"
+    },
     "HealthResponse": {
       "additionalProperties": false,
       "properties": {
@@ -794,6 +1337,308 @@
         "inference_mode"
       ],
       "title": "HealthResponse",
+      "type": "object"
+    },
+    "InteractionEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "frame_index": {
+          "minimum": 0,
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "timestamp": {
+          "minimum": 0,
+          "title": "Timestamp",
+          "type": "number"
+        },
+        "hand_id": {
+          "title": "Hand Id",
+          "type": "string"
+        },
+        "object_id": {
+          "title": "Object Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "contact_on",
+            "contact_off",
+            "grasp_candidate",
+            "release_candidate"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "validated_grasp": {
+          "const": false,
+          "default": false,
+          "title": "Validated Grasp",
+          "type": "boolean"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "event_id",
+        "shot_id",
+        "frame_index",
+        "timestamp",
+        "hand_id",
+        "object_id",
+        "kind",
+        "reasons"
+      ],
+      "title": "InteractionEvent",
+      "type": "object"
+    },
+    "InteractionFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "world_frame": {
+          "title": "World Frame",
+          "type": "string"
+        },
+        "frame_index": {
+          "minimum": 0,
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "timestamp": {
+          "minimum": 0,
+          "title": "Timestamp",
+          "type": "number"
+        },
+        "camera_frame_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Camera Frame Index"
+        },
+        "hands": {
+          "items": {
+            "$ref": "#/$defs/InteractionPose"
+          },
+          "title": "Hands",
+          "type": "array"
+        },
+        "objects": {
+          "items": {
+            "$ref": "#/$defs/InteractionPose"
+          },
+          "title": "Objects",
+          "type": "array"
+        },
+        "contacts": {
+          "items": {
+            "$ref": "#/$defs/ContactFrame"
+          },
+          "title": "Contacts",
+          "type": "array"
+        },
+        "current_action_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Current Action Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "shot_id",
+        "world_frame",
+        "frame_index",
+        "timestamp",
+        "hands",
+        "objects",
+        "contacts",
+        "current_action_ids"
+      ],
+      "title": "InteractionFrame",
+      "type": "object"
+    },
+    "InteractionPose": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "entity_id": {
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "track_id": {
+          "title": "Track Id",
+          "type": "string"
+        },
+        "pose": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pose3D"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "origin": {
+          "enum": [
+            "estimated",
+            "synthetic",
+            "missing"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "representation": {
+          "title": "Representation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "track_id",
+        "pose",
+        "origin",
+        "representation"
+      ],
+      "title": "InteractionPose",
+      "type": "object"
+    },
+    "InteractionTrajectory": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "source_run_id": {
+          "title": "Source Run Id",
+          "type": "string"
+        },
+        "task": {
+          "title": "Task",
+          "type": "string"
+        },
+        "canonical_skill": {
+          "title": "Canonical Skill",
+          "type": "string"
+        },
+        "entities": {
+          "items": {
+            "$ref": "#/$defs/Entity"
+          },
+          "title": "Entities",
+          "type": "array"
+        },
+        "action_graph": {
+          "$ref": "#/$defs/ActionGraph"
+        },
+        "refined_actions": {
+          "items": {
+            "$ref": "#/$defs/RefinedAction"
+          },
+          "title": "Refined Actions",
+          "type": "array"
+        },
+        "frames": {
+          "items": {
+            "$ref": "#/$defs/InteractionFrame"
+          },
+          "title": "Frames",
+          "type": "array"
+        },
+        "scale_mode": {
+          "const": "relative",
+          "default": "relative",
+          "title": "Scale Mode",
+          "type": "string"
+        },
+        "metric_scale_valid": {
+          "const": false,
+          "default": false,
+          "title": "Metric Scale Valid",
+          "type": "boolean"
+        },
+        "quality": {
+          "$ref": "#/$defs/ReconstructionReport"
+        }
+      },
+      "required": [
+        "video_id",
+        "run_id",
+        "source_run_id",
+        "task",
+        "canonical_skill",
+        "entities",
+        "action_graph",
+        "refined_actions",
+        "frames",
+        "quality"
+      ],
+      "title": "InteractionTrajectory",
       "type": "object"
     },
     "Interval": {
@@ -865,6 +1710,15 @@
             "live"
           ],
           "title": "Inference Mode",
+          "type": "string"
+        },
+        "pipeline": {
+          "default": "perception",
+          "enum": [
+            "perception",
+            "reconstruction"
+          ],
+          "title": "Pipeline",
           "type": "string"
         },
         "error": {
@@ -1023,6 +1877,15 @@
           "title": "Inference Mode",
           "type": "string"
         },
+        "pipeline": {
+          "default": "perception",
+          "enum": [
+            "perception",
+            "reconstruction"
+          ],
+          "title": "Pipeline",
+          "type": "string"
+        },
         "error": {
           "anyOf": [
             {
@@ -1145,6 +2008,89 @@
         "review_reasons"
       ],
       "title": "LayerOneHandoffManifest",
+      "type": "object"
+    },
+    "LayerTwoHandoff": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "source_run_id": {
+          "title": "Source Run Id",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "artifacts": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Artifacts",
+          "type": "object"
+        },
+        "ready_for_robotization": {
+          "title": "Ready For Robotization",
+          "type": "boolean"
+        },
+        "metric_scale_valid": {
+          "const": false,
+          "default": false,
+          "title": "Metric Scale Valid",
+          "type": "boolean"
+        },
+        "scale_mode": {
+          "const": "relative",
+          "default": "relative",
+          "title": "Scale Mode",
+          "type": "string"
+        },
+        "certification": {
+          "const": "interaction_hypotheses_only",
+          "default": "interaction_hypotheses_only",
+          "title": "Certification",
+          "type": "string"
+        },
+        "review_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Reasons",
+          "type": "array"
+        },
+        "coordinates": {
+          "default": "OpenCV camera x right y down z forward; shot-local world; quaternion xyzw; T_target_source",
+          "title": "Coordinates",
+          "type": "string"
+        }
+      },
+      "required": [
+        "video_id",
+        "run_id",
+        "source_run_id",
+        "inference_mode",
+        "artifacts",
+        "ready_for_robotization",
+        "review_reasons"
+      ],
+      "title": "LayerTwoHandoff",
       "type": "object"
     },
     "ModelRun": {
@@ -1457,6 +2403,281 @@
       "title": "ModelRunView",
       "type": "object"
     },
+    "Pose3D": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "position_xyz": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Position Xyz",
+          "type": "array"
+        },
+        "quaternion_xyzw": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 4,
+              "minItems": 4,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quaternion Xyzw"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "metric_scale_valid": {
+          "const": false,
+          "default": false,
+          "title": "Metric Scale Valid",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "position_xyz"
+      ],
+      "title": "Pose3D",
+      "type": "object"
+    },
+    "PoseFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "frame_index": {
+          "minimum": 0,
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "timestamp": {
+          "minimum": 0,
+          "title": "Timestamp",
+          "type": "number"
+        },
+        "entity_id": {
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "track_id": {
+          "title": "Track Id",
+          "type": "string"
+        },
+        "world_frame": {
+          "title": "World Frame",
+          "type": "string"
+        },
+        "pose": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pose3D"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "points_world": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "title": "Points World",
+          "type": "array"
+        },
+        "keypoint_names": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Keypoint Names",
+          "type": "array"
+        },
+        "keypoints_world": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "title": "Keypoints World",
+          "type": "array"
+        },
+        "linear_velocity": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Linear Velocity"
+        },
+        "angular_velocity": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Angular Velocity"
+        },
+        "projected_centroid": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Projected Centroid"
+        },
+        "reprojection_error_px": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reprojection Error Px"
+        },
+        "origin": {
+          "enum": [
+            "estimated",
+            "synthetic",
+            "missing"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "representation": {
+          "enum": [
+            "surface_centroid",
+            "wrist",
+            "point_tracks",
+            "missing"
+          ],
+          "title": "Representation",
+          "type": "string"
+        },
+        "orientation_status": {
+          "default": "unknown",
+          "enum": [
+            "unknown",
+            "pca_hypothesis",
+            "synthetic"
+          ],
+          "title": "Orientation Status",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "alignment_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alignment Id"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "video_id",
+        "shot_id",
+        "frame_index",
+        "timestamp",
+        "entity_id",
+        "track_id",
+        "world_frame",
+        "origin",
+        "representation",
+        "source"
+      ],
+      "title": "PoseFrame",
+      "type": "object"
+    },
     "Predicate": {
       "additionalProperties": false,
       "properties": {
@@ -1648,6 +2869,469 @@
         "counts"
       ],
       "title": "RLEMask",
+      "type": "object"
+    },
+    "ReconstructionConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "backend": {
+          "default": "fixture",
+          "enum": [
+            "fixture",
+            "vggt"
+          ],
+          "title": "Backend",
+          "type": "string"
+        },
+        "body_backend": {
+          "default": "none",
+          "enum": [
+            "none",
+            "sam3d"
+          ],
+          "title": "Body Backend",
+          "type": "string"
+        },
+        "sample_fps": {
+          "default": 5,
+          "exclusiveMinimum": 0,
+          "maximum": 10,
+          "title": "Sample Fps",
+          "type": "number"
+        },
+        "max_frames_per_shot": {
+          "default": 32,
+          "maximum": 96,
+          "minimum": 2,
+          "title": "Max Frames Per Shot",
+          "type": "integer"
+        },
+        "max_total_frames": {
+          "default": 96,
+          "maximum": 512,
+          "minimum": 2,
+          "title": "Max Total Frames",
+          "type": "integer"
+        },
+        "max_points_per_entity": {
+          "default": 256,
+          "maximum": 2048,
+          "minimum": 16,
+          "title": "Max Points Per Entity",
+          "type": "integer"
+        },
+        "contact_distance_2d_px": {
+          "default": 12,
+          "exclusiveMinimum": 0,
+          "title": "Contact Distance 2D Px",
+          "type": "number"
+        },
+        "contact_distance_3d_relative": {
+          "default": 0.04,
+          "exclusiveMinimum": 0,
+          "title": "Contact Distance 3D Relative",
+          "type": "number"
+        },
+        "contact_on": {
+          "default": 0.72,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Contact On",
+          "type": "number"
+        },
+        "contact_off": {
+          "default": 0.4,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Contact Off",
+          "type": "number"
+        },
+        "persistence_frames": {
+          "default": 3,
+          "maximum": 30,
+          "minimum": 2,
+          "title": "Persistence Frames",
+          "type": "integer"
+        },
+        "boundary_window_s": {
+          "default": 1.5,
+          "exclusiveMinimum": 0,
+          "maximum": 5,
+          "title": "Boundary Window S",
+          "type": "number"
+        },
+        "max_alignment_relative_rmse": {
+          "default": 0.08,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Max Alignment Relative Rmse",
+          "type": "number"
+        }
+      },
+      "title": "ReconstructionConfig",
+      "type": "object"
+    },
+    "ReconstructionReport": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_run_id": {
+          "title": "Source Run Id",
+          "type": "string"
+        },
+        "backend": {
+          "title": "Backend",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "scale_mode": {
+          "const": "relative",
+          "default": "relative",
+          "title": "Scale Mode",
+          "type": "string"
+        },
+        "metric_scale_valid": {
+          "const": false,
+          "default": false,
+          "title": "Metric Scale Valid",
+          "type": "boolean"
+        },
+        "world_frames": {
+          "items": {
+            "type": "string"
+          },
+          "title": "World Frames",
+          "type": "array"
+        },
+        "sampled_frames": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Sampled Frames",
+          "type": "array"
+        },
+        "camera_frames": {
+          "title": "Camera Frames",
+          "type": "integer"
+        },
+        "hand_pose_frames": {
+          "title": "Hand Pose Frames",
+          "type": "integer"
+        },
+        "object_pose_frames": {
+          "title": "Object Pose Frames",
+          "type": "integer"
+        },
+        "relative_pose_frames": {
+          "title": "Relative Pose Frames",
+          "type": "integer"
+        },
+        "contact_frames": {
+          "default": 0,
+          "title": "Contact Frames",
+          "type": "integer"
+        },
+        "contact_events": {
+          "default": 0,
+          "title": "Contact Events",
+          "type": "integer"
+        },
+        "reprojection_median_px": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reprojection Median Px"
+        },
+        "reprojection_metric": {
+          "default": "mask surface centroid versus 2D mask centroid; not independent 3D ground truth",
+          "title": "Reprojection Metric",
+          "type": "string"
+        },
+        "review_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Reasons",
+          "type": "array"
+        },
+        "physical_feasibility": {
+          "const": "not_evaluated",
+          "default": "not_evaluated",
+          "title": "Physical Feasibility",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_run_id",
+        "backend",
+        "inference_mode",
+        "world_frames",
+        "sampled_frames",
+        "camera_frames",
+        "hand_pose_frames",
+        "object_pose_frames",
+        "relative_pose_frames",
+        "review_reasons"
+      ],
+      "title": "ReconstructionReport",
+      "type": "object"
+    },
+    "ReconstructionRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_job_id": {
+          "title": "Source Job Id",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "config": {
+          "$ref": "#/$defs/ReconstructionConfig"
+        },
+        "allow_review_source": {
+          "default": false,
+          "title": "Allow Review Source",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_job_id",
+        "idempotency_key"
+      ],
+      "title": "ReconstructionRequest",
+      "type": "object"
+    },
+    "RefinedAction": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "primitive": {
+          "$ref": "#/$defs/Primitive"
+        },
+        "semantic_start_s": {
+          "minimum": 0,
+          "title": "Semantic Start S",
+          "type": "number"
+        },
+        "semantic_end_s": {
+          "minimum": 0,
+          "title": "Semantic End S",
+          "type": "number"
+        },
+        "refined_start_s": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Refined Start S"
+        },
+        "refined_end_s": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Refined End S"
+        },
+        "timing_source": {
+          "default": "semantic",
+          "enum": [
+            "semantic",
+            "contact_candidate"
+          ],
+          "title": "Timing Source",
+          "type": "string"
+        },
+        "evidence_event_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Event Ids",
+          "type": "array"
+        },
+        "review_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "action_id",
+        "primitive",
+        "semantic_start_s",
+        "semantic_end_s"
+      ],
+      "title": "RefinedAction",
+      "type": "object"
+    },
+    "RelativeFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0",
+          "default": "0.2.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "frame_index": {
+          "minimum": 0,
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "timestamp": {
+          "minimum": 0,
+          "title": "Timestamp",
+          "type": "number"
+        },
+        "world_frame": {
+          "title": "World Frame",
+          "type": "string"
+        },
+        "hand_id": {
+          "title": "Hand Id",
+          "type": "string"
+        },
+        "object_id": {
+          "title": "Object Id",
+          "type": "string"
+        },
+        "hand_track_id": {
+          "title": "Hand Track Id",
+          "type": "string"
+        },
+        "object_track_id": {
+          "title": "Object Track Id",
+          "type": "string"
+        },
+        "hand_in_object": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pose3D"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "relative_position_world_xyz": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Relative Position World Xyz"
+        },
+        "object_delta": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pose3D"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "origin": {
+          "enum": [
+            "estimated",
+            "synthetic",
+            "missing"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "shot_id",
+        "frame_index",
+        "timestamp",
+        "world_frame",
+        "hand_id",
+        "object_id",
+        "hand_track_id",
+        "object_track_id",
+        "origin"
+      ],
+      "title": "RelativeFrame",
       "type": "object"
     },
     "SemanticPlan": {
@@ -2717,6 +4401,51 @@
     },
     {
       "$ref": "#/$defs/VideoListResponse"
+    },
+    {
+      "$ref": "#/$defs/ReconstructionRequest"
+    },
+    {
+      "$ref": "#/$defs/ReconstructionConfig"
+    },
+    {
+      "$ref": "#/$defs/Pose3D"
+    },
+    {
+      "$ref": "#/$defs/Alignment"
+    },
+    {
+      "$ref": "#/$defs/CameraFrame"
+    },
+    {
+      "$ref": "#/$defs/PoseFrame"
+    },
+    {
+      "$ref": "#/$defs/RelativeFrame"
+    },
+    {
+      "$ref": "#/$defs/ContactFrame"
+    },
+    {
+      "$ref": "#/$defs/InteractionEvent"
+    },
+    {
+      "$ref": "#/$defs/RefinedAction"
+    },
+    {
+      "$ref": "#/$defs/AffordancePatch"
+    },
+    {
+      "$ref": "#/$defs/ReconstructionReport"
+    },
+    {
+      "$ref": "#/$defs/LayerTwoHandoff"
+    },
+    {
+      "$ref": "#/$defs/GeometryWindow"
+    },
+    {
+      "$ref": "#/$defs/InteractionTrajectory"
     }
   ],
   "title": "Video2RobotContracts"

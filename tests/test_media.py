@@ -60,3 +60,31 @@ def test_rotation_nonzero_pts_and_no_audio(tmp_path, monkeypatch):
     assert manifest.original["start_time"] >= 5
     mapping = pq.read_table(tmp_path / "out/frame_map.parquet").to_pylist()
     assert mapping[0]["timestamp"] == 0 and mapping[0]["source_timestamp"] >= 5
+
+
+def test_real_media_tracking_survives_missing_masks_and_preserves_uncertainty(tmp_path, monkeypatch):
+    from packages.meta_client.fixture import FixtureProvider, fixture_plan
+    from workers.perception.tracking import tracking
+
+    monkeypatch.setattr(settings(), "min_duration", .01)
+    source = tmp_path / "occlusion.mp4"
+    command([settings().ffmpeg, "-v", "error", "-f", "lavfi", "-i", "color=black:size=96x64:rate=15:duration=2",
+        "-vf", "drawbox=x=20:y=20:w=20:h=20:color=0xf58728:t=fill:enable='not(between(n,7,9))'",
+        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-y", str(source)])
+    normalized = tmp_path / "normalized"
+    manifest = normalize(source, normalized, "occlusion", 15)
+    mapping = pq.read_table(normalized / "frame_map.parquet").to_pylist()
+    class Recorder:
+        mode = "fixture"
+        last_id = "synthetic-model-run"
+        def __call__(self, event): pass
+    output = tmp_path / "tracking"
+    report = tracking(FixtureProvider(), normalized / manifest.normalized_ref, manifest,
+        fixture_plan(manifest.duration_s), mapping, output, "fixture-prefix", Recorder(), [])
+    rows = pq.read_table(output / "tracks.parquet").to_pylist()
+    mug = [row for row in rows if row["entity_id"] == "mug"]
+    assert len(mug) == manifest.frame_count == 30
+    assert all(not row["observed"] and row["bbox_xyxy"] is None for row in mug[7:10])
+    assert mug[10]["observed"] and mug[10]["identity_status"] == "unverified"
+    assert mug[10]["track_id"] != mug[6]["track_id"]
+    assert any("Unverified identity" in reason for reason in report["review_reasons"])

@@ -1,0 +1,180 @@
+{
+  "status": "passed_with_review",
+  "requested_inference_mode": "live",
+  "source": "data/golden/pouring.mp4",
+  "source_sha256": "c0e17bc6032da748510265ae402a6e70b0f49a3fac68e0c4b1becf23b5a2ff38",
+  "api_inference_mode": "live",
+  "checks": [
+    "real video upload",
+    "source size/checksum/media verification",
+    "live semantic contract",
+    "live track contracts",
+    "mask decoding",
+    "artifact SHA-256"
+  ],
+  "blockers": [],
+  "live_inference_submitted": true,
+  "video_id": "vid_0e0d03d1a36d4484a43af4c55dcce3c5",
+  "api": "http://localhost:58000",
+  "upload_status": "UPLOADED",
+  "job_id": "job_fe7954f243854e62b4ade49c16fab484",
+  "run_id": "run_5f85134e8d5a41afb8e03dee1e0ac277",
+  "job_status": "NEEDS_REVIEW",
+  "elapsed_s": 582.063,
+  "model_runs": [
+    {
+      "model": "files-api",
+      "status": "completed",
+      "request_id": "88d7edd7-2e02-4f28-a1c1-ce63faf4d277",
+      "usage": {},
+      "latency_ms": 6013,
+      "error": null
+    },
+    {
+      "model": "muse-spark-1.3",
+      "status": "completed",
+      "request_id": "0401d8a8-39a1-400f-9203-30cf6288a10d",
+      "usage": {
+        "input_tokens": 7745,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 7070,
+        "output_tokens_details": {
+          "reasoning_tokens": 5311
+        },
+        "total_tokens": 14815
+      },
+      "latency_ms": 42940,
+      "error": null
+    },
+    {
+      "model": "files-api",
+      "status": "completed",
+      "request_id": "8fb55eea-a0c5-4198-b87d-c86593a651c4",
+      "usage": {},
+      "latency_ms": 3942,
+      "error": null
+    },
+    {
+      "model": "sam-3.1",
+      "status": "completed",
+      "request_id": "54f8aebf-4d81-498e-9e3f-151a3b948bfb",
+      "usage": {
+        "input_tokens": 0,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 0,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 0,
+        "video_frames_processed": 343
+      },
+      "latency_ms": 17219,
+      "error": null
+    },
+    {
+      "model": "sam-3.1",
+      "status": "completed",
+      "request_id": "4b37a413-23b9-4ca9-8758-fe24b46c7bef",
+      "usage": {
+        "input_tokens": 0,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 0,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 0,
+        "video_frames_processed": 343
+      },
+      "latency_ms": 15749,
+      "error": null
+    },
+    {
+      "model": "sam-3.1",
+      "status": "completed",
+      "request_id": "b3211363-7acd-4f0e-ae6a-82bde287c76c",
+      "usage": {
+        "input_tokens": 0,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 0,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 0,
+        "video_frames_processed": 343
+      },
+      "latency_ms": 16717,
+      "error": null
+    },
+    {
+      "model": "sam-3.1",
+      "status": "completed",
+      "request_id": "51692218-ec6c-470e-a97b-145bcc84787c",
+      "usage": {
+        "input_tokens": 0,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 0,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 0,
+        "video_frames_processed": 343
+      },
+      "latency_ms": 15463,
+      "error": null
+    }
+  ],
+  "real_model_calls": 5,
+  "task": "Pour water from glass into bowl and stir contents with spoon",
+  "entities": [
+    "HAND_A",
+    "HAND_B",
+    "GLASS",
+    "BOWL",
+    "SPOON"
+  ],
+  "action_count": 6,
+  "track_rows": 3087,
+  "decoded_masks": 2474,
+  "artifact_count": 27,
+  "review_reasons": [
+    "HAND_A: associated measured coverage 0.0% below heuristic 80% gate",
+    "HAND_B: associated measured coverage 0.0% below heuristic 80% gate",
+    "GLASS: associated measured coverage 0.0% below heuristic 80% gate",
+    "BOWL: associated measured coverage 0.0% below heuristic 80% gate",
+    "SPOON: associated measured coverage 49.6% below heuristic 80% gate",
+    "Ambiguous semantic-to-track association",
+    "Unverified identity after missing observations",
+    "Mask area or motion anomalies require review",
+    "Stirring motion approximated with ROTATE primitive; no STIR primitive available",
+    "Timestamps are coarse semantic hypotheses",
+    "Liquid content described qualitatively without volume or force estimates"
+  ],
+  "ready_for_geometry": false,
+  "accuracy_metrics": "not_evaluated: independent annotations required",
+  "phase2_status": "not_run: configured GPU runtime and local checkpoints required",
+  "total_inference_requests_across_attempts": 7,
+  "total_pipeline_provider_requests_across_attempts": 11,
+  "actual_cost_usd": null,
+  "qualitative_inspection": {
+    "hand_frames": [
+      0,
+      75,
+      150,
+      225,
+      300
+    ],
+    "hand_overlay": "data/live-tests/live-hand-overlays.jpg",
+    "object_overlay": "data/live-tests/live-object-overlays.jpg",
+    "assessment": "Qualitative alignment visible; not independent ground truth or accuracy scores"
+  }
+}

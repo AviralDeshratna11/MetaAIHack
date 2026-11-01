@@ -2,12 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SemanticPlan, TrackFrame, LayerOneHandoffManifest } from "../generated/contracts";
+import ReconstructionPanel from "./reconstruction-panel";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:58000";
 const colors = ["#ef9b55", "#74c8ba", "#b6a1dc", "#d5bf66", "#8eb6da"];
 const stages = ["preprocessing", "semantic_parsing", "tracking"];
-const names: Record<string, string> = { preprocessing: "Normalize & inspect", semantic_parsing: "Understand actions", tracking: "Ground & track" };
-type Job = {job_id: string; run_id: string; status: string; stage: string | null; inference_mode: string; error?: {code: string; message: string}; stages?: {stage: string; status: string; attempt: number}[]};
+const phaseTwoStages = ["geometry", "interaction", "interaction_trajectory"];
+const stageHints: Record<string, string> = {preprocessing: "Source & canonical timeline", semantic_parsing: "Muse semantic parser", tracking: "SAM identity-aware masks", geometry: "Shot-local cameras, hands & objects", interaction: "Proximity, motion & persistence", interaction_trajectory: "Object-relative poses & refined timing"};
+const names: Record<string, string> = { preprocessing: "Normalize & inspect", semantic_parsing: "Understand actions", tracking: "Ground & track", geometry: "Reconstruct scene & hands", interaction: "Fuse contact evidence", interaction_trajectory: "Build interaction trajectory" };
+type Job = {job_id: string; run_id: string; status: string; stage: string | null; inference_mode: string; pipeline?: string; source_job_id?: string | null; error?: {code: string; message: string}; stages?: {stage: string; status: string; attempt: number}[]};
 type Video = {video_id: string; filename: string; status: string};
 type Artifact = {name: string; uri: string; url: string; byte_count: number; sha256: string; inference_mode: string};
 type RLE = {width: number; height: number; counts: number[]};
@@ -34,6 +37,7 @@ export default function Workspace() {
   const [dimensions, setDimensions] = useState({width: 640, height: 360, fps: 15});
   const [time, setTime] = useState(0);
   const [tracks, setTracks] = useState<Tracks>({tracks: [], masks: {}});
+  const [projection, setProjection] = useState<{entity_id: string; frame_index: number; projected_centroid: number[] | null}[]>([]);
   const [showMasks, setShowMasks] = useState(true);
   const [hidden, setHidden] = useState<string[]>([]);
   const [events, setEvents] = useState<string[]>([]);
@@ -73,7 +77,7 @@ export default function Workspace() {
 
   const openVideo = useCallback(async (video: Video) => {
     generation.current++;
-    setSelected(video); setPlan(null); setHandoff(null); setMedia(""); setArtifacts([]); setTracks({tracks: [], masks: {}});
+    setSelected(video); setPlan(null); setHandoff(null); setMedia(""); setArtifacts([]); setTracks({tracks: [], masks: {}}); setProjection([]);
     setTime(0); setEvents([]); setError(""); setHidden([]); setJob(null);
     const details = await api<{jobs: Job[]; source_url: string}>(`/v1/videos/${video.video_id}`);
     const run = details.jobs[0];
@@ -165,7 +169,12 @@ export default function Workspace() {
         ctx.fillText(`${track.entity_id} · ${track.provider_track_id ?? "?"}`, x1, Math.max(14, y1 - 6));
       }
     });
-  }, [tracks, frame, plan, showMasks, hidden]);
+    projection.filter(p => p.frame_index === frame && p.projected_centroid && !hidden.includes(p.entity_id)).forEach(p => {
+      const [x, y] = p.projected_centroid!;
+      ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x-7, y); ctx.lineTo(x+7, y); ctx.moveTo(x, y-7); ctx.lineTo(x, y+7); ctx.stroke();
+    });
+  }, [tracks, frame, plan, showMasks, hidden, projection]);
 
   async function upload(file: File, synthetic = false) {
     setBusy("Checking & uploading video…"); setError("");
@@ -233,21 +242,21 @@ export default function Workspace() {
       <div className="video-list">{videos.map(video => <button className={selected?.video_id === video.video_id ? "video-link selected" : "video-link"} key={video.video_id} onClick={() => openVideo(video).catch(e => setError(e.message))}>
         <span className="file-icon">▷</span><span>{video.filename}<small>{video.status.replaceAll("_", " ")}</small></span>
       </button>)}{!videos.length && <p className="muted empty-list">Your uploaded clips will appear here.</p>}</div>
-      <div className="sidebar-bottom"><span className="status-dot" /> Local project<small>Schema 0.1.0 · first layer</small></div>
+      <div className="sidebar-bottom"><span className="status-dot" /> Local project<small>Perception 0.1 · interaction 0.2</small></div>
     </aside>
 
     <main>
       <header className="topbar"><div><span className="muted">Compiler</span><span className="slash">/</span>Video understanding</div><span className={`mode ${mode === "fixture" ? "fixture" : ""}`}><span />{mode === "fixture" ? "FIXTURE MODE" : mode.toUpperCase()}</span></header>
-      <div className="page-heading"><div><div className="eyebrow">FROM VIDEO TO STRUCTURED EVIDENCE</div><h1>Understand. Ground. Track.</h1><p>Turn a manipulation video into an inspectable action plan and persistent entity tracks.</p></div><button className="primary" onClick={() => inputRef.current?.click()} disabled={!!busy}>＋ Upload video</button></div>
+      <div className="page-heading"><div><div className="eyebrow">FROM VIDEO TO STRUCTURED EVIDENCE</div><h1>Understand. Track. Reconstruct.</h1><p>Inspect semantic plans, persistent tracks, relative 3D trajectories, and contact evidence.</p></div><button className="primary" onClick={() => inputRef.current?.click()} disabled={!!busy}>＋ Upload video</button></div>
       <input aria-label="Upload video file" ref={inputRef} type="file" accept="video/mp4,video/quicktime" hidden onChange={e => e.target.files?.[0] && upload(e.target.files[0])} />
       {mode === "fixture" && <div className="fixture-banner"><span className="badge-icon">◇</span><div><strong>Offline fixture workspace</strong><span>Synthetic outputs test the pipeline. They are not real model predictions or benchmark evidence.</span></div><button onClick={demo} disabled={!!busy}>Run synthetic demo <span>↗</span></button></div>}
       {error && <div role="alert" className="error">{error}<button aria-label="Dismiss error" onClick={() => setError("")}>×</button></div>}
       {busy && <div role="status" className="busy"><span className="spinner" />{busy}</div>}
 
-      <div className="pipeline">{stages.map((stage, i) => {
+      <div className="pipeline">{(job?.pipeline === "reconstruction" ? phaseTwoStages : stages).map((stage, i) => {
         const complete = job?.stages?.some(s => s.stage === stage && s.status === "COMPLETED") || (!!handoff);
         const running = job?.stage === stage && !terminal;
-        return <div key={stage} className={`pipeline-stage ${complete ? "done" : running ? "running" : ""}`}><span className="step-number">{complete ? "✓" : `0${i + 1}`}</span><div>{names[stage]}<small>{complete ? "Artifacts available" : running ? "Processing" : ["Source & canonical timeline", "Muse semantic parser", "SAM identity-aware masks"][i]}</small></div>{i < 2 && <span className="step-arrow">→</span>}</div>;
+        return <div key={stage} className={`pipeline-stage ${complete ? "done" : running ? "running" : ""}`}><span className="step-number">{complete ? "✓" : `0${i + 1}`}</span><div>{names[stage]}<small>{complete ? "Artifacts available" : running ? "Processing" : stageHints[stage]}</small></div>{i < 2 && <span className="step-arrow">→</span>}</div>;
       })}</div>
 
       <div className="content-grid"><section className="viewer card">
@@ -276,7 +285,9 @@ export default function Workspace() {
 
       <div className="bottom-grid"><section className="card status-card"><div className="card-head"><div><span className="section-number">03</span> RUN STATUS</div><span className={`status-pill ${job?.status === "FAILED" ? "failed" : ""}`}>{job?.status.replaceAll("_", " ") || "AWAITING VIDEO"}</span></div><div className="status-body"><div className="status-text"><strong>{job ? `${job.inference_mode === "fixture" ? "Synthetic" : "Live"} perception run` : "Ready for your first clip"}</strong><p>{job?.error ? `${job.error.code}: ${job.error.message}` : events.at(-1) || "The original video is preserved. Every stage produces versioned artifacts."}</p>{job && <code>{job.run_id}</code>}</div>{job?.status === "FAILED" && <button onClick={() => jobAction("retry")}>Retry failed stage</button>}{job && !terminal && <button onClick={() => jobAction("cancel")}>Cancel run</button>}</div></section>
       <section className="card handoff-card"><div className="card-head"><div><span className="section-number">04</span> GEOMETRY HANDOFF</div><span className="mono">v0.1.0</span></div><div className="handoff-body"><div className={`handoff-icon ${handoff?.ready_for_geometry ? "ready" : ""}`}>↗</div><div><strong>{handoff ? handoff.ready_for_geometry ? "Ready for reconstruction" : "Review required" : "A clear boundary to the next layer"}</strong><p>{handoff ? handoff.review_reasons[0] || "Validated 2D artifacts are available." : "Semantic plan + tracks + masks + source timeline."}</p><small>2D perception only · metric scale unvalidated</small></div></div></section></div>
-      {handoff && plan && <details className="corrections card"><summary>Correct an entity grounding <span>Creates a new run; preserves original output</span></summary><div className="correction-tools"><label>Entity<select value={correctionEntity} onChange={e => setCorrectionEntity(e.target.value)}><option value="">Choose entity</option>{plan.entities.map(e => <option key={e.entity_id} value={e.entity_id}>{e.semantic_name}</option>)}</select></label><label>Prompt<select value={correctionKind} onChange={e => setCorrectionKind(e.target.value as "point" | "box")}><option value="point">Positive point</option><option value="box">Bounding box</option></select></label><p>{mode === "fixture" ? "Fixture color masks do not respond to visual prompts. This tests correction lineage; live mode uses the SAM prompt." : "Pause the video, select an entity, then click or drag on the image."}</p></div></details>}
+      {selected && job && plan && <ReconstructionPanel videoId={selected.video_id} run={job} time={time} fps={dimensions.fps}
+        onProjection={setProjection} onStarted={run => {setJob({...run, stage: null}); setHandoff(null); setEvents([]); setProjection([]);}} />}
+      {handoff && plan && job?.pipeline !== "reconstruction" && <details className="corrections card"><summary>Correct an entity grounding <span>Creates a new run; preserves original output</span></summary><div className="correction-tools"><label>Entity<select value={correctionEntity} onChange={e => setCorrectionEntity(e.target.value)}><option value="">Choose entity</option>{plan.entities.map(e => <option key={e.entity_id} value={e.entity_id}>{e.semantic_name}</option>)}</select></label><label>Prompt<select value={correctionKind} onChange={e => setCorrectionKind(e.target.value as "point" | "box")}><option value="point">Positive point</option><option value="box">Bounding box</option></select></label><p>{mode === "fixture" ? "Fixture color masks do not respond to visual prompts. This tests correction lineage; live mode uses the SAM prompt." : "Pause the video, select an entity, then click or drag on the image."}</p></div></details>}
       <footer><span>VIDEO2ROBOT / FIRST LAYER</span><span>Semantics → persistent perception → reconstruction</span></footer>
     </main>
   </div>;

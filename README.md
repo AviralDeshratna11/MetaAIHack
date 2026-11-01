@@ -1,9 +1,17 @@
-# Video2Robot — first-layer compiler
+# Video2Robot — perception and interaction compiler
+
+**Phase 2 is available:** hand/scene 3D, object-relative trajectories, contact
+evidence and a versioned interaction trajectory. After a perception run finishes,
+click **Run phase 2** in the inspection workspace. The fixture path runs on CPU;
+the live path uses separately configured VGGT and optional SAM 3D Body weights.
+See [phase 2 architecture and setup](docs/phase-two.md) and run
+`python -m scripts.smoke_reconstruction` for the complete offline acceptance flow.
 
 Upload short manipulation footage, normalize its timeline, parse semantic actions
 with Muse and ground/track entities with SAM. Inspect the source, action intervals,
-masks, identities and provenance, then hand versioned artifacts to the future 3D
-module. This layer does not generate robot actions or physically validate data.
+masks, identities and provenance, then run the reconstruction layer for relative
+geometry and interaction hypotheses. Neither layer generates robot actions or
+physically validates data.
 
 The default **fixture mode** is entirely offline with respect to Meta. It uses a
 generated shape video, fixed synthetic semantics and deterministic fixture-color
@@ -112,10 +120,13 @@ clip is the first bounded live test; the default budget is 16 requests including
 uploads/retries. Usage is recorded, while cost is null until known. Do not run a
 benchmark batch before the first live test is inspected.
 
-Real golden sources are currently marked `missing_source`; see the recording
-checklist and importer. No real benchmark metrics are claimed. The optional DINO
-re-identification, local GPU SAM, geometry, contact, ITR, robotization and dataset
-export stages are outside this implementation.
+A real pouring/stirring clip is registered and a live Muse/SAM test completed with
+association review required; see `docs/verification.md`. Six other sources remain
+`missing_source`. No annotated real benchmark metrics are claimed. Optional DINO
+re-identification, local GPU SAM segmentation, robotization and dataset export
+remain outside this implementation. Geometry, contact hypotheses and ITR are
+implemented in [phase 2](docs/phase-two.md), with GPU model execution awaiting
+runtime/checkpoint configuration and real-video acceptance.
 
 ## Stop
 

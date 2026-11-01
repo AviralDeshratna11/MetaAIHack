@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "inference_mode": "fixture",
+  "real_model_calls": 0,
+  "video_id": "vid_092e794fcbcd4f9c998aebe7a45c7e16",
+  "job_id": "job_1e954ba36144432c9e5c861226f6d1dc",
+  "run_id": "run_a12b95d5a82a4208aeccc44345d979e9",
+  "source": "generated shapes; no human demonstration",
+  "artifact_count": 19,
+  "track_rows": 540,
+  "entity_count": 3,
+  "elapsed_processing_s": 21.844,
+  "checks": [
+    "real FFmpeg",
+    "real PostgreSQL",
+    "real Redis/RQ",
+    "real MinIO",
+    "presigned conditional upload",
+    "checksum verification",
+    "idempotent submission",
+    "artifact hashes",
+    "mask decoding",
+    "persisted SSE",
+    "handoff gate",
+    "correction lineage",
+    "upstream cache reuse",
+    "downstream invalidation",
+    "source run immutability",
+    "cancellation"
+  ]
+}

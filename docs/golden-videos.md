@@ -1,7 +1,15 @@
 # Recording and annotating real golden clips
 
-No real golden media was supplied with the architecture. All three live acceptance
-clips and the challenge cases are `missing_source` in `eval/golden/manifest.json`.
+A real pouring clip is now available: Pexels video 6901293 by Mikhail Nilov,
+downloaded on 2026-11-01 and registered under `pouring` with its source URL,
+license URL, SHA-256 and 22.88-second duration. It shows pouring from a glass into
+a ceramic bowl followed by stirring, with both hands visible. It is unannotated
+stock footage, not a verified mug pick/pour/return benchmark. The other six sources
+remain missing. A live Muse/SAM run completed with association/continuity review
+required; see `eval/reports/live-smoke.json`. No annotated accuracy score is claimed.
+
+No real golden media was supplied with the architecture. Source availability is
+tracked explicitly in `eval/golden/manifest.json`.
 Synthetic shape videos exercise infrastructure only; their fixed action sequence
 does not prove that Muse understands human demonstrations.
 

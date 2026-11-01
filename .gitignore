@@ -12,6 +12,10 @@ data/
 tmp/
 eval/reports/*
 !eval/reports/.gitkeep
+!eval/reports/live-smoke.json
+!eval/reports/live-smoke-first-attempt.json
+!eval/reports/phase2-smoke.json
+!eval/reports/offline-smoke-2026-11-01.json
 *.egg-info/
 *.tsbuildinfo
 coverage/

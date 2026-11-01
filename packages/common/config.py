@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     meta_base_url: str = "https://api.meta.ai/v1"
     muse_model: str = "muse-spark-1.3"
     sam_model: str = "sam-3.1"
+    geometry_python: str = ""
+    vggt_checkpoint: str = ""
+    sam3d_body_checkpoint: str = ""
+    sam3d_mhr_path: str = ""
     ffmpeg: str = "ffmpeg"
     ffprobe: str = "ffprobe"
     processing_fps: int = 15
