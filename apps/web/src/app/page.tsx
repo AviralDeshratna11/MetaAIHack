@@ -29,6 +29,7 @@ export default function Workspace() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [selected, setSelected] = useState<Video | null>(null);
   const [job, setJob] = useState<Job | null>(null);
+  const [runHistory, setRunHistory] = useState<Job[]>([]);
   const [mode, setMode] = useState("connecting");
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
@@ -61,18 +62,21 @@ export default function Workspace() {
   useEffect(() => { refresh().catch(e => setError("Backend unavailable. Start Docker Compose, then reload. " + e.message)); }, [refresh]);
 
   const loadResults = useCallback(async (video: Video, run: Job) => {
+    const current = generation.current;
     const suffix = `?run_id=${run.run_id}`;
     const [all, semantics, result] = await Promise.all([
       api<{artifacts: Artifact[]}>(`/v1/videos/${video.video_id}/artifacts${suffix}`),
       api<SemanticPlan>(`/v1/videos/${video.video_id}/actions${suffix}`),
       api<LayerOneHandoffManifest>(`/v1/videos/${video.video_id}/handoff${suffix}`),
     ]);
+    if (current !== generation.current) return;
     setArtifacts(all.artifacts); setPlan(semantics); setHandoff(result);
     const normalized = all.artifacts.find(a => a.name === "video_720p_15fps.mp4");
     const manifest = all.artifacts.find(a => a.name === "manifest.json");
     if (normalized) setMedia(normalized.url);
     if (manifest) {
       const info = await fetch(manifest.url).then(r => r.json());
+      if (current !== generation.current) return;
       setDimensions({width: info.width, height: info.height, fps: info.fps_num / info.fps_den});
     }
   }, []);
@@ -80,15 +84,36 @@ export default function Workspace() {
   const openVideo = useCallback(async (video: Video) => {
     generation.current++;
     setSelected(video); setPlan(null); setHandoff(null); setMedia(""); setArtifacts([]); setTracks({tracks: [], masks: {}}); setProjection([]);
-    setTime(0); setEvents([]); setError(""); setHidden([]); setJob(null);
+    setTime(0); setEvents([]); setError(""); setHidden([]); setJob(null); setRunHistory([]); setCorrectionEntity("");
     const details = await api<{jobs: Job[]; source_url: string}>(`/v1/videos/${video.video_id}`);
     const run = details.jobs[0];
+    setRunHistory(details.jobs);
     if (details.source_url) setMedia(details.source_url);
     if (run) {
       setJob(run);
       if (["COMPLETED", "NEEDS_REVIEW"].includes(run.status)) await loadResults(video, run);
     }
   }, [loadResults]);
+
+  useEffect(() => {
+    if (!selected) return;
+    const abort = new AbortController();
+    api<{jobs: Job[]}>(`/v1/videos/${selected.video_id}`, {signal: abort.signal})
+      .then(details => setRunHistory(details.jobs)).catch(e => {if (e.name !== "AbortError") setError(e.message);});
+    return () => abort.abort();
+  }, [selected?.video_id, job?.job_id, job?.status]);
+
+  async function selectRun(runId: string) {
+    if (!selected) return;
+    const run = runHistory.find(r => r.run_id === runId);
+    if (!run) return;
+    generation.current++;
+    setJob(run); setPlan(null); setHandoff(null); setArtifacts([]); setTracks({tracks: [], masks: {}});
+    setProjection([]); setEvents([]); setError(""); setHidden([]); setCorrectionEntity("");
+    if (["COMPLETED", "NEEDS_REVIEW"].includes(run.status)) {
+      try { await loadResults(selected, run); } catch (e) {setError((e as Error).message);}
+    }
+  }
 
   useEffect(() => {
     if (!job || !selected || ["COMPLETED", "NEEDS_REVIEW", "FAILED", "CANCELLED"].includes(job.status)) return;
@@ -115,7 +140,7 @@ export default function Workspace() {
   const frame = Math.max(0, Math.min(Math.floor(time * dimensions.fps + .001), plan ? Math.round(plan.duration_s * dimensions.fps) - 1 : Infinity));
   const trackWindow = Math.floor(frame / dimensions.fps);
   useEffect(() => {
-    if (!selected || !job || !handoff) return;
+    if (!selected || !job || !handoff || !["COMPLETED", "NEEDS_REVIEW"].includes(job.status)) return;
     const abort = new AbortController();
     const load = async (window: number) => {
       const key = `${job.run_id}/${window}`;
@@ -254,6 +279,14 @@ export default function Workspace() {
       {mode === "fixture" && <div className="fixture-banner"><span className="badge-icon">◇</span><div><strong>Offline fixture workspace</strong><span>Synthetic outputs test the pipeline. They are not real model predictions or benchmark evidence.</span></div><button onClick={demo} disabled={!!busy}>Run synthetic demo <span>↗</span></button></div>}
       {error && <div role="alert" className="error">{error}<button aria-label="Dismiss error" onClick={() => setError("")}>×</button></div>}
       {busy && <div role="status" className="busy"><span className="spinner" />{busy}</div>}
+
+      {selected && runHistory.length > 0 && <section className="card" style={{padding: 20, marginBottom: 20}} aria-label="Processing run history">
+        <label>Selected run <select aria-label="Selected processing run" value={job?.run_id || ""} disabled={!!busy}
+          onChange={e => {void selectRun(e.target.value);}} style={{maxWidth: "100%"}}>
+          {runHistory.map(r => <option key={r.run_id} value={r.run_id}>{r.pipeline === "robotization" ? "Phase 3 — robotization" : r.pipeline === "reconstruction" ? "Phase 2 — reconstruction" : "Phase 1 — perception"} · {r.status} · {r.run_id}</option>)}
+        </select></label>
+        <p>To correct hand or object identities, select a finished Phase 1 — perception run, then expand “Correct an entity grounding” below.</p>
+      </section>}
 
       <div className="pipeline">{(job?.pipeline === "robotization" ? phaseThreeStages : job?.pipeline === "reconstruction" ? phaseTwoStages : stages).map((stage, i) => {
         const complete = job?.stages?.some(s => s.stage === stage && s.status === "COMPLETED") || (!!handoff && terminal);
