@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Union
 
 from pydantic import TypeAdapter
+from packages.schemas.robotization import (Calibration, RobotizationConfig, RobotizationRequest,
+    RobotFrame, RobotTrajectory, QualityReport, RobotizationHandoff)
 
 from packages.schemas.models import (ActionGraph, ArtifactManifest, Correction, Entity, ErrorResponse,
     JobEvent, LayerOneHandoffManifest, ModelRun, ProcessRequest, Provenance, SemanticPlan, StageResult,
@@ -22,7 +24,8 @@ def main():
         JobDetail, JobView, TrackingReport, TracksResponse, UploadCompleteResponse, UploadResponse, VideoDetail, VideoListResponse,
         ReconstructionRequest, ReconstructionConfig, Pose3D, Alignment, CameraFrame, PoseFrame, RelativeFrame,
         ContactFrame, InteractionEvent, RefinedAction, AffordancePatch, ReconstructionReport, LayerTwoHandoff,
-        GeometryWindow, InteractionTrajectory]
+        GeometryWindow, InteractionTrajectory, Calibration, RobotizationConfig, RobotizationRequest,
+        RobotFrame, RobotTrajectory, QualityReport, RobotizationHandoff]
     schema = TypeAdapter(types).json_schema()
     schema["title"] = "Video2RobotContracts"
     content = json.dumps(schema, indent=2, ensure_ascii=False) + "\n"

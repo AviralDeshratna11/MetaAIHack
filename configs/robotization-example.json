@@ -1,0 +1,13 @@
+{
+  "hand_id": "HAND_A",
+  "object_id": "GLASS",
+  "shot_id": "shot_000",
+  "start_s": 0,
+  "end_s": 5,
+  "calibration": {
+    "mode": "workspace_adaptation",
+    "evidence": "Exploratory robot workspace adaptation; original dimensions unmeasured"
+  },
+  "initial_gripper": "unknown",
+  "diagnostic_export": true
+}

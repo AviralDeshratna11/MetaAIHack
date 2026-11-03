@@ -14,7 +14,7 @@ from packages.common.utils import DomainError
 from packages.geometry.providers import provider_fingerprint
 from packages.schemas.api import JobView
 from packages.schemas.reconstruction import (GeometryWindow, LayerTwoHandoff, ReconstructionReport,
-    ReconstructionRequest, RefinedAction)
+    ReconstructionRequest, ReconstructionConfig, RefinedAction)
 
 router = APIRouter()
 
@@ -25,12 +25,12 @@ def reconstruct_video(video_id: str, body: ReconstructionRequest):
     with transaction() as session:
         video = video_or_error(session, video_id, True)
         source = job_or_error(session, body.source_job_id)
-        if source.video_id != video_id or source.status not in ("COMPLETED", "NEEDS_REVIEW") or source.config.get("pipeline") == "reconstruction":
+        if source.video_id != video_id or source.status not in ("COMPLETED", "NEEDS_REVIEW") or source.config.get("pipeline", "perception") != "perception":
             raise DomainError("E_RECONSTRUCTION_SOURCE", "Select a finished layer-one run of this video", 409)
         key = "phase2:" + body.idempotency_key
         existing = session.scalar(select(Job).where(Job.video_id == video_id, Job.idempotency_key == key))
         if existing:
-            original = existing.config["reconstruction"]
+            original = {**ReconstructionConfig().model_dump(), **existing.config["reconstruction"]}
             if existing.source_job_id != source.id or any(original.get(k) != v for k, v in body.config.model_dump().items()):
                 raise DomainError("E_IDEMPOTENCY_CONFLICT", "This key already selected a different reconstruction configuration", 409)
             return job_view(existing)

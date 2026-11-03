@@ -25,8 +25,12 @@ STAGES = ("preprocessing", "semantic_parsing", "tracking")
 
 def code_hash():
     roots = [Path("packages"), Path("workers"), Path("apps/api")]
-    sources = {str(p): file_hash(p) for root in roots for p in sorted(root.rglob("*.py"))}
+    sources = {p.as_posix(): file_hash(p) for root in roots for p in sorted(root.rglob("*.py"))}
     sources["requirements.lock"] = file_hash(Path("requirements.lock"))
+    for name in ("requirements-robot.txt", "requirements-lerobot.txt", "infra/Robot.Dockerfile", "compose.robot.yaml",
+                 "requirements-geometry.txt", "requirements-geometry-body.txt", "compose.geometry.yaml"):
+        if Path(name).is_file():
+            sources[name] = file_hash(Path(name))
     return digest(sources)
 
 
@@ -185,6 +189,10 @@ def run_job(job_id):
             raise DomainError("E_CODE_CHANGED", "Compiler code changed after submission; create a new processing run to preserve provenance", 409)
         if job.config.get("pipeline") == "reconstruction":
             from workers.reconstruction import execute
+            execute(job, token, Storage())
+            return
+        if job.config.get("pipeline") == "robotization":
+            from workers.robotization import execute
             execute(job, token, Storage())
             return
         provider = FixtureProvider() if job.mode == "fixture" else LiveProvider(config=job.config)

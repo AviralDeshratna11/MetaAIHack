@@ -1,0 +1,72 @@
+{
+  "status": "configured_and_integrity_verified",
+  "python": "3.11.13",
+  "packages": {
+    "torch": "2.5.1+cu121",
+    "torchvision": "0.20.1+cu121",
+    "numpy": "1.26.4",
+    "vggt": "0.0.1",
+    "pytorch-lightning": "2.5.1",
+    "timm": "1.0.15",
+    "accelerate": "1.10.1"
+  },
+  "body_version": "1.0.0",
+  "cuda_available": true,
+  "gpu": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+  "gpu_memory_bytes": 4294443008,
+  "checkpoints": {
+    "vggt": {
+      "repo": "facebook/VGGT-1B",
+      "revision": "860abec7937da0a4c03c41d3c269c366e82abdf9",
+      "files": {
+        "model.pt": {
+          "sha256": "d15bf50a8615c8225ed48b51ea5cac673d82442ec0309036df555a053253afe0",
+          "bytes": 5026874952,
+          "upstream_lfs_sha256": "d15bf50a8615c8225ed48b51ea5cac673d82442ec0309036df555a053253afe0"
+        },
+        "config.json": {
+          "sha256": "a73e929a168b900546a84fe88cd70dfaaf2f8e39cf77355b12984eaa686f3855",
+          "bytes": 62,
+          "upstream_lfs_sha256": null
+        },
+        "README.md": {
+          "sha256": "d666ecaba89db88cb66bf06db6daddfdc2400e13f2a39e39c84e888b27fbc615",
+          "bytes": 2060,
+          "upstream_lfs_sha256": null
+        }
+      }
+    },
+    "body": {
+      "repo": "facebook/sam-3d-body-dinov3",
+      "revision": "11aaa346c7204874a1cbafe3d39a979080b2c55a",
+      "files": {
+        "model.ckpt": {
+          "sha256": "b5a2f9d305dd02626b967aa2e86021fba07065df66ce7a7e00ffb9664f150abf",
+          "bytes": 2109129346,
+          "upstream_lfs_sha256": "b5a2f9d305dd02626b967aa2e86021fba07065df66ce7a7e00ffb9664f150abf"
+        },
+        "model_config.yaml": {
+          "sha256": "1012fc3f39cb5e90e3f8fbadf7bded31604bfafdce0321d17a7c1a2d3f08b88d",
+          "bytes": 1488,
+          "upstream_lfs_sha256": null
+        },
+        "assets/mhr_model.pt": {
+          "sha256": "352e271a6c42729c68554ceaea0c955e866970160c31e35506d782dc0f7377bc",
+          "bytes": 696110248,
+          "upstream_lfs_sha256": "352e271a6c42729c68554ceaea0c955e866970160c31e35506d782dc0f7377bc"
+        },
+        "LICENSE": {
+          "sha256": "b3a5a0e2d973ab80e6610ccf1cffc40756050d0ace3cd4fec879b3ec290b2e9b",
+          "bytes": 8204,
+          "upstream_lfs_sha256": null
+        },
+        "README.md": {
+          "sha256": "93d4d9b963b2b8d30c465f3b7b06843576e0c0a8c12711a8d03c9dc47817ddba",
+          "bytes": 5761,
+          "upstream_lfs_sha256": null
+        }
+      }
+    }
+  },
+  "note": "Imports and file integrity are verified here; inference requires separate real output evidence"
+}

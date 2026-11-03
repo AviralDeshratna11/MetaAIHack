@@ -1,0 +1,189 @@
+{
+  "status": "passed_with_review",
+  "requested_inference_mode": "live",
+  "source": "data/golden/pouring.mp4",
+  "source_sha256": "c0e17bc6032da748510265ae402a6e70b0f49a3fac68e0c4b1becf23b5a2ff38",
+  "api_inference_mode": "live",
+  "checks": [
+    "real video upload",
+    "source size/checksum/media verification",
+    "live semantic contract",
+    "live track contracts",
+    "mask decoding",
+    "artifact SHA-256"
+  ],
+  "blockers": [],
+  "live_inference_submitted": true,
+  "video_id": "vid_689eeec47c9640bcb92d89fcb17406a4",
+  "api": "http://localhost:58000",
+  "upload_status": "UPLOADED",
+  "job_id": "job_922277ea40db42038ebf7a91ea08eae1",
+  "run_id": "run_15df7936724445a88f030103a93a3611",
+  "job_status": "NEEDS_REVIEW",
+  "elapsed_s": 604.188,
+  "model_runs": [
+    {
+      "model": "files-api",
+      "status": "completed",
+      "request_id": "0bc22c2e-1337-49d7-9d30-95f95c0a318d",
+      "usage": {},
+      "latency_ms": 5518,
+      "error": null
+    },
+    {
+      "model": "muse-spark-1.3",
+      "status": "completed",
+      "request_id": "4ab2db0d-b9ae-449d-9e49-439fff27b392",
+      "usage": {
+        "input_tokens": 7745,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 5046,
+        "output_tokens_details": {
+          "reasoning_tokens": 3710
+        },
+        "total_tokens": 12791
+      },
+      "latency_ms": 32540,
+      "error": null
+    },
+    {
+      "model": "files-api",
+      "status": "completed",
+      "request_id": "19c3d8b5-cd4b-499a-8484-14b882b0f56b",
+      "usage": {},
+      "latency_ms": 4836,
+      "error": null
+    },
+    {
+      "model": "sam-3.1",
+      "status": "completed",
+      "request_id": "2a28cf37-95a9-4666-a932-abbf5f493622",
+      "usage": {
+        "input_tokens": 0,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 0,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 0,
+        "video_frames_processed": 343
+      },
+      "latency_ms": 17312,
+      "error": null
+    },
+    {
+      "model": "sam-3.1",
+      "status": "failed",
+      "request_id": null,
+      "usage": {},
+      "latency_ms": null,
+      "error": {
+        "code": "E_PROVIDER_CONNECT",
+        "retryable": true
+      }
+    },
+    {
+      "model": "sam-3.1",
+      "status": "completed",
+      "request_id": "e89a59b8-056d-4427-a9a5-056b29a0499a",
+      "usage": {
+        "input_tokens": 0,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 0,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 0,
+        "video_frames_processed": 343
+      },
+      "latency_ms": 15244,
+      "error": null
+    },
+    {
+      "model": "sam-3.1",
+      "status": "failed",
+      "request_id": null,
+      "usage": {},
+      "latency_ms": null,
+      "error": {
+        "code": "E_PROVIDER_CONNECT",
+        "retryable": true
+      }
+    },
+    {
+      "model": "sam-3.1",
+      "status": "completed",
+      "request_id": "2b7f6039-f3c3-4f97-b6a3-062a0e377819",
+      "usage": {
+        "input_tokens": 0,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 0,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 0,
+        "video_frames_processed": 343
+      },
+      "latency_ms": 16064,
+      "error": null
+    },
+    {
+      "model": "sam-3.1",
+      "status": "completed",
+      "request_id": "70053349-9483-43dc-bee4-255beada83d4",
+      "usage": {
+        "input_tokens": 0,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens": 0,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 0,
+        "video_frames_processed": 343
+      },
+      "latency_ms": 16266,
+      "error": null
+    }
+  ],
+  "real_model_calls": 7,
+  "task": "Pour water from glass into white bowl and stir contents",
+  "entities": [
+    "HAND_A",
+    "HAND_B",
+    "GLASS",
+    "BOWL",
+    "SPOON"
+  ],
+  "action_count": 4,
+  "track_rows": 3087,
+  "decoded_masks": 2474,
+  "artifact_count": 27,
+  "review_reasons": [
+    "HAND_A: associated measured coverage 0.0% below heuristic 80% gate",
+    "HAND_B: associated measured coverage 0.0% below heuristic 80% gate",
+    "GLASS: associated measured coverage 0.0% below heuristic 80% gate",
+    "BOWL: associated measured coverage 0.0% below heuristic 80% gate",
+    "SPOON: associated measured coverage 49.6% below heuristic 80% gate",
+    "Ambiguous semantic-to-track association",
+    "Unverified identity after missing observations",
+    "Mask area or motion anomalies require review",
+    "Unknown action primitive needs review",
+    "pour_01: POUR contact requirement is uncertain"
+  ],
+  "ready_for_geometry": false,
+  "accuracy_metrics": "not_evaluated: independent annotations required",
+  "phase2_status": "not_run: configured GPU runtime and local checkpoints required",
+  "completed_inference_calls": 5,
+  "failed_inference_attempts": 2,
+  "actual_cost_usd": null
+}

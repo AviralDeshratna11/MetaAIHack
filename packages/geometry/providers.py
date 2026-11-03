@@ -24,6 +24,15 @@ def provider_fingerprint(config):
         raise DomainError("E_GEOMETRY_CONFIG", "Configure GEOMETRY_PYTHON and VGGT_CHECKPOINT for live reconstruction", 503)
     if config["body_backend"] == "sam3d" and not all(config.get(k) for k in ("body_checkpoint", "body_mhr")):
         raise DomainError("E_GEOMETRY_CONFIG", "SAM3D_BODY_CHECKPOINT and SAM3D_MHR_PATH are required for body inference", 503)
+    if config["body_backend"] == "sam3d":
+        body_config = Path(config["body_checkpoint"]).parent / "model_config.yaml"
+        if not body_config.is_file():
+            raise DomainError("E_GEOMETRY_CONFIG", "model_config.yaml must be adjacent to the body checkpoint", 503)
+        result["body_config"] = file_hash(body_config)
+        source = Path(config["body_checkpoint"]).parent.parent / "sources" / "dinov3" / "source_manifest.json"
+        if not source.is_file():
+            raise DomainError("E_GEOMETRY_CONFIG", "Pinned local DINOv3 source manifest is required", 503)
+        result["dinov3_source"] = file_hash(source)
     return result
 
 

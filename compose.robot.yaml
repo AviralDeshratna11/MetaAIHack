@@ -1,0 +1,15 @@
+# Optional CPU robot/simulator/dataset runtime. No GPU models or weights are installed.
+# docker compose build api
+# docker compose -f compose.yaml -f compose.robot.yaml up --build -d
+services:
+  api:
+    environment:
+      LEROBOT_PYTHON: /opt/lerobot/bin/python
+  worker:
+    image: video2robot-robot:dev
+    build:
+      context: .
+      dockerfile: infra/Robot.Dockerfile
+    environment:
+      LEROBOT_PYTHON: /opt/lerobot/bin/python
+      MUJOCO_GL: egl

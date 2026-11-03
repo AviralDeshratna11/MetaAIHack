@@ -1,0 +1,23 @@
+{
+  "environment": "linux-robot-worker",
+  "host_packages": {
+    "torch": null,
+    "mujoco": "3.3.7",
+    "scipy": "1.15.3",
+    "lerobot": null,
+    "vggt": null,
+    "sam_3d_body": null
+  },
+  "model_key_configured": true,
+  "geometry_python_configured": false,
+  "lerobot_python_configured": true,
+  "local_dataset_environment_detected": true,
+  "checkpoints": {
+    "vggt": false,
+    "sam3d_body": false,
+    "mhr": false
+  },
+  "robot_assets_present": true,
+  "gpu": "unavailable",
+  "live_geometry_ready": false
+}

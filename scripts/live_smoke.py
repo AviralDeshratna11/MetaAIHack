@@ -89,6 +89,9 @@ def main():
         model_runs=[{"model": r["model"], "status": r["status"], "request_id": r.get("request_id"),
             "usage": r.get("usage"), "latency_ms": r.get("latency_ms"), "error": r.get("error")} for r in job["model_runs"]])
     report["real_model_calls"] = len([r for r in job["model_runs"] if r["model"] != "files-api"])
+    report["completed_inference_calls"] = sum(r["status"] == "completed" and r["model"] != "files-api" for r in job["model_runs"])
+    report["failed_inference_attempts"] = sum(r["status"] == "failed" and r["model"] != "files-api" for r in job["model_runs"])
+    report["actual_cost_usd"] = None
     if job["status"] not in ("COMPLETED", "NEEDS_REVIEW"):
         report.update(status="failed" if job["status"] in ("FAILED", "CANCELLED") else "timed_out", error=job.get("error"))
         save()

@@ -17,6 +17,8 @@ class ReconstructionContract(Contract):
 class ReconstructionConfig(ReconstructionContract):
     backend: Literal["fixture", "vggt"] = "fixture"
     body_backend: Literal["none", "sam3d"] = "none"
+    memory_mode: Literal["standard", "low_vram"] = "standard"
+    image_size: int = Field(518, ge=224, le=518, multiple_of=14)
     sample_fps: Annotated[FiniteFloat, Field(gt=0, le=10)] = 5
     max_frames_per_shot: int = Field(32, ge=2, le=96)
     max_total_frames: int = Field(96, ge=2, le=512)
@@ -28,11 +30,20 @@ class ReconstructionConfig(ReconstructionContract):
     persistence_frames: int = Field(3, ge=2, le=30)
     boundary_window_s: Annotated[FiniteFloat, Field(gt=0, le=5)] = 1.5
     max_alignment_relative_rmse: Annotated[FiniteFloat, Field(gt=0, le=1)] = .08
+    contact_mask_weight: Confidence = .35
+    contact_geometry_weight: Confidence = .35
+    contact_motion_weight: Confidence = .2
+    contact_semantic_weight: Confidence = .1
+    enable_boundary_refinement: bool = True
 
     @model_validator(mode="after")
     def thresholds(self):
+        if self.memory_mode == "low_vram" and (self.max_frames_per_shot > 4 or self.max_total_frames > 4):
+            raise ValueError("low_vram mode supports at most four sampled frames per request; use a short single-shot interval")
         if self.contact_on <= self.contact_off:
             raise ValueError("contact_on must exceed contact_off for hysteresis")
+        if self.contact_mask_weight+self.contact_geometry_weight+self.contact_motion_weight+self.contact_semantic_weight > 1+1e-8:
+            raise ValueError("contact weights must sum to at most one; missing channels are not renormalized")
         return self
 
 

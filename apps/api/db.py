@@ -114,7 +114,8 @@ class Outbox(Base):
     sent_at: Mapped[float | None] = mapped_column(Float)
 
 
-engine = create_engine(settings().database_url, pool_pre_ping=True)
+engine = create_engine(settings().database_url, pool_pre_ping=True,
+    connect_args={"connect_timeout": 10} if settings().database_url.startswith("postgresql") else {})
 if settings().database_url.startswith("sqlite"):
     @event.listens_for(engine, "connect")
     def sqlite_foreign_keys(connection, _):

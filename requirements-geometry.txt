@@ -1,0 +1,11 @@
+# Separate CUDA runtime. Install Torch from the official cu121 index first.
+torch==2.5.1
+torchvision==0.20.1
+numpy==1.26.4
+opencv-python-headless==4.11.0.86
+huggingface-hub==0.35.3
+einops==0.8.2
+safetensors==0.5.3
+wheel==0.45.1
+setuptools==80.9.0
+accelerate==1.10.1

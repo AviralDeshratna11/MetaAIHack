@@ -1,0 +1,39 @@
+{
+  "torch": "2.5.1+cu121",
+  "device": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+  "memory_mode": "low_vram",
+  "image_size": 224,
+  "sampled_frames": 2,
+  "peak_cuda_bytes": 1867259904,
+  "camera_depth_heads": "cpu_fp32",
+  "precision": "torch.bfloat16",
+  "status": "passed",
+  "backend": "vggt",
+  "mode": "real_local_model",
+  "body_backend": "none",
+  "checkpoint_manifest": {
+    "repo": "facebook/VGGT-1B",
+    "revision": "860abec7937da0a4c03c41d3c269c366e82abdf9",
+    "files": {
+      "model.pt": {
+        "sha256": "d15bf50a8615c8225ed48b51ea5cac673d82442ec0309036df555a053253afe0",
+        "bytes": 5026874952,
+        "upstream_lfs_sha256": "d15bf50a8615c8225ed48b51ea5cac673d82442ec0309036df555a053253afe0"
+      },
+      "config.json": {
+        "sha256": "a73e929a168b900546a84fe88cd70dfaaf2f8e39cf77355b12984eaa686f3855",
+        "bytes": 62,
+        "upstream_lfs_sha256": null
+      },
+      "README.md": {
+        "sha256": "d666ecaba89db88cb66bf06db6daddfdc2400e13f2a39e39c84e888b27fbc615",
+        "bytes": 2060,
+        "upstream_lfs_sha256": null
+      }
+    }
+  },
+  "artifacts": {
+    "frame_0.npz": "19345a62833c3b3f74c03b68fc83d6bc838faa78709e4acea9fe0106fbc2c381",
+    "frame_75.npz": "4004414bf4e8fec172bb619c2f798abed68ec14ca395f9685dd0a4ad16b8b9a7"
+  }
+}

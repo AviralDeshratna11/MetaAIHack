@@ -42,7 +42,14 @@ export type Video2RobotContracts =
   | ReconstructionReport
   | LayerTwoHandoff
   | GeometryWindow
-  | InteractionTrajectory;
+  | InteractionTrajectory
+  | Calibration1
+  | RobotizationConfig
+  | RobotizationRequest
+  | RobotFrame
+  | RobotTrajectory
+  | QualityReport
+  | RobotizationHandoff;
 export type SchemaVersion = "0.1.0";
 export type Nodes = string[];
 export type SchemaVersion1 = "0.1.0";
@@ -286,7 +293,7 @@ export type RunId5 = string;
 export type Status4 = string;
 export type Stage5 = string | null;
 export type InferenceMode6 = "fixture" | "live";
-export type Pipeline = "perception" | "reconstruction";
+export type Pipeline = "perception" | "reconstruction" | "robotization";
 export type Error2 = {
   [k: string]: unknown;
 } | null;
@@ -328,7 +335,7 @@ export type RunId6 = string;
 export type Status7 = string;
 export type Stage8 = string | null;
 export type InferenceMode8 = "fixture" | "live";
-export type Pipeline1 = "perception" | "reconstruction";
+export type Pipeline1 = "perception" | "reconstruction" | "robotization";
 export type Error5 = {
   [k: string]: unknown;
 } | null;
@@ -390,6 +397,8 @@ export type IdempotencyKey1 = string;
 export type SchemaVersion39 = "0.2.0";
 export type Backend = "fixture" | "vggt";
 export type BodyBackend = "none" | "sam3d";
+export type MemoryMode = "standard" | "low_vram";
+export type ImageSize = number;
 export type SampleFps = number;
 export type MaxFramesPerShot = number;
 export type MaxTotalFrames = number;
@@ -401,6 +410,11 @@ export type ContactOff = number;
 export type PersistenceFrames = number;
 export type BoundaryWindowS = number;
 export type MaxAlignmentRelativeRmse = number;
+export type ContactMaskWeight = number;
+export type ContactGeometryWeight = number;
+export type ContactMotionWeight = number;
+export type ContactSemanticWeight = number;
+export type EnableBoundaryRefinement = boolean;
 export type AllowReviewSource = boolean;
 export type SchemaVersion40 = "0.2.0";
 /**
@@ -586,6 +600,113 @@ export type CurrentActionIds = string[];
 export type Frames = InteractionFrame[];
 export type ScaleMode2 = "relative";
 export type MetricScaleValid5 = false;
+export type SchemaVersion55 = "0.3.0";
+export type Mode = "measured" | "workspace_adaptation";
+export type ScaleMPerUnit = number;
+export type BaseFromWorld = number[][];
+export type Evidence = string;
+export type ResidualM = number | null;
+export type SchemaVersion56 = "0.3.0";
+export type HandId4 = string;
+export type ObjectId4 = string;
+export type ShotId11 = string;
+export type StartS2 = number;
+export type EndS2 = number;
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type WorkspaceCenterM = [number, number, number];
+export type WorkspaceExtentM = number;
+/**
+ * @minItems 4
+ * @maxItems 4
+ */
+export type TcpQuaternionXyzw = [number, number, number, number];
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type TcpOffsetM = [number, number, number];
+export type OrientationSource = "configured_task_constraint";
+export type MaxGapS = number;
+export type ControlHz = number;
+export type PositionToleranceM = number;
+export type OrientationToleranceRad = number;
+export type SimulationTrackingToleranceM = number;
+export type InitialGripper = "open" | "closed" | "unknown";
+export type OpenWidthM = number;
+export type ClosedWidthM = number;
+export type MaxGripperSpeedMS = number;
+export type RequireExport = boolean;
+export type DiagnosticExport = boolean;
+export type QualityRubric = "baseline-v1";
+export type SchemaVersion57 = "0.3.0";
+export type SourceJobId4 = string;
+export type IdempotencyKey2 = string;
+export type AllowReviewSource1 = boolean;
+export type SchemaVersion58 = "0.3.0";
+export type FrameIndex10 = number;
+export type SourceTimeS = number;
+export type ExecutionTimeS = number;
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type TargetPositionM = [number, number, number];
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type AchievedPositionM = [number, number, number];
+/**
+ * @minItems 4
+ * @maxItems 4
+ */
+export type TargetQuaternionXyzw = [number, number, number, number];
+/**
+ * @minItems 7
+ * @maxItems 7
+ */
+export type JointsRad = [number, number, number, number, number, number, number];
+/**
+ * @minItems 7
+ * @maxItems 7
+ */
+export type VelocityRadS = [number, number, number, number, number, number, number];
+/**
+ * @minItems 7
+ * @maxItems 7
+ */
+export type AccelerationRadS2 = [number, number, number, number, number, number, number];
+export type GripperWidthM = number | null;
+export type GripperState = "open" | "closed" | "hold" | "unknown";
+export type PositionErrorM = number;
+export type OrientationErrorRad = number;
+export type Collisions = string[];
+export type Valid = boolean;
+export type Reasons1 = string[];
+export type Origin5 = "retargeted" | "interpolated";
+export type SchemaVersion59 = "0.3.0";
+export type VideoId14 = string;
+export type RunId9 = string;
+export type SourceRunId3 = string;
+export type Task2 = string;
+export type InferenceMode13 = "live" | "fixture";
+export type ReviewReasons5 = string[];
+export type Frames1 = RobotFrame[];
+export type SchemaVersion60 = "0.3.0";
+export type Classification = "Gold" | "Silver" | "Reject";
+export type Rubric = "baseline-v1";
+export type Reasons2 = string[];
+export type AcceptedTrainingSubset = boolean;
+export type PhysicalRobotReady = false;
+export type SchemaVersion61 = "0.3.0";
+export type VideoId15 = string;
+export type RunId10 = string;
+export type SourceRunId4 = string;
+export type InferenceMode14 = "fixture" | "live";
+export type Certification2 = "simulation_and_export_report";
 
 export interface ActionGraph {
   schema_version?: SchemaVersion;
@@ -1012,6 +1133,8 @@ export interface ReconstructionConfig {
   schema_version?: SchemaVersion39;
   backend?: Backend;
   body_backend?: BodyBackend;
+  memory_mode?: MemoryMode;
+  image_size?: ImageSize;
   sample_fps?: SampleFps;
   max_frames_per_shot?: MaxFramesPerShot;
   max_total_frames?: MaxTotalFrames;
@@ -1023,6 +1146,11 @@ export interface ReconstructionConfig {
   persistence_frames?: PersistenceFrames;
   boundary_window_s?: BoundaryWindowS;
   max_alignment_relative_rmse?: MaxAlignmentRelativeRmse;
+  contact_mask_weight?: ContactMaskWeight;
+  contact_geometry_weight?: ContactGeometryWeight;
+  contact_motion_weight?: ContactMotionWeight;
+  contact_semantic_weight?: ContactSemanticWeight;
+  enable_boundary_refinement?: EnableBoundaryRefinement;
 }
 export interface Pose3D {
   schema_version?: SchemaVersion40;
@@ -1240,4 +1368,109 @@ export interface InteractionPose {
   pose: Pose3D | null;
   origin: Origin4;
   representation: Representation1;
+}
+export interface Calibration1 {
+  schema_version?: SchemaVersion55;
+  mode?: Mode;
+  scale_m_per_unit?: ScaleMPerUnit;
+  base_from_world?: BaseFromWorld;
+  evidence: Evidence;
+  residual_m?: ResidualM;
+}
+export interface RobotizationConfig {
+  schema_version?: SchemaVersion56;
+  hand_id: HandId4;
+  object_id: ObjectId4;
+  shot_id: ShotId11;
+  start_s?: StartS2;
+  end_s?: EndS2;
+  calibration?: Calibration1;
+  workspace_center_m?: WorkspaceCenterM;
+  workspace_extent_m?: WorkspaceExtentM;
+  tcp_quaternion_xyzw?: TcpQuaternionXyzw;
+  tcp_offset_m?: TcpOffsetM;
+  orientation_source?: OrientationSource;
+  max_gap_s?: MaxGapS;
+  control_hz?: ControlHz;
+  position_tolerance_m?: PositionToleranceM;
+  orientation_tolerance_rad?: OrientationToleranceRad;
+  simulation_tracking_tolerance_m?: SimulationTrackingToleranceM;
+  initial_gripper?: InitialGripper;
+  open_width_m?: OpenWidthM;
+  closed_width_m?: ClosedWidthM;
+  max_gripper_speed_m_s?: MaxGripperSpeedMS;
+  require_export?: RequireExport;
+  diagnostic_export?: DiagnosticExport;
+  quality_rubric?: QualityRubric;
+}
+export interface RobotizationRequest {
+  schema_version?: SchemaVersion57;
+  source_job_id: SourceJobId4;
+  idempotency_key: IdempotencyKey2;
+  config: RobotizationConfig;
+  allow_review_source?: AllowReviewSource1;
+}
+export interface RobotFrame {
+  schema_version?: SchemaVersion58;
+  frame_index: FrameIndex10;
+  source_time_s: SourceTimeS;
+  execution_time_s: ExecutionTimeS;
+  target_position_m: TargetPositionM;
+  achieved_position_m: AchievedPositionM;
+  target_quaternion_xyzw: TargetQuaternionXyzw;
+  joints_rad: JointsRad;
+  velocity_rad_s: VelocityRadS;
+  acceleration_rad_s2: AccelerationRadS2;
+  gripper_width_m: GripperWidthM;
+  gripper_state: GripperState;
+  position_error_m: PositionErrorM;
+  orientation_error_rad: OrientationErrorRad;
+  collisions: Collisions;
+  valid: Valid;
+  reasons: Reasons1;
+  origin: Origin5;
+}
+export interface RobotTrajectory {
+  schema_version?: SchemaVersion59;
+  video_id: VideoId14;
+  run_id: RunId9;
+  source_run_id: SourceRunId3;
+  task: Task2;
+  inference_mode: InferenceMode13;
+  robot: Robot;
+  config: RobotizationConfig;
+  adaptation: Adaptation;
+  review_reasons: ReviewReasons5;
+  frames: Frames1;
+}
+export interface Robot {
+  [k: string]: unknown;
+}
+export interface Adaptation {
+  [k: string]: unknown;
+}
+export interface QualityReport {
+  schema_version?: SchemaVersion60;
+  classification: Classification;
+  rubric?: Rubric;
+  checks: Checks;
+  reasons: Reasons2;
+  accepted_training_subset: AcceptedTrainingSubset;
+  physical_robot_ready?: PhysicalRobotReady;
+}
+export interface Checks {
+  [k: string]: boolean | null;
+}
+export interface RobotizationHandoff {
+  schema_version?: SchemaVersion61;
+  video_id: VideoId15;
+  run_id: RunId10;
+  source_run_id: SourceRunId4;
+  inference_mode: InferenceMode14;
+  artifacts: Artifacts3;
+  quality: QualityReport;
+  certification?: Certification2;
+}
+export interface Artifacts3 {
+  [k: string]: string;
 }

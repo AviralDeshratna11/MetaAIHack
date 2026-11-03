@@ -53,6 +53,34 @@ def test_known_similarity_alignment_and_transform_chain():
 def test_degenerate_alignment_and_nonunit_quaternion_are_rejected():
     with pytest.raises(ValueError): align_similarity(np.zeros((5, 3)), np.zeros((5, 3)))
     with pytest.raises(ValidationError): Pose3D(position_xyz=[0, 0, 0], quaternion_xyzw=[0, 0, 0, 2])
+
+
+def test_low_memory_sampling_and_patch_grid_are_explicit():
+    cfg = ReconstructionConfig(memory_mode="low_vram", image_size=224, max_frames_per_shot=4, max_total_frames=4)
+    assert cfg.image_size == 224
+    with pytest.raises(ValidationError):
+        ReconstructionConfig(memory_mode="low_vram")
+    with pytest.raises(ValidationError):
+        ReconstructionConfig(image_size=225)
+
+
+def test_body_backbone_loader_is_local_and_restored(tmp_path):
+    from types import SimpleNamespace
+    from workers.geometry.gpu_entry import local_body_backbone
+    (tmp_path/"hubconf.py").write_text("# official source placeholder for routing test")
+    (tmp_path/"source_manifest.json").write_text("{}")
+    calls = []
+    def original(*args, **kwargs):
+        calls.append((args, kwargs)); return "constructor-route"
+    framework = SimpleNamespace(hub=SimpleNamespace(load=original))
+    with local_body_backbone(framework, tmp_path):
+        assert framework.hub.load("facebookresearch/dinov3", "encoder", pretrained=False) == "constructor-route"
+        with pytest.raises(RuntimeError):
+            framework.hub.load("unexpected/repo", "encoder", pretrained=False)
+        with pytest.raises(RuntimeError):
+            framework.hub.load("facebookresearch/dinov3", "encoder", pretrained=True)
+    assert framework.hub.load is original
+    assert calls[0][0][0] == str(tmp_path) and calls[0][1]["source"] == "local"
     with pytest.raises(ValidationError): ReconstructionConfig(contact_on=.3, contact_off=.5)
     with pytest.raises(ValidationError): Pose3D(position_xyz=[float("nan"), 0, 0])
 

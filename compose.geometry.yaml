@@ -1,0 +1,26 @@
+# Use after provisioning the approved external model/runtime directory on E:.
+# Combine with compose.yaml and compose.robot.yaml. Heavy files stay off C:.
+services:
+  api:
+    environment:
+      GEOMETRY_PYTHON: /models/runtime/bin/python
+      VGGT_CHECKPOINT: /models/vggt/model.pt
+      SAM3D_BODY_CHECKPOINT: /models/body/model.ckpt
+      SAM3D_MHR_PATH: /models/body/assets/mhr_model.pt
+    volumes:
+      - type: bind
+        source: ${GEOMETRY_MODELS_DIR:-E:/MetaAIHack-models}
+        target: /models
+        read_only: true
+  worker:
+    gpus: all
+    environment:
+      GEOMETRY_PYTHON: /models/runtime/bin/python
+      VGGT_CHECKPOINT: /models/vggt/model.pt
+      SAM3D_BODY_CHECKPOINT: /models/body/model.ckpt
+      SAM3D_MHR_PATH: /models/body/assets/mhr_model.pt
+    volumes:
+      - type: bind
+        source: ${GEOMETRY_MODELS_DIR:-E:/MetaAIHack-models}
+        target: /models
+        read_only: true

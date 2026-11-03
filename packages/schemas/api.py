@@ -34,7 +34,7 @@ class JobView(Contract):
     status: str
     stage: str | None
     inference_mode: Literal["fixture", "live"]
-    pipeline: Literal["perception", "reconstruction"] = "perception"
+    pipeline: Literal["perception", "reconstruction", "robotization"] = "perception"
     error: dict | None = None
     source_job_id: str | None = None
     created_at: datetime

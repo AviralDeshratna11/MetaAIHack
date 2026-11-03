@@ -24,8 +24,8 @@ from packages.schemas.api import (ArtifactsResponse, HealthResponse, JobDetail, 
                                   TracksResponse, UploadCompleteResponse, UploadResponse, VideoDetail, VideoListResponse)
 from packages.video.processing import probe
 
-app = FastAPI(title="Video-to-Robot-Data · Perception and Interaction", version="0.2.0",
-    description="Single-project local API for semantic plans, 2D perception and relative 3D interaction hypotheses; no robot feasibility certification.",
+app = FastAPI(title="Video-to-Robot-Data · Baseline Compiler", version="0.3.0",
+    description="Single-project local API for perception, interaction hypotheses, Franka robotization, simulation diagnostics and review-gated export.",
     responses={422: {"model": ErrorResponse}, 409: {"model": ErrorResponse}})
 app.add_middleware(CORSMiddleware, allow_origins=[settings().web_origin], allow_methods=["*"], allow_headers=["*"])
 
@@ -304,7 +304,7 @@ def corrections(video_id: str, body: Correction) -> dict:
     with transaction() as s:
         video = video_or_error(s, video_id, True)
         source = job_or_error(s, body.source_job_id)
-        if source.video_id != video_id or source.status not in ("COMPLETED", "NEEDS_REVIEW") or source.config.get("pipeline") == "reconstruction":
+        if source.video_id != video_id or source.status not in ("COMPLETED", "NEEDS_REVIEW") or source.config.get("pipeline", "perception") != "perception":
             raise DomainError("E_CORRECTION_SOURCE", "Correction source must be a completed run of this video", 409)
         if source.mode != settings().inference_mode:
             raise DomainError("E_CORRECTION_MODE", "Select the source run's inference mode before correcting it", 409)
@@ -343,3 +343,5 @@ def demo_source(background_tasks: BackgroundTasks):
 
 from apps.api.reconstruction import router as reconstruction_router
 app.include_router(reconstruction_router)
+from apps.api.robotization import router as robotization_router
+app.include_router(robotization_router)

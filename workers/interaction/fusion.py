@@ -114,7 +114,9 @@ def fuse_interactions(manifest, plan, tracks, masks, hands, objects, output, con
                     row.semantic_prior = float(action.requires_contact) if action else None
                     s2 = np.exp(-d2/config["contact_distance_2d_px"]) if d2 is not None else 0.
                     s3 = np.exp(-row.distance_3d_relative/config["contact_distance_3d_relative"]) if row.distance_3d_relative is not None else 0.
-                    score = float(.35*s2 + .35*s3 + .2*(row.motion_coupling or 0) + .1*(row.semantic_prior or 0))
+                    score = float(config.get("contact_mask_weight", .35)*s2 + config.get("contact_geometry_weight", .35)*s3
+                        + config.get("contact_motion_weight", .2)*(row.motion_coupling or 0)
+                        + config.get("contact_semantic_weight", .1)*(row.semantic_prior or 0))
                     row.probability = score if d2 is not None else None
                     row.evidence_origin = "synthetic" if mode == "fixture" else "estimated"
                     enough = d2 is not None and row.distance_3d_relative is not None
@@ -166,14 +168,15 @@ def fuse_interactions(manifest, plan, tracks, masks, hands, objects, output, con
                         row.warnings.append("3D evidence held from a recent sample; not a measured current-frame distance")
                     rows.append(row.model_dump(mode="json"))
     rows = write_contracts(output / "contacts.parquet", ContactFrame, rows)
-    refined = refine_actions(plan, events, config["boundary_window_s"])
+    refined = refine_actions(plan, events if config.get("enable_boundary_refinement", True) else [], config["boundary_window_s"])
     (output / "interaction_events.json").write_text(json.dumps(events, indent=2), encoding="utf-8")
     (output / "refined_actions.json").write_text(json.dumps(refined, indent=2), encoding="utf-8")
     (output / "affordance_patches.json").write_text(json.dumps(patches, indent=2), encoding="utf-8")
     report = {"schema_version": "0.2.0", "contact_frames": sum(r["state"] == "CONTACT" for r in rows),
         "contact_events": len(events), "unknown_frames": sum(r["state"] == "UNKNOWN" for r in rows),
         "calibration": "uncalibrated weighted score; probability is not an empirical probability",
-        "weights": {"mask_proximity": .35, "geometry_proximity": .35, "motion_coupling": .2, "semantic_prior": .1},
+        "weights": {"mask_proximity": config.get("contact_mask_weight", .35), "geometry_proximity": config.get("contact_geometry_weight", .35),
+                    "motion_coupling": config.get("contact_motion_weight", .2), "semantic_prior": config.get("contact_semantic_weight", .1)},
         "geometry_hold_seconds": .25, "thresholds": config,
         "review_reasons": ["Support state, force/contact and grasp validity remain unverified; events are candidates",
                            "Contact thresholds require calibration on manually annotated real clips"]}

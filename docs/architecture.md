@@ -1,5 +1,9 @@
 # First-layer architecture
 
+This historical layer description is preserved alongside the implemented
+[Phase 3 robot compiler](phase-three.md). The current end-to-end evidence and
+unmet live acceptance criteria are in [baseline acceptance](baseline-acceptance.md).
+
 The repository now also implements Module B. See [phase 2](phase-two.md) for the
 reconstruction, relative trajectories, contact fusion, ITR, API and GPU setup.
 This page describes the preserved first-layer contracts and infrastructure.

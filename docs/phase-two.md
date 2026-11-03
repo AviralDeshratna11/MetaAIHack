@@ -3,7 +3,8 @@
 Module B consumes a selected, immutable layer-one run. It builds hand/scene 3D,
 object-relative trajectories, contact evidence and interaction primitives. It stops
 at an Interaction Trajectory Representation (ITR); robot retargeting, IK,
-simulation, dataset certification and LeRobot/RLDS export remain later work.
+simulation and LeRobot export are implemented separately in [Phase 3](phase-three.md).
+RLDS and physical dataset certification remain outside the completed work.
 
 ```mermaid
 flowchart LR
@@ -63,8 +64,10 @@ Pass `--source-job JOB_ID` to reuse a finished synthetic perception run.
 ## Live GPU runtime
 
 The default CPU dependencies do not contain Torch, VGGT, SAM 3D Body, or model
-weights. The live adapter is implemented, but was not executed with actual GPU
-models in this environment. No checkpoints are downloaded automatically.
+weights. A separate GPU runtime is now configured and actual VGGT plus SAM 3D Body
+inference has completed through the app queue. See [active geometry runtime](geometry-runtime.md)
+for tested memory controls, checkpoint hashes, results and remaining identity gates.
+No checkpoints are downloaded automatically during processing.
 
 Use a separate Linux/CUDA Python environment with this project and the official
 model packages installed. Follow the upstream setup instructions and supply local

@@ -25,6 +25,7 @@ export default function ReconstructionPanel({videoId, run, time, fps, onStarted,
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [body, setBody] = useState(false);
+  const [lowMemory, setLowMemory] = useState(true);
   const [allowReview, setAllowReview] = useState(false);
   const [yaw, setYaw] = useState(25);
   const [pitch, setPitch] = useState(-15);
@@ -70,7 +71,8 @@ export default function ReconstructionPanel({videoId, run, time, fps, onStarted,
       const result = await request<Run>(`/v1/videos/${videoId}/reconstruct`, {method: "POST",
         headers: {"Content-Type": "application/json"}, body: JSON.stringify({source_job_id: isPhaseTwo ? run.source_job_id : run.job_id,
           idempotency_key: crypto.randomUUID(), allow_review_source: allowReview,
-          config: {backend: run.inference_mode === "fixture" ? "fixture" : "vggt", body_backend: body ? "sam3d" : "none"}})});
+          config: {backend: run.inference_mode === "fixture" ? "fixture" : "vggt", body_backend: body ? "sam3d" : "none",
+            ...(lowMemory && run.inference_mode !== "fixture" ? {memory_mode: "low_vram", image_size: 224, max_frames_per_shot: 4, max_total_frames: 4} : {})}})});
       onStarted(result);
     } catch (e) {setError((e as Error).message);} finally {setBusy(false);}
   }
@@ -82,6 +84,7 @@ export default function ReconstructionPanel({videoId, run, time, fps, onStarted,
       <button className="primary" onClick={start} disabled={busy || !terminal}>{busy ? "Submitting…" : isPhaseTwo ? "Re-run phase 2" : "Run phase 2"}</button>
     </div>
     {run.inference_mode !== "fixture" && <div className="reconstruction-options">
+      <label><input type="checkbox" checked={lowMemory} onChange={e => setLowMemory(e.target.checked)} /> Limited-memory preview: four sampled frames at lower resolution; sparse geometry may not support robotization</label>
       <label><input type="checkbox" checked={body} onChange={e => setBody(e.target.checked)} /> Use SAM 3D Body for anatomical wrists</label>
       <label><input type="checkbox" checked={allowReview} onChange={e => setAllowReview(e.target.checked)} /> Explore source with unresolved perception review reasons</label>
     </div>}

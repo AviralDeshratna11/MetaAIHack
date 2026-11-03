@@ -1,0 +1,20 @@
+{
+  "checked_date": "2026-11-03",
+  "endpoint": "Meta GET /v1/models",
+  "status": "verified",
+  "inference_requests": 0,
+  "available_models": [
+    "muse-wonder-1.0",
+    "sam-3.1",
+    "muse-spark-1.3-contributor",
+    "muse-voice-transcribe-1.0",
+    "muse-spark-1.3",
+    "muse-image-1.0",
+    "muse-spark-1.2-contributor",
+    "muse-spark-1.2",
+    "muse-spark-1.1"
+  ],
+  "geometry_access": "No hosted VGGT or SAM 3D Body model is exposed in this account list. Configured local inference is still required.",
+  "sam3d_checkpoint_access": "Official INSTALL.md requires approved Hugging Face repository access and authenticated downloads; no authorized checkpoints are configured.",
+  "official_setup": "https://github.com/facebookresearch/sam-3d-body/blob/main/INSTALL.md"
+}

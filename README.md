@@ -1,4 +1,18 @@
-# Video2Robot — perception and interaction compiler
+# Video2Robot — perception, interaction and robot compiler
+
+For the running local live app and exact UI/CLI test steps, see
+[local live testing](docs/live-testing.md).
+
+**Live 3D is now configured and tested:** VGGT and SAM 3D Body completed actual
+inference through the queue on the local GPU. See [active geometry runtime](docs/geometry-runtime.md)
+for startup commands, the limited-memory preview, evidence and remaining data-review gates.
+
+**Phase 3 is implemented with diagnostic acceptance:** Franka FK/IK, contact-based
+gripper inference, workspace adaptation, retiming, actual MuJoCo replay, quality
+gates, an official LeRobot v3 writer/reader, APIs and debugger. See
+[Phase 3 setup](docs/phase-three.md) and [baseline acceptance](docs/baseline-acceptance.md).
+Real Muse/SAM was rerun; full live Phase 2/3 acceptance remains incomplete because
+source identity association and task-validation evidence remain unresolved.
 
 **Phase 2 is available:** hand/scene 3D, object-relative trajectories, contact
 evidence and a versioned interaction trajectory. After a perception run finishes,
@@ -10,8 +24,8 @@ See [phase 2 architecture and setup](docs/phase-two.md) and run
 Upload short manipulation footage, normalize its timeline, parse semantic actions
 with Muse and ground/track entities with SAM. Inspect the source, action intervals,
 masks, identities and provenance, then run the reconstruction layer for relative
-geometry and interaction hypotheses. Neither layer generates robot actions or
-physically validates data.
+geometry and interaction hypotheses. Phase 3 separately compiles robot commands
+and simulation diagnostics. Physical task validity remains unverified.
 
 The default **fixture mode** is entirely offline with respect to Meta. It uses a
 generated shape video, fixed synthetic semantics and deterministic fixture-color
@@ -123,8 +137,9 @@ benchmark batch before the first live test is inspected.
 A real pouring/stirring clip is registered and a live Muse/SAM test completed with
 association review required; see `docs/verification.md`. Six other sources remain
 `missing_source`. No annotated real benchmark metrics are claimed. Optional DINO
-re-identification, local GPU SAM segmentation, robotization and dataset export
-remain outside this implementation. Geometry, contact hypotheses and ITR are
+re-identification and local GPU SAM segmentation remain optional. Robotization and
+diagnostic dataset export are implemented in [Phase 3](docs/phase-three.md).
+Geometry, contact hypotheses and ITR are
 implemented in [phase 2](docs/phase-two.md), with GPU model execution awaiting
 runtime/checkpoint configuration and real-video acceptance.
 

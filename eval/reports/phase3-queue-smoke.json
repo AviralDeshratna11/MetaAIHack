@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "inference_mode": "fixture",
+  "real_model_calls": 0,
+  "worker_mode": "queue",
+  "job_id": "job_e5c644ccf8c340bc8af7634e8252c2f2",
+  "run_id": "run_e3b301f7540c43758e06d86d1cd51f9d",
+  "video_id": "vid_441bc0f3838f48898c1b5965a17cc7d9",
+  "source_run_id": "run_c04e329f29f34e81a67e82244394b6cb",
+  "artifact_count": 45,
+  "frames": 7,
+  "quality": {
+    "schema_version": "0.3.0",
+    "classification": "Reject",
+    "rubric": "baseline-v1",
+    "checks": {
+      "live_source": false,
+      "nonempty_trajectory": true,
+      "trajectory_valid": false,
+      "simulation_physics": true,
+      "simulation_limits": false,
+      "export_roundtrip": false,
+      "upstream_review_resolved": false,
+      "measured_scale": false,
+      "task_scene_validated": false,
+      "task_success": null
+    },
+    "reasons": [
+      "live_source",
+      "trajectory_valid",
+      "simulation_limits",
+      "export_roundtrip",
+      "upstream_review_resolved",
+      "measured_scale",
+      "task_scene_validated",
+      "task_success"
+    ],
+    "accepted_training_subset": false,
+    "physical_robot_ready": false
+  },
+  "export": {
+    "roundtrip_passed": false,
+    "status": "failed",
+    "reason": "Official dataset export failed; inspect export_stderr.log"
+  },
+  "checks": [
+    "review gate",
+    "idempotency",
+    "config conflict",
+    "leased worker",
+    "source immutability",
+    "typed APIs",
+    "inherited artifacts",
+    "artifact hashes",
+    "physics replay",
+    "unknown gripper prevents acceptance",
+    "invalid pipeline source rejected"
+  ]
+}

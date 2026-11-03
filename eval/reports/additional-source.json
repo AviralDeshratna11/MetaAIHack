@@ -1,0 +1,18 @@
+{
+  "source_uri": "https://www.pexels.com/video/a-person-picking-up-a-cup-of-coffee-on-a-table-7658235/",
+  "download_uri": "https://videos.pexels.com/video-files/7658235/7658235-hd_1920_1080_25fps.mp4",
+  "author": "Cup of Couple",
+  "rights_status": "licensed",
+  "license": "https://www.pexels.com/license/",
+  "path": "data/live-tests/pexels-7658235.mp4",
+  "sha256": "feeeac5015d030bfbc13f93714c3ce993b8d6ea7536abbc688a9be182fd0c34a",
+  "byte_count": 5975969,
+  "duration_s": 9.92,
+  "width": 1920,
+  "height": 1080,
+  "fps": "25/1",
+  "status": "excluded_duration",
+  "reason": "Unmodified source is below configured 10-second minimum; no padding or threshold change",
+  "real_model_calls": 0,
+  "annotation_status": "unknown"
+}

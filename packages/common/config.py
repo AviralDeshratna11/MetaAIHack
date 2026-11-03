@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     vggt_checkpoint: str = ""
     sam3d_body_checkpoint: str = ""
     sam3d_mhr_path: str = ""
+    robot_assets: str = "data/robots/franka_emika_panda"
+    robot_python: str = ""
+    lerobot_python: str = ""
     ffmpeg: str = "ffmpeg"
     ffprobe: str = "ffprobe"
     processing_fps: int = 15

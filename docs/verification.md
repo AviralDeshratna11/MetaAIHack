@@ -1,5 +1,9 @@
 # Perception and interaction verification - 2026-11-01
 
+This is the historical Phase 1/2 report. See [2026-11-03 baseline acceptance](baseline-acceptance.md)
+for the fresh real-model rerun, Phase 3 implementation, actual simulator/exporter
+tests, and remaining live reconstruction/task-validation blockers.
+
 ## Real-video live test: completed with review required
 
 Fetched Pexels video 6901293 (Mikhail Nilov), a 22.88-second, 1920x1080/25fps

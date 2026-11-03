@@ -673,6 +673,65 @@
       "title": "ArtifactsResponse",
       "type": "object"
     },
+    "Calibration": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.3.0",
+          "default": "0.3.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "mode": {
+          "default": "workspace_adaptation",
+          "enum": [
+            "measured",
+            "workspace_adaptation"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "scale_m_per_unit": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "title": "Scale M Per Unit",
+          "type": "number"
+        },
+        "base_from_world": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "title": "Base From World",
+          "type": "array"
+        },
+        "evidence": {
+          "minLength": 1,
+          "title": "Evidence",
+          "type": "string"
+        },
+        "residual_m": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Residual M"
+        }
+      },
+      "required": [
+        "evidence"
+      ],
+      "title": "Calibration",
+      "type": "object"
+    },
     "CameraFrame": {
       "additionalProperties": false,
       "properties": {
@@ -1716,7 +1775,8 @@
           "default": "perception",
           "enum": [
             "perception",
-            "reconstruction"
+            "reconstruction",
+            "robotization"
           ],
           "title": "Pipeline",
           "type": "string"
@@ -1881,7 +1941,8 @@
           "default": "perception",
           "enum": [
             "perception",
-            "reconstruction"
+            "reconstruction",
+            "robotization"
           ],
           "title": "Pipeline",
           "type": "string"
@@ -2830,6 +2891,71 @@
       "title": "Provenance",
       "type": "object"
     },
+    "QualityReport": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.3.0",
+          "default": "0.3.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "classification": {
+          "enum": [
+            "Gold",
+            "Silver",
+            "Reject"
+          ],
+          "title": "Classification",
+          "type": "string"
+        },
+        "rubric": {
+          "const": "baseline-v1",
+          "default": "baseline-v1",
+          "title": "Rubric",
+          "type": "string"
+        },
+        "checks": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Checks",
+          "type": "object"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "accepted_training_subset": {
+          "title": "Accepted Training Subset",
+          "type": "boolean"
+        },
+        "physical_robot_ready": {
+          "const": false,
+          "default": false,
+          "title": "Physical Robot Ready",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "classification",
+        "checks",
+        "reasons",
+        "accepted_training_subset"
+      ],
+      "title": "QualityReport",
+      "type": "object"
+    },
     "RLEMask": {
       "additionalProperties": false,
       "properties": {
@@ -2897,6 +3023,23 @@
           ],
           "title": "Body Backend",
           "type": "string"
+        },
+        "memory_mode": {
+          "default": "standard",
+          "enum": [
+            "standard",
+            "low_vram"
+          ],
+          "title": "Memory Mode",
+          "type": "string"
+        },
+        "image_size": {
+          "default": 518,
+          "maximum": 518,
+          "minimum": 224,
+          "multipleOf": 14,
+          "title": "Image Size",
+          "type": "integer"
         },
         "sample_fps": {
           "default": 5,
@@ -2972,6 +3115,39 @@
           "maximum": 1,
           "title": "Max Alignment Relative Rmse",
           "type": "number"
+        },
+        "contact_mask_weight": {
+          "default": 0.35,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Contact Mask Weight",
+          "type": "number"
+        },
+        "contact_geometry_weight": {
+          "default": 0.35,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Contact Geometry Weight",
+          "type": "number"
+        },
+        "contact_motion_weight": {
+          "default": 0.2,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Contact Motion Weight",
+          "type": "number"
+        },
+        "contact_semantic_weight": {
+          "default": 0.1,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Contact Semantic Weight",
+          "type": "number"
+        },
+        "enable_boundary_refinement": {
+          "default": true,
+          "title": "Enable Boundary Refinement",
+          "type": "boolean"
         }
       },
       "title": "ReconstructionConfig",
@@ -3332,6 +3508,501 @@
         "origin"
       ],
       "title": "RelativeFrame",
+      "type": "object"
+    },
+    "RobotFrame": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.3.0",
+          "default": "0.3.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "frame_index": {
+          "minimum": 0,
+          "title": "Frame Index",
+          "type": "integer"
+        },
+        "source_time_s": {
+          "minimum": 0,
+          "title": "Source Time S",
+          "type": "number"
+        },
+        "execution_time_s": {
+          "minimum": 0,
+          "title": "Execution Time S",
+          "type": "number"
+        },
+        "target_position_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Target Position M",
+          "type": "array"
+        },
+        "achieved_position_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Achieved Position M",
+          "type": "array"
+        },
+        "target_quaternion_xyzw": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "title": "Target Quaternion Xyzw",
+          "type": "array"
+        },
+        "joints_rad": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 7,
+          "minItems": 7,
+          "title": "Joints Rad",
+          "type": "array"
+        },
+        "velocity_rad_s": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 7,
+          "minItems": 7,
+          "title": "Velocity Rad S",
+          "type": "array"
+        },
+        "acceleration_rad_s2": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 7,
+          "minItems": 7,
+          "title": "Acceleration Rad S2",
+          "type": "array"
+        },
+        "gripper_width_m": {
+          "anyOf": [
+            {
+              "maximum": 0.08,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Gripper Width M"
+        },
+        "gripper_state": {
+          "enum": [
+            "open",
+            "closed",
+            "hold",
+            "unknown"
+          ],
+          "title": "Gripper State",
+          "type": "string"
+        },
+        "position_error_m": {
+          "minimum": 0,
+          "title": "Position Error M",
+          "type": "number"
+        },
+        "orientation_error_rad": {
+          "minimum": 0,
+          "title": "Orientation Error Rad",
+          "type": "number"
+        },
+        "collisions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Collisions",
+          "type": "array"
+        },
+        "valid": {
+          "title": "Valid",
+          "type": "boolean"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "origin": {
+          "enum": [
+            "retargeted",
+            "interpolated"
+          ],
+          "title": "Origin",
+          "type": "string"
+        }
+      },
+      "required": [
+        "frame_index",
+        "source_time_s",
+        "execution_time_s",
+        "target_position_m",
+        "achieved_position_m",
+        "target_quaternion_xyzw",
+        "joints_rad",
+        "velocity_rad_s",
+        "acceleration_rad_s2",
+        "gripper_width_m",
+        "gripper_state",
+        "position_error_m",
+        "orientation_error_rad",
+        "collisions",
+        "valid",
+        "reasons",
+        "origin"
+      ],
+      "title": "RobotFrame",
+      "type": "object"
+    },
+    "RobotTrajectory": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.3.0",
+          "default": "0.3.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "source_run_id": {
+          "title": "Source Run Id",
+          "type": "string"
+        },
+        "task": {
+          "title": "Task",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "live",
+            "fixture"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "robot": {
+          "additionalProperties": true,
+          "title": "Robot",
+          "type": "object"
+        },
+        "config": {
+          "$ref": "#/$defs/RobotizationConfig"
+        },
+        "adaptation": {
+          "additionalProperties": true,
+          "title": "Adaptation",
+          "type": "object"
+        },
+        "review_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Reasons",
+          "type": "array"
+        },
+        "frames": {
+          "items": {
+            "$ref": "#/$defs/RobotFrame"
+          },
+          "title": "Frames",
+          "type": "array"
+        }
+      },
+      "required": [
+        "video_id",
+        "run_id",
+        "source_run_id",
+        "task",
+        "inference_mode",
+        "robot",
+        "config",
+        "adaptation",
+        "review_reasons",
+        "frames"
+      ],
+      "title": "RobotTrajectory",
+      "type": "object"
+    },
+    "RobotizationConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.3.0",
+          "default": "0.3.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "hand_id": {
+          "minLength": 1,
+          "title": "Hand Id",
+          "type": "string"
+        },
+        "object_id": {
+          "minLength": 1,
+          "title": "Object Id",
+          "type": "string"
+        },
+        "shot_id": {
+          "minLength": 1,
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "start_s": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Start S",
+          "type": "number"
+        },
+        "end_s": {
+          "default": 120,
+          "exclusiveMinimum": 0,
+          "title": "End S",
+          "type": "number"
+        },
+        "calibration": {
+          "$ref": "#/$defs/Calibration"
+        },
+        "workspace_center_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Workspace Center M",
+          "type": "array"
+        },
+        "workspace_extent_m": {
+          "default": 0.18,
+          "exclusiveMinimum": 0,
+          "maximum": 0.4,
+          "title": "Workspace Extent M",
+          "type": "number"
+        },
+        "tcp_quaternion_xyzw": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "title": "Tcp Quaternion Xyzw",
+          "type": "array"
+        },
+        "tcp_offset_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Tcp Offset M",
+          "type": "array"
+        },
+        "orientation_source": {
+          "const": "configured_task_constraint",
+          "default": "configured_task_constraint",
+          "title": "Orientation Source",
+          "type": "string"
+        },
+        "max_gap_s": {
+          "default": 0.3,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Max Gap S",
+          "type": "number"
+        },
+        "control_hz": {
+          "default": 30,
+          "maximum": 120,
+          "minimum": 5,
+          "title": "Control Hz",
+          "type": "integer"
+        },
+        "position_tolerance_m": {
+          "default": 0.015,
+          "exclusiveMinimum": 0,
+          "title": "Position Tolerance M",
+          "type": "number"
+        },
+        "orientation_tolerance_rad": {
+          "default": 0.15,
+          "exclusiveMinimum": 0,
+          "title": "Orientation Tolerance Rad",
+          "type": "number"
+        },
+        "simulation_tracking_tolerance_m": {
+          "default": 0.04,
+          "exclusiveMinimum": 0,
+          "title": "Simulation Tracking Tolerance M",
+          "type": "number"
+        },
+        "initial_gripper": {
+          "default": "unknown",
+          "enum": [
+            "open",
+            "closed",
+            "unknown"
+          ],
+          "title": "Initial Gripper",
+          "type": "string"
+        },
+        "open_width_m": {
+          "default": 0.08,
+          "maximum": 0.08,
+          "minimum": 0,
+          "title": "Open Width M",
+          "type": "number"
+        },
+        "closed_width_m": {
+          "default": 0,
+          "maximum": 0.08,
+          "minimum": 0,
+          "title": "Closed Width M",
+          "type": "number"
+        },
+        "max_gripper_speed_m_s": {
+          "default": 0.1,
+          "exclusiveMinimum": 0,
+          "title": "Max Gripper Speed M S",
+          "type": "number"
+        },
+        "require_export": {
+          "default": true,
+          "title": "Require Export",
+          "type": "boolean"
+        },
+        "diagnostic_export": {
+          "default": true,
+          "title": "Diagnostic Export",
+          "type": "boolean"
+        },
+        "quality_rubric": {
+          "const": "baseline-v1",
+          "default": "baseline-v1",
+          "title": "Quality Rubric",
+          "type": "string"
+        }
+      },
+      "required": [
+        "hand_id",
+        "object_id",
+        "shot_id"
+      ],
+      "title": "RobotizationConfig",
+      "type": "object"
+    },
+    "RobotizationHandoff": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.3.0",
+          "default": "0.3.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "video_id": {
+          "title": "Video Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "source_run_id": {
+          "title": "Source Run Id",
+          "type": "string"
+        },
+        "inference_mode": {
+          "enum": [
+            "fixture",
+            "live"
+          ],
+          "title": "Inference Mode",
+          "type": "string"
+        },
+        "artifacts": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Artifacts",
+          "type": "object"
+        },
+        "quality": {
+          "$ref": "#/$defs/QualityReport"
+        },
+        "certification": {
+          "const": "simulation_and_export_report",
+          "default": "simulation_and_export_report",
+          "title": "Certification",
+          "type": "string"
+        }
+      },
+      "required": [
+        "video_id",
+        "run_id",
+        "source_run_id",
+        "inference_mode",
+        "artifacts",
+        "quality"
+      ],
+      "title": "RobotizationHandoff",
+      "type": "object"
+    },
+    "RobotizationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.3.0",
+          "default": "0.3.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_job_id": {
+          "title": "Source Job Id",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Idempotency Key",
+          "type": "string"
+        },
+        "config": {
+          "$ref": "#/$defs/RobotizationConfig"
+        },
+        "allow_review_source": {
+          "default": false,
+          "title": "Allow Review Source",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source_job_id",
+        "idempotency_key",
+        "config"
+      ],
+      "title": "RobotizationRequest",
       "type": "object"
     },
     "SemanticPlan": {
@@ -4446,6 +5117,27 @@
     },
     {
       "$ref": "#/$defs/InteractionTrajectory"
+    },
+    {
+      "$ref": "#/$defs/Calibration"
+    },
+    {
+      "$ref": "#/$defs/RobotizationConfig"
+    },
+    {
+      "$ref": "#/$defs/RobotizationRequest"
+    },
+    {
+      "$ref": "#/$defs/RobotFrame"
+    },
+    {
+      "$ref": "#/$defs/RobotTrajectory"
+    },
+    {
+      "$ref": "#/$defs/QualityReport"
+    },
+    {
+      "$ref": "#/$defs/RobotizationHandoff"
     }
   ],
   "title": "Video2RobotContracts"

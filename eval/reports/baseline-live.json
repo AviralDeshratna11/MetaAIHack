@@ -1,0 +1,1165 @@
+{
+  "status": "incomplete",
+  "phases": {
+    "perception": {
+      "status": "passed_with_review",
+      "requested_inference_mode": "live",
+      "source": "data/golden/pouring.mp4",
+      "source_sha256": "c0e17bc6032da748510265ae402a6e70b0f49a3fac68e0c4b1becf23b5a2ff38",
+      "api_inference_mode": "live",
+      "checks": [
+        "real video upload",
+        "source size/checksum/media verification",
+        "live semantic contract",
+        "live track contracts",
+        "mask decoding",
+        "artifact SHA-256"
+      ],
+      "blockers": [],
+      "live_inference_submitted": true,
+      "video_id": "vid_689eeec47c9640bcb92d89fcb17406a4",
+      "api": "http://localhost:58000",
+      "upload_status": "UPLOADED",
+      "job_id": "job_922277ea40db42038ebf7a91ea08eae1",
+      "run_id": "run_15df7936724445a88f030103a93a3611",
+      "job_status": "NEEDS_REVIEW",
+      "elapsed_s": 604.188,
+      "model_runs": [
+        {
+          "model": "files-api",
+          "status": "completed",
+          "request_id": "0bc22c2e-1337-49d7-9d30-95f95c0a318d",
+          "usage": {},
+          "latency_ms": 5518,
+          "error": null
+        },
+        {
+          "model": "muse-spark-1.3",
+          "status": "completed",
+          "request_id": "4ab2db0d-b9ae-449d-9e49-439fff27b392",
+          "usage": {
+            "input_tokens": 7745,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 5046,
+            "output_tokens_details": {
+              "reasoning_tokens": 3710
+            },
+            "total_tokens": 12791
+          },
+          "latency_ms": 32540,
+          "error": null
+        },
+        {
+          "model": "files-api",
+          "status": "completed",
+          "request_id": "19c3d8b5-cd4b-499a-8484-14b882b0f56b",
+          "usage": {},
+          "latency_ms": 4836,
+          "error": null
+        },
+        {
+          "model": "sam-3.1",
+          "status": "completed",
+          "request_id": "2a28cf37-95a9-4666-a932-abbf5f493622",
+          "usage": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 0,
+            "video_frames_processed": 343
+          },
+          "latency_ms": 17312,
+          "error": null
+        },
+        {
+          "model": "sam-3.1",
+          "status": "failed",
+          "request_id": null,
+          "usage": {},
+          "latency_ms": null,
+          "error": {
+            "code": "E_PROVIDER_CONNECT",
+            "retryable": true
+          }
+        },
+        {
+          "model": "sam-3.1",
+          "status": "completed",
+          "request_id": "e89a59b8-056d-4427-a9a5-056b29a0499a",
+          "usage": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 0,
+            "video_frames_processed": 343
+          },
+          "latency_ms": 15244,
+          "error": null
+        },
+        {
+          "model": "sam-3.1",
+          "status": "failed",
+          "request_id": null,
+          "usage": {},
+          "latency_ms": null,
+          "error": {
+            "code": "E_PROVIDER_CONNECT",
+            "retryable": true
+          }
+        },
+        {
+          "model": "sam-3.1",
+          "status": "completed",
+          "request_id": "2b7f6039-f3c3-4f97-b6a3-062a0e377819",
+          "usage": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 0,
+            "video_frames_processed": 343
+          },
+          "latency_ms": 16064,
+          "error": null
+        },
+        {
+          "model": "sam-3.1",
+          "status": "completed",
+          "request_id": "70053349-9483-43dc-bee4-255beada83d4",
+          "usage": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 0,
+            "video_frames_processed": 343
+          },
+          "latency_ms": 16266,
+          "error": null
+        }
+      ],
+      "real_model_calls": 7,
+      "task": "Pour water from glass into white bowl and stir contents",
+      "entities": [
+        "HAND_A",
+        "HAND_B",
+        "GLASS",
+        "BOWL",
+        "SPOON"
+      ],
+      "action_count": 4,
+      "track_rows": 3087,
+      "decoded_masks": 2474,
+      "artifact_count": 27,
+      "review_reasons": [
+        "HAND_A: associated measured coverage 0.0% below heuristic 80% gate",
+        "HAND_B: associated measured coverage 0.0% below heuristic 80% gate",
+        "GLASS: associated measured coverage 0.0% below heuristic 80% gate",
+        "BOWL: associated measured coverage 0.0% below heuristic 80% gate",
+        "SPOON: associated measured coverage 49.6% below heuristic 80% gate",
+        "Ambiguous semantic-to-track association",
+        "Unverified identity after missing observations",
+        "Mask area or motion anomalies require review",
+        "Unknown action primitive needs review",
+        "pour_01: POUR contact requirement is uncertain"
+      ],
+      "ready_for_geometry": false,
+      "accuracy_metrics": "not_evaluated: independent annotations required",
+      "phase2_status": "not_run: configured GPU runtime and local checkpoints required",
+      "completed_inference_calls": 5,
+      "failed_inference_attempts": 2,
+      "actual_cost_usd": null
+    }
+  },
+  "blockers": [
+    "{\"http\": 503, \"schema_version\": \"0.1.0\", \"code\": \"E_GEOMETRY_CONFIG\", \"message\": \"Configure GEOMETRY_PYTHON and VGGT_CHECKPOINT for live reconstruction\", \"retryable\": false}"
+  ],
+  "accepted": false,
+  "verified_at_utc": "2026-11-03T12:21:41.681125+00:00",
+  "git_head": "afff5019667e90dcbcde7e93b4a8d2c2abaa5c02",
+  "code_hash": "9a0c023486b068f15f902b141e74f5cc273d15f3a8ad17a2ec9f23cb390b0d0b",
+  "independent_checks": {
+    "phase2_fixture": {
+      "schema_version": "0.2.0",
+      "status": "passed",
+      "inference_mode": "fixture",
+      "real_model_calls": 0,
+      "video_id": "vid_441bc0f3838f48898c1b5965a17cc7d9",
+      "source_job_id": "job_7f771f8e544749c8acb77a25d0ab0755",
+      "job_id": "job_a66c75858a6f4e86b06796905d1e1f88",
+      "run_id": "run_c04e329f29f34e81a67e82244394b6cb",
+      "artifact_count": 34,
+      "camera_frames": 16,
+      "hand_pose_frames": 16,
+      "object_pose_frames": 32,
+      "itr_frames": 180,
+      "contact_frames": 0,
+      "elapsed_s": 8.0,
+      "checks": [
+        "immutable source inheritance",
+        "queue stages",
+        "idempotency",
+        "conflicting config rejection",
+        "geometry contracts",
+        "missing geometry",
+        "object-relative poses",
+        "contact windows",
+        "artifact SHA-256",
+        "typed ITR",
+        "persisted SSE",
+        "geometry/contact cache reuse",
+        "run-specific ITR lineage",
+        "original handoff immutability",
+        "relative-scale/review gate"
+      ]
+    },
+    "phase3_diagnostic": {
+      "status": "passed",
+      "mode": "synthetic_inputs_real_robot_simulator_and_exporter",
+      "elapsed_s": 11.641,
+      "robot": {
+        "model": "Franka Emika Panda",
+        "commit": "98a70c569c4c1b6da467a20012f766ee1f8dc521",
+        "asset_hash": "1563e4823e532f4ff7198d14e040d42337654e7274d678ed512c37c6f9232549",
+        "mujoco": "3.3.7",
+        "scipy": "1.15.3",
+        "joint_order": [
+          "joint1",
+          "joint2",
+          "joint3",
+          "joint4",
+          "joint5",
+          "joint6",
+          "joint7"
+        ],
+        "units": "meters/radians",
+        "velocity_limits_rad_s": [
+          2.175,
+          2.175,
+          2.175,
+          2.175,
+          2.61,
+          2.61,
+          2.61
+        ],
+        "acceleration_limits_rad_s2": [
+          15,
+          7.5,
+          10,
+          12.5,
+          15,
+          20,
+          20
+        ],
+        "limits_source": "Franka Panda control parameters; independently constrained trajectory",
+        "tcp": "hand local z +0.1034m; task orientation configured",
+        "quaternion_order": "xyzw"
+      },
+      "frames": 32,
+      "valid_frames": 32,
+      "simulation": {
+        "engine": "mujoco",
+        "version": "3.3.7",
+        "seed": 0,
+        "timestep_s": 0.002,
+        "controller": "official Panda position actuators; linear control-tick interpolation; zero velocity feedforward",
+        "initial_equilibration_s": 1,
+        "physics_stepped": true,
+        "scene": "assumed plane and free 0.1kg box proxy; not reconstructed task scene",
+        "grasp_attachment": false,
+        "task_success": null,
+        "fluid_transfer_success": null,
+        "task_scene_validated": false,
+        "violations": [],
+        "passed": true,
+        "tracking_max_m": 0.004975448262632892,
+        "joint_velocity_max_rad_s": [
+          3.53197285457248e-05,
+          0.05666676713043325,
+          6.23523452207456e-05,
+          0.051405337798295175,
+          1.5304971312070415e-05,
+          0.006363404608078026,
+          4.597131060445249e-06
+        ],
+        "joint_acceleration_max_rad_s2": [
+          0.022845550953306714,
+          1.2556612890154843,
+          0.01109620434259951,
+          1.6130224393125396,
+          0.08888650788152067,
+          0.3935368294679853,
+          0.007495215778658744
+        ],
+        "joint_limit_check_rate": "every physics substep after explicit initial equilibration",
+        "time_quantization_max_s": 0.0013333333333340747,
+        "object_displacement_m": 6.938893903907228e-18,
+        "rendered": true,
+        "render_error": null,
+        "torque_limits": "asset actuator force saturation; feasibility not independently certified",
+        "jerk_limits": "not_evaluated"
+      },
+      "export": {
+        "lerobot_version": "0.4.1",
+        "format": "v3.0",
+        "roundtrip_passed": true,
+        "frames": 32,
+        "episodes": 1,
+        "images_decoded": true,
+        "state": "measured simulated joints/width at command interval start",
+        "action": "absolute joint/width targets",
+        "joint_order": [
+          "joint1.rad",
+          "joint2.rad",
+          "joint3.rad",
+          "joint4.rad",
+          "joint5.rad",
+          "joint6.rad",
+          "joint7.rad",
+          "gripper_width.m"
+        ],
+        "diagnostic_only": true,
+        "accepted_training_subset": false,
+        "source_run_id": "synthetic-source",
+        "run_id": "phase3-diagnostic"
+      },
+      "quality": {
+        "schema_version": "0.3.0",
+        "classification": "Reject",
+        "rubric": "baseline-v1",
+        "checks": {
+          "live_source": false,
+          "nonempty_trajectory": true,
+          "trajectory_valid": true,
+          "simulation_physics": true,
+          "simulation_limits": true,
+          "export_roundtrip": true,
+          "upstream_review_resolved": false,
+          "measured_scale": true,
+          "task_scene_validated": false,
+          "task_success": null
+        },
+        "reasons": [
+          "live_source",
+          "upstream_review_resolved",
+          "task_scene_validated",
+          "task_success"
+        ],
+        "accepted_training_subset": false,
+        "physical_robot_ready": false
+      },
+      "artifacts": {
+        "robot_trajectory.json": "9ad1d3941f8c1f469bd5afe0f44d5797fa088a26331f53644b4b2f5fc1d36ce6",
+        "export/export_report.json": "180525a896501427104f16a5431d25361ef73d682a485509b5942c270671f8fe",
+        "export/export_request.json": "ceedf45ef5518c720386acdd2cf930925b0fee981bf195cdc7304131058260e7",
+        "export/export_stderr.log": "9534e1954897cec20fe256d1043d775e48c3f525fd9dbb1f598dd90be422c176",
+        "export/export_stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "export/dataset/provenance.json": "c4b83a266e8ea83d7a6d4ef2800ff65cd94cc53182a222ad1df3fa962b0ca2dd",
+        "export/dataset/data/chunk-000/file-000.parquet": "c2f194463eb594154ccb5a51ec2f21f072743c927890991e05bd06b475039415",
+        "export/dataset/meta/info.json": "f3b4c3dfdd5c34b53bf02455edff8764c611cc92d46936d883f231f2c897ec14",
+        "export/dataset/meta/stats.json": "3ce8d6f178ebfd0fc8a9c4dda24cbe7d063b32f39c501fd6a8bb8170903711c0",
+        "export/dataset/meta/tasks.parquet": "4416ace8180ce2024d6a1b6657ac16b7f970aee9595864783fcabea2a338b63b",
+        "export/dataset/meta/episodes/chunk-000/file-000.parquet": "203b7b5b123c65241a81d699365204dac209db94ed8c03500fcb2b9ff8721004",
+        "export/dataset/videos/observation.images.simulator/chunk-000/file-000.mp4": "487f3ef0c4e8a24660e04273c725a2ade4e41c72b18ed4339dc6b6e7f2ce3446",
+        "simulation/simulation_replay.mp4": "d86d91aac14a78690a8e58363719f60047ef5747b9bffc723de0155a1374eb4a",
+        "simulation/simulation_report.json": "a4ab7d3188a11adc854c59196631adafb1b941041246a5cab362720bc12ca73a"
+      },
+      "output": "data/phase3-smoke/run-bes8cv2d",
+      "live_models_executed": false
+    },
+    "phase3_api_fixture": {
+      "status": "passed",
+      "inference_mode": "fixture",
+      "real_model_calls": 0,
+      "job_id": "job_0d7a938640b64c8e8909d2a7841e6916",
+      "run_id": "run_99e49fc0b35e43699a17f77d1f4f1aba",
+      "video_id": "vid_441bc0f3838f48898c1b5965a17cc7d9",
+      "source_run_id": "run_c04e329f29f34e81a67e82244394b6cb",
+      "artifact_count": 45,
+      "frames": 7,
+      "quality": {
+        "schema_version": "0.3.0",
+        "classification": "Reject",
+        "rubric": "baseline-v1",
+        "checks": {
+          "live_source": false,
+          "nonempty_trajectory": true,
+          "trajectory_valid": false,
+          "simulation_physics": true,
+          "simulation_limits": false,
+          "export_roundtrip": false,
+          "upstream_review_resolved": false,
+          "measured_scale": false,
+          "task_scene_validated": false,
+          "task_success": null
+        },
+        "reasons": [
+          "live_source",
+          "trajectory_valid",
+          "simulation_limits",
+          "export_roundtrip",
+          "upstream_review_resolved",
+          "measured_scale",
+          "task_scene_validated",
+          "task_success"
+        ],
+        "accepted_training_subset": false,
+        "physical_robot_ready": false
+      },
+      "export": {
+        "roundtrip_passed": false,
+        "status": "failed",
+        "reason": "Official dataset export failed; inspect export_stderr.log"
+      },
+      "checks": [
+        "review gate",
+        "idempotency",
+        "config conflict",
+        "leased worker",
+        "source immutability",
+        "typed APIs",
+        "inherited artifacts",
+        "artifact hashes",
+        "physics replay",
+        "unknown gripper prevents acceptance",
+        "invalid pipeline source rejected"
+      ]
+    },
+    "phase3_container": {
+      "status": "passed",
+      "mode": "synthetic_inputs_real_robot_simulator_and_exporter",
+      "elapsed_s": 15.361,
+      "robot": {
+        "model": "Franka Emika Panda",
+        "commit": "98a70c569c4c1b6da467a20012f766ee1f8dc521",
+        "asset_hash": "1563e4823e532f4ff7198d14e040d42337654e7274d678ed512c37c6f9232549",
+        "mujoco": "3.3.7",
+        "scipy": "1.15.3",
+        "joint_order": [
+          "joint1",
+          "joint2",
+          "joint3",
+          "joint4",
+          "joint5",
+          "joint6",
+          "joint7"
+        ],
+        "units": "meters/radians",
+        "velocity_limits_rad_s": [
+          2.175,
+          2.175,
+          2.175,
+          2.175,
+          2.61,
+          2.61,
+          2.61
+        ],
+        "acceleration_limits_rad_s2": [
+          15,
+          7.5,
+          10,
+          12.5,
+          15,
+          20,
+          20
+        ],
+        "limits_source": "Franka Panda control parameters; independently constrained trajectory",
+        "tcp": "hand local z +0.1034m; task orientation configured",
+        "quaternion_order": "xyzw"
+      },
+      "frames": 32,
+      "valid_frames": 32,
+      "simulation": {
+        "engine": "mujoco",
+        "version": "3.3.7",
+        "seed": 0,
+        "timestep_s": 0.002,
+        "controller": "official Panda position actuators; linear control-tick interpolation; zero velocity feedforward",
+        "initial_equilibration_s": 1,
+        "physics_stepped": true,
+        "scene": "assumed plane and free 0.1kg box proxy; not reconstructed task scene",
+        "grasp_attachment": false,
+        "unknown_gripper_behavior": "No inferred command; holds prior simulator control, with closed proxy initialization when initial state is unknown. Never an accepted training action.",
+        "task_success": null,
+        "fluid_transfer_success": null,
+        "task_scene_validated": false,
+        "violations": [],
+        "passed": true,
+        "tracking_max_m": 0.004975448308452102,
+        "joint_velocity_max_rad_s": [
+          3.4865207623029845e-05,
+          0.056666765584679465,
+          6.65972314664331e-05,
+          0.05140533630437996,
+          1.3409927699282977e-05,
+          0.006363622206640239,
+          6.215154831924597e-06
+        ],
+        "joint_acceleration_max_rad_s2": [
+          0.02156810363717456,
+          1.2556636521651987,
+          0.012018499861678078,
+          1.6130293615576226,
+          0.08852851941887106,
+          0.3935492816575282,
+          0.007195860072738502
+        ],
+        "joint_limit_check_rate": "every physics substep after explicit initial equilibration",
+        "time_quantization_max_s": 0.0013333333333340747,
+        "object_displacement_m": 6.938893903907228e-18,
+        "rendered": true,
+        "render_error": null,
+        "torque_limits": "asset actuator force saturation; feasibility not independently certified",
+        "jerk_limits": "not_evaluated"
+      },
+      "export": {
+        "lerobot_version": "0.4.1",
+        "format": "v3.0",
+        "roundtrip_passed": true,
+        "frames": 32,
+        "episodes": 1,
+        "images_decoded": true,
+        "state": "measured simulated joints/width at command interval start",
+        "action": "absolute joint/width targets",
+        "joint_order": [
+          "joint1.rad",
+          "joint2.rad",
+          "joint3.rad",
+          "joint4.rad",
+          "joint5.rad",
+          "joint6.rad",
+          "joint7.rad",
+          "gripper_width.m"
+        ],
+        "diagnostic_only": true,
+        "accepted_training_subset": false,
+        "source_run_id": "synthetic-source",
+        "run_id": "phase3-diagnostic"
+      },
+      "quality": {
+        "schema_version": "0.3.0",
+        "classification": "Reject",
+        "rubric": "baseline-v1",
+        "checks": {
+          "live_source": false,
+          "nonempty_trajectory": true,
+          "trajectory_valid": true,
+          "simulation_physics": true,
+          "simulation_limits": true,
+          "export_roundtrip": true,
+          "upstream_review_resolved": false,
+          "measured_scale": true,
+          "task_scene_validated": false,
+          "task_success": null
+        },
+        "reasons": [
+          "live_source",
+          "upstream_review_resolved",
+          "task_scene_validated",
+          "task_success"
+        ],
+        "accepted_training_subset": false,
+        "physical_robot_ready": false
+      },
+      "artifacts": {
+        "robot_trajectory.json": "14bec9a2188c666ce415b25dd357e016c130167ba5d496b1d89ce7c262914478",
+        "export/export_report.json": "618ae77dba5e5452abde4af0d8246de1adc2cad4fcf1db34c7213ee693689b3f",
+        "export/export_request.json": "204ca223dc159c527f0c7169673bcdb4ac06f309a06db85bc316531f0035014e",
+        "export/export_stderr.log": "901b321e4ee8c04a4ffb13b352b6f8dfa09962a14d8620b030f5ba8a27335550",
+        "export/export_stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "export/dataset/provenance.json": "5f7c072796635684bc9fc98dd2c48921dd9c3a18e651d2b4cc992e04b744bbef",
+        "export/dataset/data/chunk-000/file-000.parquet": "6aec5fe3d32bbf20ee0d252d851c2bf56b7d4fc6dee7461f0c9af933f79f954c",
+        "export/dataset/meta/info.json": "259d9512a93e1860dc60d9512579a9e32508e68906d7c26da5b22b3d2d264ebe",
+        "export/dataset/meta/stats.json": "4d2b8853ff0dd7c841c02806cb4fc9ca83be2f97727806587bfb69fa81af3fef",
+        "export/dataset/meta/tasks.parquet": "4416ace8180ce2024d6a1b6657ac16b7f970aee9595864783fcabea2a338b63b",
+        "export/dataset/meta/episodes/chunk-000/file-000.parquet": "250b44161096bf5d70ec8a24fc6035b8ca7acf0291608d06f1dd5c887141eabd",
+        "export/dataset/videos/observation.images.simulator/chunk-000/file-000.mp4": "919e06fbcae792189c4f82ce768958377268fa87e63d8535b83622cbc2a5b802",
+        "simulation/simulation_replay.mp4": "e1e746352fe154cc243eb8badb32e5511f038163790664741c1036dc7105ce01",
+        "simulation/simulation_report.json": "9a635f773f10901fe347d014b77d6300047bff7d68e034c107c85bac436885a6"
+      },
+      "output": "data/phase3-smoke/run-js0w4tsy",
+      "live_models_executed": false
+    },
+    "phase3_queue_fixture": {
+      "status": "passed",
+      "inference_mode": "fixture",
+      "real_model_calls": 0,
+      "worker_mode": "queue",
+      "job_id": "job_e5c644ccf8c340bc8af7634e8252c2f2",
+      "run_id": "run_e3b301f7540c43758e06d86d1cd51f9d",
+      "video_id": "vid_441bc0f3838f48898c1b5965a17cc7d9",
+      "source_run_id": "run_c04e329f29f34e81a67e82244394b6cb",
+      "artifact_count": 45,
+      "frames": 7,
+      "quality": {
+        "schema_version": "0.3.0",
+        "classification": "Reject",
+        "rubric": "baseline-v1",
+        "checks": {
+          "live_source": false,
+          "nonempty_trajectory": true,
+          "trajectory_valid": false,
+          "simulation_physics": true,
+          "simulation_limits": false,
+          "export_roundtrip": false,
+          "upstream_review_resolved": false,
+          "measured_scale": false,
+          "task_scene_validated": false,
+          "task_success": null
+        },
+        "reasons": [
+          "live_source",
+          "trajectory_valid",
+          "simulation_limits",
+          "export_roundtrip",
+          "upstream_review_resolved",
+          "measured_scale",
+          "task_scene_validated",
+          "task_success"
+        ],
+        "accepted_training_subset": false,
+        "physical_robot_ready": false
+      },
+      "export": {
+        "roundtrip_passed": false,
+        "status": "failed",
+        "reason": "Official dataset export failed; inspect export_stderr.log"
+      },
+      "checks": [
+        "review gate",
+        "idempotency",
+        "config conflict",
+        "leased worker",
+        "source immutability",
+        "typed APIs",
+        "inherited artifacts",
+        "artifact hashes",
+        "physics replay",
+        "unknown gripper prevents acceptance",
+        "invalid pipeline source rejected"
+      ]
+    },
+    "ablations_fixture": {
+      "status": "completed",
+      "source_run_id": "run_c04e329f29f34e81a67e82244394b6cb",
+      "mode": "fixture",
+      "input_artifact_hashes": {
+        "object_centric.parquet": "7fb7f74fa720601abf255e71f149ada6951f6fe2589ca613e3b4ecc2a5faa8c4",
+        "object_pose.parquet": "d5314405115ce3e64d0f6e68d91ab6fb30505ccf910ea0462dccf143e92eb71a",
+        "affordance_patches.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "contacts.parquet": "e7fe7625d8a6bc68144b305642c217edfad7d8d8d511bf897db960eee1f5bf27",
+        "interaction_events.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "interaction_report.json": "18fa2093f40e570437c7e4733e18ce15b597c00f58c780b97f45616fa0f2d9c2",
+        "refined_actions.json": "ddb08212b68bb562eea59f598c0d7d5e4a230f154b79ac512b47eb3fb1554881",
+        "interaction_trajectory.json.gz": "71eb4bb39af7f6ed7b99a0889343a6f80a79c9562985a13d15a1b643699e5124",
+        "reconstruction_report.json": "207d992be31381a0a6e7a20403369c599f1b516c5daa346715ce73fef8f24108",
+        "phase2_handoff.json": "e4a7de94a6263c612e8c4dcea48ec3fa03a129ce543da0229d9e26fd592256be",
+        "frame_map.parquet": "bdb8ba15a8ac757a14191b3319998900bb87cfae74df2dd9d9f8332a171c4391",
+        "keyframe_000028.jpg": "1e8e3b7fccb6a087996f1fe85304b1ff7ef57090bf935f982655087a898c3d6a",
+        "keyframe_000052.jpg": "62d7f7b9db2e197a13051f7a3ec062159d57e25afed8928145b90a4e025a08dc",
+        "keyframe_000071.jpg": "d8d100d8d2d54bec88f3b227bf8bc9a2f7eb5295c358df1097dffcd9e512062d",
+        "keyframe_000115.jpg": "3c9a4ef1306ba4bfed03884ed7795fb697c1da9ffccdc4c0cf56f0ab3846ef2a",
+        "keyframe_000128.jpg": "029cec0804cf8223dd30661b317e7d08c3eedaf83b6e4a8c0a8bed8a03606c07",
+        "keyframe_000152.jpg": "a0dd54266a9148d5d8bf2eef8ee606c616a4abd524b74def4deda6a80f2b1ed2",
+        "manifest.json": "4c74142c2a7da1b884889db89ce71227d835824f391068f726bc6f0611f2a1c2",
+        "shots.json": "7f82c26640125d0fe409019b6dadb07a68b06707da5d2fe1dec851d93adabf08",
+        "video_720p_15fps.mp4": "b3c0dfc84259f0fdc5f81d2e6039590598b82425d4294e896a492de7ad9c8f6d",
+        "action_graph.json": "376be5164ed15cdac89617941fda56d3b96e5c5c4bc9e4bfbb6779c769c18396",
+        "semantic_attempts.json": "81a4baa0eabdca61e67639aba0a2907be7d778d408d3f54a6f1243b0427d63a8",
+        "semantic_plan.json": "63a3190b0ecd59455b29b8a16495e37d47b30b98e8366ca2fea89322239a75ea",
+        "masks_shot_000_bowl.json.gz": "c203685010e0a04ca37ff3bf0ecf7105949cc3edc1304d500721f63699e8bad5",
+        "masks_shot_000_hand.json.gz": "e63f4f4ba391fe7040fe1640d26630952258aaf76ae57cf768a5299e057cc264",
+        "masks_shot_000_mug.json.gz": "919c16abf6d9b87e5e5c4b38f205a3a4bccd0ac1833d3fef80847d57b5afa0c9",
+        "tracking_report.json": "ffa7432efc5ee18aeb6d93b2525c2757caf5055ca17dc57b7c5e6d8c41e2fcee",
+        "tracks.parquet": "39619945b4cdf1e231731a5119ebc5052bf669bd49a227e3619e087f8e8ca3dc",
+        "handoff_manifest.json": "b4ae64455ee1e9a9bfe2e9a8a11fdd162ad1fad2e07d501fd2e6d040dfa00e1e",
+        "alignments.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "cameras.parquet": "0eaeba8359b60cfe1075c02eb17cb979649c4a20933b8cda5230bf77089c999f",
+        "geometry_provenance.json": "58fad49d0f0075c28dea7cc16307626e8e4290392c5c0be36574ea9c02332701",
+        "geometry_report.json": "04560708f62eea55c1f5f0484d6e4180fe237be41175312962c1d1650c86244e",
+        "hand_pose.parquet": "923764311ea6121b520a482f3a428b86f4e89989ea1af3a4f1a433e25bf5aef5"
+      },
+      "seed": 0,
+      "real_model_calls": 0,
+      "variants": [
+        {
+          "variant": "full",
+          "config": {
+            "schema_version": "0.2.0",
+            "backend": "fixture",
+            "body_backend": "none",
+            "sample_fps": 5,
+            "max_frames_per_shot": 32,
+            "max_total_frames": 96,
+            "max_points_per_entity": 256,
+            "contact_distance_2d_px": 12,
+            "contact_distance_3d_relative": 0.04,
+            "contact_on": 0.72,
+            "contact_off": 0.4,
+            "persistence_frames": 3,
+            "boundary_window_s": 1.5,
+            "max_alignment_relative_rmse": 0.08,
+            "contact_mask_weight": 0.35,
+            "contact_geometry_weight": 0.35,
+            "contact_motion_weight": 0.2,
+            "contact_semantic_weight": 0.1,
+            "enable_boundary_refinement": true
+          },
+          "elapsed_s": 0.859,
+          "contact_frames": 0,
+          "events": 0,
+          "unknown_frames": 0,
+          "refined_starts": 0,
+          "accuracy": "not_evaluated; independent ground truth absent"
+        },
+        {
+          "variant": "semantic_only",
+          "config": {
+            "schema_version": "0.2.0",
+            "backend": "fixture",
+            "body_backend": "none",
+            "sample_fps": 5,
+            "max_frames_per_shot": 32,
+            "max_total_frames": 96,
+            "max_points_per_entity": 256,
+            "contact_distance_2d_px": 12,
+            "contact_distance_3d_relative": 0.04,
+            "contact_on": 0.72,
+            "contact_off": 0.4,
+            "persistence_frames": 3,
+            "boundary_window_s": 1.5,
+            "max_alignment_relative_rmse": 0.08,
+            "contact_mask_weight": 0.0,
+            "contact_geometry_weight": 0.0,
+            "contact_motion_weight": 0.0,
+            "contact_semantic_weight": 1.0,
+            "enable_boundary_refinement": true
+          },
+          "elapsed_s": 0.844,
+          "contact_frames": 35,
+          "events": 2,
+          "unknown_frames": 0,
+          "refined_starts": 0,
+          "accuracy": "not_evaluated; independent ground truth absent"
+        },
+        {
+          "variant": "no_mask",
+          "config": {
+            "schema_version": "0.2.0",
+            "backend": "fixture",
+            "body_backend": "none",
+            "sample_fps": 5,
+            "max_frames_per_shot": 32,
+            "max_total_frames": 96,
+            "max_points_per_entity": 256,
+            "contact_distance_2d_px": 12,
+            "contact_distance_3d_relative": 0.04,
+            "contact_on": 0.72,
+            "contact_off": 0.4,
+            "persistence_frames": 3,
+            "boundary_window_s": 1.5,
+            "max_alignment_relative_rmse": 0.08,
+            "contact_mask_weight": 0.0,
+            "contact_geometry_weight": 0.35,
+            "contact_motion_weight": 0.2,
+            "contact_semantic_weight": 0.1,
+            "enable_boundary_refinement": true
+          },
+          "elapsed_s": 0.875,
+          "contact_frames": 0,
+          "events": 0,
+          "unknown_frames": 0,
+          "refined_starts": 0,
+          "accuracy": "not_evaluated; independent ground truth absent"
+        },
+        {
+          "variant": "no_geometry",
+          "config": {
+            "schema_version": "0.2.0",
+            "backend": "fixture",
+            "body_backend": "none",
+            "sample_fps": 5,
+            "max_frames_per_shot": 32,
+            "max_total_frames": 96,
+            "max_points_per_entity": 256,
+            "contact_distance_2d_px": 12,
+            "contact_distance_3d_relative": 0.04,
+            "contact_on": 0.72,
+            "contact_off": 0.4,
+            "persistence_frames": 3,
+            "boundary_window_s": 1.5,
+            "max_alignment_relative_rmse": 0.08,
+            "contact_mask_weight": 0.35,
+            "contact_geometry_weight": 0.0,
+            "contact_motion_weight": 0.2,
+            "contact_semantic_weight": 0.1,
+            "enable_boundary_refinement": true
+          },
+          "elapsed_s": 0.875,
+          "contact_frames": 0,
+          "events": 0,
+          "unknown_frames": 0,
+          "refined_starts": 0,
+          "accuracy": "not_evaluated; independent ground truth absent"
+        },
+        {
+          "variant": "no_motion",
+          "config": {
+            "schema_version": "0.2.0",
+            "backend": "fixture",
+            "body_backend": "none",
+            "sample_fps": 5,
+            "max_frames_per_shot": 32,
+            "max_total_frames": 96,
+            "max_points_per_entity": 256,
+            "contact_distance_2d_px": 12,
+            "contact_distance_3d_relative": 0.04,
+            "contact_on": 0.72,
+            "contact_off": 0.4,
+            "persistence_frames": 3,
+            "boundary_window_s": 1.5,
+            "max_alignment_relative_rmse": 0.08,
+            "contact_mask_weight": 0.35,
+            "contact_geometry_weight": 0.35,
+            "contact_motion_weight": 0.0,
+            "contact_semantic_weight": 0.1,
+            "enable_boundary_refinement": true
+          },
+          "elapsed_s": 0.875,
+          "contact_frames": 0,
+          "events": 0,
+          "unknown_frames": 0,
+          "refined_starts": 0,
+          "accuracy": "not_evaluated; independent ground truth absent"
+        },
+        {
+          "variant": "no_semantics",
+          "config": {
+            "schema_version": "0.2.0",
+            "backend": "fixture",
+            "body_backend": "none",
+            "sample_fps": 5,
+            "max_frames_per_shot": 32,
+            "max_total_frames": 96,
+            "max_points_per_entity": 256,
+            "contact_distance_2d_px": 12,
+            "contact_distance_3d_relative": 0.04,
+            "contact_on": 0.72,
+            "contact_off": 0.4,
+            "persistence_frames": 3,
+            "boundary_window_s": 1.5,
+            "max_alignment_relative_rmse": 0.08,
+            "contact_mask_weight": 0.35,
+            "contact_geometry_weight": 0.35,
+            "contact_motion_weight": 0.2,
+            "contact_semantic_weight": 0.0,
+            "enable_boundary_refinement": true
+          },
+          "elapsed_s": 0.86,
+          "contact_frames": 0,
+          "events": 0,
+          "unknown_frames": 0,
+          "refined_starts": 0,
+          "accuracy": "not_evaluated; independent ground truth absent"
+        },
+        {
+          "variant": "no_refinement",
+          "config": {
+            "schema_version": "0.2.0",
+            "backend": "fixture",
+            "body_backend": "none",
+            "sample_fps": 5,
+            "max_frames_per_shot": 32,
+            "max_total_frames": 96,
+            "max_points_per_entity": 256,
+            "contact_distance_2d_px": 12,
+            "contact_distance_3d_relative": 0.04,
+            "contact_on": 0.72,
+            "contact_off": 0.4,
+            "persistence_frames": 3,
+            "boundary_window_s": 1.5,
+            "max_alignment_relative_rmse": 0.08,
+            "contact_mask_weight": 0.35,
+            "contact_geometry_weight": 0.35,
+            "contact_motion_weight": 0.2,
+            "contact_semantic_weight": 0.1,
+            "enable_boundary_refinement": false
+          },
+          "elapsed_s": 0.875,
+          "contact_frames": 0,
+          "events": 0,
+          "unknown_frames": 0,
+          "refined_starts": 0,
+          "accuracy": "not_evaluated; independent ground truth absent"
+        },
+        {
+          "variant": "basic_ik",
+          "config": {
+            "schema_version": "0.3.0",
+            "hand_id": "hand",
+            "object_id": "mug",
+            "shot_id": "shot_000",
+            "start_s": 0.0,
+            "end_s": 0.201,
+            "calibration": {
+              "schema_version": "0.3.0",
+              "mode": "workspace_adaptation",
+              "scale_m_per_unit": 1.0,
+              "base_from_world": [
+                [
+                  1.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                [
+                  0.0,
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ]
+              ],
+              "evidence": "Automatic workspace adaptation; unknown physical dimensions",
+              "residual_m": null
+            },
+            "workspace_center_m": [
+              0.42,
+              0.0,
+              0.55
+            ],
+            "workspace_extent_m": 0.02,
+            "tcp_quaternion_xyzw": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "tcp_offset_m": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation_source": "configured_task_constraint",
+            "max_gap_s": 1.0,
+            "control_hz": 30,
+            "position_tolerance_m": 0.015,
+            "orientation_tolerance_rad": 0.15,
+            "simulation_tracking_tolerance_m": 0.04,
+            "initial_gripper": "unknown",
+            "open_width_m": 0.08,
+            "closed_width_m": 0.0,
+            "max_gripper_speed_m_s": 0.1,
+            "require_export": true,
+            "diagnostic_export": true,
+            "quality_rubric": "baseline-v1"
+          },
+          "elapsed_s": 1.422,
+          "frames": 7,
+          "kinematic_failed_frames": 0,
+          "unknown_gripper_frames": 7,
+          "max_position_error_m": 0.0004145605296714011,
+          "accuracy": "consistency diagnostic only"
+        },
+        {
+          "variant": "continuous_collision_ik",
+          "config": {
+            "schema_version": "0.3.0",
+            "hand_id": "hand",
+            "object_id": "mug",
+            "shot_id": "shot_000",
+            "start_s": 0.0,
+            "end_s": 0.201,
+            "calibration": {
+              "schema_version": "0.3.0",
+              "mode": "workspace_adaptation",
+              "scale_m_per_unit": 1.0,
+              "base_from_world": [
+                [
+                  1.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                [
+                  0.0,
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0
+                ]
+              ],
+              "evidence": "Automatic workspace adaptation; unknown physical dimensions",
+              "residual_m": null
+            },
+            "workspace_center_m": [
+              0.42,
+              0.0,
+              0.55
+            ],
+            "workspace_extent_m": 0.02,
+            "tcp_quaternion_xyzw": [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "tcp_offset_m": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation_source": "configured_task_constraint",
+            "max_gap_s": 1.0,
+            "control_hz": 30,
+            "position_tolerance_m": 0.015,
+            "orientation_tolerance_rad": 0.15,
+            "simulation_tracking_tolerance_m": 0.04,
+            "initial_gripper": "unknown",
+            "open_width_m": 0.08,
+            "closed_width_m": 0.0,
+            "max_gripper_speed_m_s": 0.1,
+            "require_export": true,
+            "diagnostic_export": true,
+            "quality_rubric": "baseline-v1"
+          },
+          "elapsed_s": 0.219,
+          "frames": 7,
+          "kinematic_failed_frames": 0,
+          "unknown_gripper_frames": 7,
+          "max_position_error_m": 0.00043471504669891363,
+          "accuracy": "consistency diagnostic only"
+        }
+      ],
+      "body_vs_geometry": "not_run; real body inference unavailable",
+      "interpretation": "Frozen-input diagnostic experiment; no accuracy or causal generalization claims"
+    },
+    "runtime": {
+      "environment": "native-project-environment",
+      "host_packages": {
+        "torch": "2.7.1+cpu",
+        "mujoco": "3.3.7",
+        "scipy": "1.15.3",
+        "lerobot": "0.4.1",
+        "vggt": null,
+        "sam_3d_body": null
+      },
+      "model_key_configured": true,
+      "geometry_python_configured": false,
+      "lerobot_python_configured": false,
+      "local_dataset_environment_detected": true,
+      "checkpoints": {
+        "vggt": false,
+        "sam3d_body": false,
+        "mhr": false
+      },
+      "robot_assets_present": true,
+      "gpu": "NVIDIA GeForce RTX 3050 Ti Laptop GPU, 4096 MiB, 3893 MiB",
+      "live_geometry_ready": false
+    },
+    "worker_runtime": {
+      "environment": "linux-robot-worker",
+      "host_packages": {
+        "torch": null,
+        "mujoco": "3.3.7",
+        "scipy": "1.15.3",
+        "lerobot": null,
+        "vggt": null,
+        "sam_3d_body": null
+      },
+      "model_key_configured": true,
+      "geometry_python_configured": false,
+      "lerobot_python_configured": true,
+      "local_dataset_environment_detected": true,
+      "checkpoints": {
+        "vggt": false,
+        "sam3d_body": false,
+        "mhr": false
+      },
+      "robot_assets_present": true,
+      "gpu": "unavailable",
+      "live_geometry_ready": false
+    },
+    "additional_source": {
+      "source_uri": "https://www.pexels.com/video/a-person-picking-up-a-cup-of-coffee-on-a-table-7658235/",
+      "download_uri": "https://videos.pexels.com/video-files/7658235/7658235-hd_1920_1080_25fps.mp4",
+      "author": "Cup of Couple",
+      "rights_status": "licensed",
+      "license": "https://www.pexels.com/license/",
+      "path": "data/live-tests/pexels-7658235.mp4",
+      "sha256": "feeeac5015d030bfbc13f93714c3ce993b8d6ea7536abbc688a9be182fd0c34a",
+      "byte_count": 5975969,
+      "duration_s": 9.92,
+      "width": 1920,
+      "height": 1080,
+      "fps": "25/1",
+      "status": "excluded_duration",
+      "reason": "Unmodified source is below configured 10-second minimum; no padding or threshold change",
+      "real_model_calls": 0,
+      "annotation_status": "unknown"
+    },
+    "model_capabilities": {
+      "checked_date": "2026-11-03",
+      "endpoint": "Meta GET /v1/models",
+      "status": "verified",
+      "inference_requests": 0,
+      "available_models": [
+        "muse-wonder-1.0",
+        "sam-3.1",
+        "muse-spark-1.3-contributor",
+        "muse-voice-transcribe-1.0",
+        "muse-spark-1.3",
+        "muse-image-1.0",
+        "muse-spark-1.2-contributor",
+        "muse-spark-1.2",
+        "muse-spark-1.1"
+      ],
+      "geometry_access": "No hosted VGGT or SAM 3D Body model is exposed in this account list. Configured local inference is still required.",
+      "sam3d_checkpoint_access": "Official INSTALL.md requires approved Hugging Face repository access and authenticated downloads; no authorized checkpoints are configured.",
+      "official_setup": "https://github.com/facebookresearch/sam-3d-body/blob/main/INSTALL.md"
+    }
+  },
+  "independent_checks_note": "These software/fixture checks do not form a single real-video lineage and cannot satisfy live acceptance"
+}

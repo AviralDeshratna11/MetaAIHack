@@ -1,0 +1,76 @@
+{
+  "torch": "2.5.1+cu121",
+  "device": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+  "memory_mode": "low_vram",
+  "image_size": 224,
+  "sampled_frames": 2,
+  "peak_cuda_bytes": 3633549312,
+  "camera_depth_heads": "cpu_fp32",
+  "precision": "torch.bfloat16",
+  "status": "completed",
+  "body_backend": "sam3d",
+  "body_hypotheses": 2,
+  "elapsed_s": 196.815,
+  "inference_mode": "live",
+  "models": {
+    "vggt": {
+      "repo": "facebook/VGGT-1B",
+      "revision": "860abec7937da0a4c03c41d3c269c366e82abdf9",
+      "files": {
+        "model.pt": {
+          "sha256": "d15bf50a8615c8225ed48b51ea5cac673d82442ec0309036df555a053253afe0",
+          "bytes": 5026874952,
+          "upstream_lfs_sha256": "d15bf50a8615c8225ed48b51ea5cac673d82442ec0309036df555a053253afe0"
+        },
+        "config.json": {
+          "sha256": "a73e929a168b900546a84fe88cd70dfaaf2f8e39cf77355b12984eaa686f3855",
+          "bytes": 62,
+          "upstream_lfs_sha256": null
+        },
+        "README.md": {
+          "sha256": "d666ecaba89db88cb66bf06db6daddfdc2400e13f2a39e39c84e888b27fbc615",
+          "bytes": 2060,
+          "upstream_lfs_sha256": null
+        }
+      }
+    },
+    "sam3d_body": {
+      "repo": "facebook/sam-3d-body-dinov3",
+      "revision": "11aaa346c7204874a1cbafe3d39a979080b2c55a",
+      "files": {
+        "model.ckpt": {
+          "sha256": "b5a2f9d305dd02626b967aa2e86021fba07065df66ce7a7e00ffb9664f150abf",
+          "bytes": 2109129346,
+          "upstream_lfs_sha256": "b5a2f9d305dd02626b967aa2e86021fba07065df66ce7a7e00ffb9664f150abf"
+        },
+        "model_config.yaml": {
+          "sha256": "1012fc3f39cb5e90e3f8fbadf7bded31604bfafdce0321d17a7c1a2d3f08b88d",
+          "bytes": 1488,
+          "upstream_lfs_sha256": null
+        },
+        "assets/mhr_model.pt": {
+          "sha256": "352e271a6c42729c68554ceaea0c955e866970160c31e35506d782dc0f7377bc",
+          "bytes": 696110248,
+          "upstream_lfs_sha256": "352e271a6c42729c68554ceaea0c955e866970160c31e35506d782dc0f7377bc"
+        },
+        "LICENSE": {
+          "sha256": "b3a5a0e2d973ab80e6610ccf1cffc40756050d0ace3cd4fec879b3ec290b2e9b",
+          "bytes": 8204,
+          "upstream_lfs_sha256": null
+        },
+        "README.md": {
+          "sha256": "93d4d9b963b2b8d30c465f3b7b06843576e0c0a8c12711a8d03c9dc47817ddba",
+          "bytes": 5761,
+          "upstream_lfs_sha256": null
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "body_0.json": "408ecf7a259bd346253e50b602bb6019cf9335aa52e86bf380765442bb790a5d",
+    "body_75.json": "c048781ffef653317f79a15b146ecbacc16f780b7d2d489ea080afbde9810dff",
+    "frame_0.npz": "992d0c84a79603213286463e1e5f54bafdf8cd5191729cbfef10b3a0160c59f5",
+    "frame_75.npz": "cc2523757fdc8823fa39b5e3480e5ed5ef585e35ff8e2b14b70a137ffb0e3204",
+    "runtime_report.json": "e614e6fd9ea6620defb353c25c90947c77a28033f2fd59b5cfa8f6abc5468024"
+  }
+}
