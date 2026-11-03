@@ -1,5 +1,8 @@
 # Video2Robot — perception, interaction and robot compiler
 
+For a complete explanation of the architecture, component responsibilities and
+operating procedure, read the [complete workflow guide](docs/complete-workflow.md).
+
 For the running local live app and exact UI/CLI test steps, see
 [local live testing](docs/live-testing.md).
 
