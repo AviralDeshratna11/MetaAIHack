@@ -56,6 +56,8 @@ class LocalGeometry:
     name = "vggt-local"
 
     def reconstruct(self, frames, manifest, output, config):
+        if config.get("windowed") and len(frames) > 4:
+            return self.reconstruct_windows(frames, manifest, output, config)
         request = output / "gpu_request.json"
         request.write_text(json.dumps({"frames": {str(k): str(v.resolve()) for k, v in frames.items()},
             "width": manifest.width, "height": manifest.height, "config": config}), encoding="utf-8")
@@ -78,4 +80,41 @@ class LocalGeometry:
                 body = json.loads((output / f"body_{index}.json").read_text())
                 result[index] = {"intrinsic": k, "world_from_camera": transform,
                     "points": points, "confidence": data["confidence"], "body": body}
+        return result
+
+    def reconstruct_windows(self, frames, manifest, output, config):
+        from packages.geometry.windows import frame_windows, align_window
+        result, reports = {}, []
+        anchor = min(frames)
+        for number, indices in enumerate(frame_windows(frames)):
+            directory = output / f"window_{number:03d}"
+            directory.mkdir()
+            packet = self.reconstruct({i: frames[i] for i in indices}, manifest, directory,
+                                      {**config, "windowed": False})
+            report = json.loads((directory / "runtime_report.json").read_text())
+            if result:
+                try:
+                    scale, rotation, translation, alignment = align_window(packet[anchor]["points"],
+                        result[anchor]["points"], config.get("max_window_alignment_relative_rmse", .06))
+                except ValueError as exc:
+                    raise DomainError("E_GEOMETRY_WINDOW_ALIGNMENT", str(exc), 409) from exc
+                for item in packet.values():
+                    item["points"] = (scale*item["points"]@rotation.T+translation).astype(np.float32)
+                    camera = item["world_from_camera"].copy()
+                    camera[:3, :3] = rotation @ camera[:3, :3]
+                    camera[:3, 3] = scale*rotation@camera[:3, 3]+translation
+                    item["world_from_camera"] = camera
+                report["alignment_to_reference"] = alignment
+            for i, item in packet.items():
+                if i in result: continue
+                result[i] = item
+                np.savez_compressed(output/f"frame_{i}.npz", intrinsic=item["intrinsic"],
+                    world_from_camera=item["world_from_camera"], points=item["points"], confidence=item["confidence"])
+                (output/f"body_{i}.json").write_text(json.dumps(item["body"]), encoding="utf-8")
+            reports.append(report)
+        (output/"runtime_report.json").write_text(json.dumps({"status": "completed",
+            "windowed": True, "sampled_frames": len(result), "reference_frame": anchor,
+            "body_backend": config["body_backend"], "body_hypotheses": sum(len(p["body"]) for p in result.values()),
+            "elapsed_s": sum(r["elapsed_s"] for r in reports),
+            "peak_cuda_bytes": max(r["peak_cuda_bytes"] for r in reports), "windows": reports}), encoding="utf-8")
         return result

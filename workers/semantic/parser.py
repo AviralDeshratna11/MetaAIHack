@@ -23,6 +23,7 @@ Omit whole-person, clothing, decorative background and large support-surface ent
 unless essential to the task; an optional PLACE target may remain null.
 SAM prompts must be short concrete nouns; retain descriptive names separately.
 The action graph must be acyclic. Timestamps are coarse semantic hypotheses.
+Use STIR for visible repeated mixing with a utensil; retain uncertainty about contact and transferred material.
 Set duration_s to the provided canonical duration exactly.
 """
 

@@ -33,6 +33,32 @@ class Calibration(RobotContract):
         return self
 
 
+class TaskScene(RobotContract):
+    task: Literal["reach", "pick_place"]
+    geometry_source: Literal["configured_simulation_proxy", "measured_task_scene"] = "configured_simulation_proxy"
+    evidence: str = Field(min_length=1)
+    goal_position_m: Vec3
+    object_position_m: Vec3 = Field(default_factory=lambda: [.5, 0, .035])
+    object_half_size_m: Vec3 = Field(default_factory=lambda: [.02, .02, .035])
+    object_mass_kg: Annotated[FiniteFloat, Field(gt=0, le=10)] = .1
+    friction: Annotated[FiniteFloat, Field(gt=0, le=5)] = .8
+    table_top_m: FiniteFloat = 0
+    goal_tolerance_m: Annotated[FiniteFloat, Field(gt=0, le=.1)] = .025
+    required_lift_m: Annotated[FiniteFloat, Field(gt=0, le=.3)] = .04
+    success_hold_s: Annotated[FiniteFloat, Field(gt=0, le=2)] = .2
+    horizon_s: Annotated[FiniteFloat, Field(gt=0, le=120)] = 15
+
+    @model_validator(mode="after")
+    def geometry(self):
+        if any(x <= 0 or x > .3 for x in self.object_half_size_m):
+            raise ValueError("Object half sizes must be positive and at most 0.3 meters")
+        if self.object_position_m[2]-self.object_half_size_m[2] < self.table_top_m-1e-5:
+            raise ValueError("Object initial position intersects support surface")
+        if self.task == "pick_place" and self.goal_position_m[2] < self.table_top_m:
+            raise ValueError("Placement goal must be above support surface")
+        return self
+
+
 class RobotizationConfig(RobotContract):
     hand_id: str = Field(min_length=1)
     object_id: str = Field(min_length=1)
@@ -47,6 +73,8 @@ class RobotizationConfig(RobotContract):
     orientation_source: Literal["configured_task_constraint"] = "configured_task_constraint"
     max_gap_s: Annotated[FiniteFloat, Field(gt=0, le=1)] = .3
     control_hz: int = Field(30, ge=5, le=120)
+    execution_speed_scale: Annotated[FiniteFloat, Field(gt=0, le=1)] = 1
+    final_hold_s: Annotated[FiniteFloat, Field(ge=0, le=5)] = 0
     position_tolerance_m: Positive = .015
     orientation_tolerance_rad: Positive = .15
     simulation_tracking_tolerance_m: Positive = .04
@@ -56,6 +84,7 @@ class RobotizationConfig(RobotContract):
     max_gripper_speed_m_s: Positive = .1
     require_export: bool = True
     diagnostic_export: bool = True
+    task_scene: TaskScene | None = None
     # Frozen rubric; changes are part of config/hash and do not alter old results.
     quality_rubric: Literal["baseline-v1"] = "baseline-v1"
 

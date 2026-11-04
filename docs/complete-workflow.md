@@ -6,6 +6,12 @@ machine-readable reports for individual runs; this guide is not a new test resul
 
 ## 1. Purpose and current status
 
+Update: a reviewed short video interval now reaches Silver robotization, physics,
+official LeRobot export and RL transition export. Offline learning has been tested
+on a declared endpoint adaptation. This is not validation of the full pouring or
+stirring task. See [robot-learning output](robot-learning.md) for current evidence
+and training commands; the earlier status below describes the starting run.
+
 The application converts a human manipulation video into a **candidate robot
 demonstration**. It combines semantic understanding, visual tracking, reconstructed
 geometry, contact hypotheses, robot retargeting, physics replay and dataset export.

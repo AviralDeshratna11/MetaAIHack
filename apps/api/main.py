@@ -317,6 +317,17 @@ def corrections(video_id: str, body: Correction) -> dict:
         shot = next((shot for shot in manifest["shots"] if shot["shot_id"] == body.shot_id), None)
         if not shot or not shot["start_frame"] <= body.frame_index < shot["end_frame"] or body.entity_id not in {e["entity_id"] for e in plan["entities"]}:
             raise DomainError("E_CORRECTION_REFERENCE", "Invalid frame, shot, or entity reference")
+        if body.kind == "association":
+            track_artifact = next((a for a in rows if a.name == "tracks.parquet"), None)
+            if track_artifact is None:
+                raise DomainError("E_CORRECTION_REFERENCE", "Stored tracks are required for candidate selection", 409)
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory)/"tracks.parquet"
+                store.download(track_artifact.manifest["uri"], path)
+                candidates = pq.read_table(path, filters=[("entity_id", "=", body.entity_id),
+                    ("shot_id", "=", body.shot_id), ("frame_index", "=", body.frame_index)]).to_pylist()
+            if not any(r["observed"] and r["provider_track_id"] == body.provider_track_id for r in candidates):
+                raise DomainError("E_ASSOCIATION_INVALID", "Selected candidate is not observed at the reviewed frame", 409)
         coords = [body.point] if body.point else []
         if body.point and not (0 <= body.point[0] < manifest["width"] and 0 <= body.point[1] < manifest["height"]):
             raise DomainError("E_CORRECTION_COORDINATES", "Point must lie inside normalized image pixels")

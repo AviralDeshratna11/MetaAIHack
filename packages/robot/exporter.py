@@ -58,9 +58,11 @@ def official_export(request, output):
     for index, (frame, state) in enumerate(zip(frames, states)):
         if abs(frame["execution_time_s"]-state["execution_time_s"]) > 1e-6:
             raise RuntimeError("Command/state timestamps disagree")
-        # State is sampled at the beginning of the command interval; action is its target.
+        # Action is the endpoint of the upcoming control interval. The controller
+        # interpolates from the current command, matching actual simulation causality.
+        endpoint = frames[min(index+1,len(frames)-1)]
         item = {"observation.state": np.array(state["joints_rad"]+[state["gripper_width_m"]], dtype=np.float32),
-                "action": np.array(frame["joints_rad"]+[frame["gripper_width_m"]], dtype=np.float32), "task": trajectory["task"]}
+                "action": np.array(endpoint["joints_rad"]+[endpoint["gripper_width_m"]], dtype=np.float32), "task": trajectory["task"]}
         if "observation.images.simulator" in features:
             ok, image = capture.read()
             if not ok: raise RuntimeError("Replay video shorter than trajectory")
@@ -82,14 +84,18 @@ def official_export(request, output):
         for key in ("action", "observation.state"):
             if tuple(row[key].shape) != (8,) or not np.isfinite(row[key].numpy()).all():
                 raise RuntimeError("Invalid dataset feature")
-        expected = np.array(frames[index]["joints_rad"]+[frames[index]["gripper_width_m"]])
+        endpoint = frames[min(index+1,len(frames)-1)]
+        expected = np.array(endpoint["joints_rad"]+[endpoint["gripper_width_m"]])
         if not np.allclose(row["action"].numpy(), expected, atol=1e-6):
             raise RuntimeError("Action round-trip or joint ordering mismatch")
+        expected_state = np.array(states[index]['joints_rad']+[states[index]['gripper_width_m']])
+        if not np.allclose(row['observation.state'].numpy(),expected_state,atol=1e-6):
+            raise RuntimeError('Measured state round-trip/alignment mismatch')
         if "observation.images.simulator" in features and tuple(row["observation.images.simulator"].shape) != (3, 360, 640):
             raise RuntimeError("Image decoding mismatch")
     report = {"lerobot_version": "0.4.1", "format": "v3.0", "roundtrip_passed": True,
         "frames": len(reader), "episodes": 1, "images_decoded": "observation.images.simulator" in features,
-        "state": "measured simulated joints/width at command interval start", "action": "absolute joint/width targets",
+        "state": "measured simulated joints/width at command interval start", "action": "next-tick absolute joint/width endpoint targets; linear interpolation controller; final row holds",
         "joint_order": names, "diagnostic_only": True, "accepted_training_subset": False,
         "source_run_id": trajectory["source_run_id"], "run_id": trajectory["run_id"]}
     (output / "export_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")

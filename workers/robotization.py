@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 
 from sqlalchemy import select
-from apps.api.db import Artifact, Job, StageRun, transaction
+from apps.api.db import Artifact, Job, StageRun, Video, ModelExecution, CorrectionRecord, transaction
 from apps.api.orchestration import assert_owner, emit
 from packages.common.utils import DomainError, digest, uid
 
@@ -20,6 +20,23 @@ def execute(job, token, store):
         if source is None or source.config.get("pipeline") != "reconstruction" or source.status not in ("COMPLETED", "NEEDS_REVIEW"):
             raise DomainError("E_ROBOT_SOURCE", "Source reconstruction is unavailable", 409)
         artifacts = session.scalars(select(Artifact).where(Artifact.job_id == source.id)).all()
+        video = session.get(Video,job.video_id)
+        provenance = {"video_id":job.video_id,"source_sha256":video.sha256,"source_license":video.provenance,
+            "source_reconstruction_job_id":source.id,"source_reconstruction_run_id":source.run_id,
+            "compiler_code_hash":job.config['code_hash'],
+            "input_artifact_hashes":{a.name:a.manifest['sha256'] for a in artifacts},
+            "geometry_provider":source.config.get('reconstruction',{}).get('provider_fingerprint'),
+            "model_requests":[],"corrections":[]}
+        ancestor = source
+        seen = set()
+        while ancestor and ancestor.id not in seen:
+            seen.add(ancestor.id)
+            for model in session.scalars(select(ModelExecution).where(ModelExecution.job_id==ancestor.id)).all():
+                provenance['model_requests'].append({k:model.data.get(k) for k in
+                    ('model_run_id','model','revision','input_hash','status','request_id','latency_ms','usage','actual_cost_usd')})
+            for correction in session.scalars(select(CorrectionRecord).where(CorrectionRecord.job_id==ancestor.id)).all():
+                provenance['corrections'].append(correction.data)
+            ancestor = session.get(Job,ancestor.source_job_id) if ancestor.source_job_id else None
     refs = {a.name: a.manifest["uri"] for a in artifacts}
     if not {"interaction_trajectory.json.gz", "phase2_handoff.json"} <= refs.keys():
         raise DomainError("E_ROBOT_INPUTS", "ITR and handoff required", 409)
@@ -42,7 +59,7 @@ def execute(job, token, store):
                 root = Path(directory)
                 request = {"itr": json.loads(gzip.decompress(store.read(refs["interaction_trajectory.json.gz"]))),
                     "handoff": json.loads(store.read(refs["phase2_handoff.json"])), "runtime": runtime,
-                    "run_id": job.run_id}
+                    "run_id": job.run_id,"provenance":provenance}
                 request_path = root / "request.json"
                 request_path.write_text(json.dumps(request), encoding="utf-8")
                 output = root / "output"

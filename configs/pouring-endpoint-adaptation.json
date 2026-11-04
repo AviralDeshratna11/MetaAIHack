@@ -1,0 +1,101 @@
+{
+  "schema_version": "0.3.0",
+  "hand_id": "HAND_B",
+  "object_id": "SPOON",
+  "shot_id": "shot_000",
+  "start_s": 17.0,
+  "end_s": 17.2,
+  "calibration": {
+    "schema_version": "0.3.0",
+    "mode": "workspace_adaptation",
+    "scale_m_per_unit": 1.0,
+    "base_from_world": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "evidence": "Automatic workspace adaptation; unknown physical dimensions",
+    "residual_m": null
+  },
+  "workspace_center_m": [
+    0.45,
+    0.0,
+    0.4
+  ],
+  "workspace_extent_m": 0.015,
+  "tcp_quaternion_xyzw": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "tcp_offset_m": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "orientation_source": "configured_task_constraint",
+  "max_gap_s": 0.3,
+  "control_hz": 30,
+  "position_tolerance_m": 0.015,
+  "orientation_tolerance_rad": 0.15,
+  "simulation_tracking_tolerance_m": 0.04,
+  "initial_gripper": "unknown",
+  "open_width_m": 0.08,
+  "closed_width_m": 0.0,
+  "max_gripper_speed_m_s": 0.1,
+  "require_export": true,
+  "diagnostic_export": true,
+  "task_scene": {
+    "schema_version": "0.3.0",
+    "task": "reach",
+    "geometry_source": "configured_simulation_proxy",
+    "evidence": "Endpoint reach adaptation of a short stirring-motion interval; does not validate stirring, grasp, fluid or source geometry",
+    "goal_position_m": [
+      0.43846820566585815,
+      -0.000932173118676822,
+      0.39045281336142057
+    ],
+    "object_position_m": [
+      0.5,
+      0.0,
+      0.035
+    ],
+    "object_half_size_m": [
+      0.02,
+      0.02,
+      0.035
+    ],
+    "object_mass_kg": 0.1,
+    "friction": 0.8,
+    "table_top_m": 0.0,
+    "goal_tolerance_m": 0.025,
+    "required_lift_m": 0.04,
+    "success_hold_s": 0.2,
+    "horizon_s": 5.0
+  },
+  "quality_rubric": "baseline-v1",
+  "execution_speed_scale": 0.25,
+  "final_hold_s": 0.5
+}

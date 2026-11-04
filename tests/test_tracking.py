@@ -50,6 +50,20 @@ def test_two_candidates_are_ambiguous_until_explicit_association():
     assert all(r["provider_track_id"] == "2" and r["identity_status"] == "associated" for r in resolved)
 
 
+def test_visual_anchor_requires_unique_spatial_support_and_preserves_gap_uncertainty():
+    shot, manifest, frames = setup()
+    records = [rec(i, '0') for i in range(8) if i != 3]
+    for i in range(8):
+        other = rec(i, '1'); other['mask'] = np.roll(other['mask'], 15, axis=1)
+        records.append(other)
+    args = (records, fixture_plan(12).entities[1], shot, manifest, frames, 'v', 'm', 'mask')
+    rows, _, _ = build_tracklets(*args, shared_concept=True, visual_corrections=[{'kind':'point','frame_index':1,'point':[12,5]}])
+    assert rows[1]['identity_status'] == 'associated'
+    assert rows[4]['identity_status'] == 'unverified'
+    rows, _, _ = build_tracklets(*args, shared_concept=True, visual_corrections=[{'kind':'point','frame_index':1,'point':[0,0]}])
+    assert all(r['identity_status'] != 'associated' for r in rows)
+
+
 def test_shots_never_share_track_identity():
     shot, manifest, frames = setup()
     first, _, _ = build([rec(i) for i in range(8)])

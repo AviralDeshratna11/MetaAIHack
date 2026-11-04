@@ -9,6 +9,7 @@ from packages.robot.retarget import retarget
 from packages.robot.simulation import replay
 from packages.robot.quality import classify
 from packages.robot.exporter import export_isolated
+from packages.robot.rl import export_transitions
 from packages.schemas.reconstruction import InteractionTrajectory
 from packages.schemas.robotization import RobotizationConfig, RobotizationHandoff
 
@@ -44,6 +45,15 @@ def run(request, output):
     (output / "export_report.json").write_text(json.dumps(export, indent=2), encoding="utf-8")
     quality = classify(trajectory, simulation, export)
     (output / "quality_report.json").write_text(quality.model_dump_json(indent=2), encoding="utf-8")
+    (output / "source_provenance.json").write_text(json.dumps(request.get("provenance",{
+        "status":"not_supplied","reason":"Standalone diagnostic; not a queued source lineage"}),indent=2),encoding="utf-8")
+    try:
+        export_transitions(trajectory, simulation, quality, output/"rl")
+    except ValueError as exc:
+        directory = output/"rl"; directory.mkdir(exist_ok=True)
+        (directory/"rl_report.json").write_text(json.dumps({"status":"blocked","reason":str(exc),"accepted_training_subset":False}),encoding="utf-8")
+    from packages.robot.bundle import build_bundle
+    build_bundle(output,trajectory,quality)
     handoff = RobotizationHandoff(video_id=itr.video_id, run_id=request["run_id"], source_run_id=itr.run_id,
         inference_mode=itr.quality.inference_mode, artifacts={}, quality=quality)
     (output / "phase3_handoff.json").write_text(handoff.model_dump_json(indent=2), encoding="utf-8")

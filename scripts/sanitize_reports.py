@@ -8,7 +8,8 @@ from packages.common.config import settings
 REPORTS = ["baseline-phase1-live.json", "phase2-reverification.json", "phase3-smoke.json", "phase3-api-smoke.json",
            "baseline-ablations.json", "runtime-preflight.json", "runtime-worker-preflight.json", "baseline-live.json",
            "phase3-container-smoke.json", "phase3-queue-smoke.json", "additional-source.json", "model-capabilities.json",
-           "live-vggt.json", "geometry-configured.json", "live-geometry-models.json", "live-phase2-geometry.json"]
+           "live-vggt.json", "geometry-configured.json", "live-geometry-models.json", "live-phase2-geometry.json",
+           "learning-smoke.json", "pouring-repair.json", "live-learning.json", "learning-ablations.json", "robot-learning-acceptance.json", "fresh-provider-probe.json"]
 
 
 def main():

@@ -47,12 +47,14 @@ export default function Workspace() {
   const [subscriptionVersion, setSubscriptionVersion] = useState(0);
   const [panel, setPanel] = useState<"actions" | "artifacts">("actions");
   const [correctionEntity, setCorrectionEntity] = useState("");
-  const [correctionKind, setCorrectionKind] = useState<"point" | "box">("point");
+  const [correctionKind, setCorrectionKind] = useState<"point" | "box" | "association">("point");
+  const [candidateId, setCandidateId] = useState("");
   const dragStart = useRef<[number, number] | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const generation = useRef(0);
+  const initialLinkOpened = useRef(false);
   const trackCache = useRef(new Map<string, Tracks>());
 
   const refresh = useCallback(async () => {
@@ -81,12 +83,12 @@ export default function Workspace() {
     }
   }, []);
 
-  const openVideo = useCallback(async (video: Video) => {
+  const openVideo = useCallback(async (video: Video, requestedRunId?: string) => {
     generation.current++;
     setSelected(video); setPlan(null); setHandoff(null); setMedia(""); setArtifacts([]); setTracks({tracks: [], masks: {}}); setProjection([]);
     setTime(0); setEvents([]); setError(""); setHidden([]); setJob(null); setRunHistory([]); setCorrectionEntity("");
     const details = await api<{jobs: Job[]; source_url: string}>(`/v1/videos/${video.video_id}`);
-    const run = details.jobs[0];
+    const run = requestedRunId ? details.jobs.find(r => r.run_id === requestedRunId) : details.jobs[0];
     setRunHistory(details.jobs);
     if (details.source_url) setMedia(details.source_url);
     if (run) {
@@ -94,6 +96,15 @@ export default function Workspace() {
       if (["COMPLETED", "NEEDS_REVIEW"].includes(run.status)) await loadResults(video, run);
     }
   }, [loadResults]);
+
+  useEffect(() => {
+    if (initialLinkOpened.current || !videos.length) return;
+    const query = new URLSearchParams(window.location.search);
+    const video = videos.find(v => v.video_id === query.get("video"));
+    if (!video) return;
+    initialLinkOpened.current = true;
+    void openVideo(video, query.get("run") || undefined).catch(e => setError(e.message));
+  }, [videos, openVideo]);
 
   useEffect(() => {
     if (!selected) return;
@@ -243,7 +254,7 @@ export default function Workspace() {
     return [(event.clientX - rect.left) * dimensions.width / rect.width, (event.clientY - rect.top) * dimensions.height / rect.height];
   }
   async function correct(event: React.PointerEvent<HTMLCanvasElement>) {
-    if (!correctionEntity || !job || !selected) return;
+    if (!correctionEntity || !job || !selected || correctionKind === "association") return;
     const point = canvasPoint(event), start = dragStart.current || point;
     const track = tracks.tracks.find(t => t.entity_id === correctionEntity);
     if (!track) return setError("No shot context at this frame; seek inside the processed clip.");
@@ -255,6 +266,19 @@ export default function Workspace() {
       const run = await api<Job>(`/v1/videos/${selected.video_id}/corrections`, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)});
       setCorrectionEntity(""); setHandoff(null); setJob(run); setEvents([]);
     } catch (e) { setError((e as Error).message); } finally { setBusy(""); }
+  }
+
+  async function associateCandidate() {
+    if (!selected || !job || !correctionEntity || !candidateId) return;
+    const candidate = tracks.tracks.find(t => t.frame_index === frame && t.entity_id === correctionEntity && t.provider_track_id === candidateId && t.observed);
+    if (!candidate) return setError("Choose an observed candidate at the paused frame.");
+    setBusy("Saving reviewed identity without new model calls?");
+    try {
+      const run = await api<Job>(`/v1/videos/${selected.video_id}/corrections`, {method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({source_job_id:job.job_id,entity_id:correctionEntity,shot_id:candidate.shot_id,
+          frame_index:frame,kind:"association",provider_track_id:candidateId})});
+      setCorrectionEntity(""); setCandidateId(""); setHandoff(null); setJob(run); setEvents([]);
+    } catch (e) {setError((e as Error).message);} finally {setBusy("");}
   }
 
   const active = plan?.actions.filter(a => a.start_s <= time && a.end_s > time) || [];
@@ -321,8 +345,10 @@ export default function Workspace() {
       <div className="bottom-grid"><section className="card status-card"><div className="card-head"><div><span className="section-number">03</span> RUN STATUS</div><span className={`status-pill ${job?.status === "FAILED" ? "failed" : ""}`}>{job?.status.replaceAll("_", " ") || "AWAITING VIDEO"}</span></div><div className="status-body"><div className="status-text"><strong>{job ? `${job.inference_mode === "fixture" ? "Synthetic" : "Live"} perception run` : "Ready for your first clip"}</strong><p>{job?.error ? `${job.error.code}: ${job.error.message}` : events.at(-1) || "The original video is preserved. Every stage produces versioned artifacts."}</p>{job && <code>{job.run_id}</code>}</div>{job?.status === "FAILED" && <button onClick={() => jobAction("retry")}>Retry failed stage</button>}{job && !terminal && <button onClick={() => jobAction("cancel")}>Cancel run</button>}</div></section>
       <section className="card handoff-card"><div className="card-head"><div><span className="section-number">04</span> GEOMETRY HANDOFF</div><span className="mono">v0.1.0</span></div><div className="handoff-body"><div className={`handoff-icon ${handoff?.ready_for_geometry ? "ready" : ""}`}>↗</div><div><strong>{handoff ? handoff.ready_for_geometry ? "Ready for reconstruction" : "Review required" : "A clear boundary to the next layer"}</strong><p>{handoff ? handoff.review_reasons[0] || "Validated 2D artifacts are available." : "Semantic plan + tracks + masks + source timeline."}</p><small>2D perception only · metric scale unvalidated</small></div></div></section></div>
       {selected && job && plan && job.pipeline !== "robotization" && <ReconstructionPanel videoId={selected.video_id} run={job} time={time} fps={dimensions.fps}
+        onSeek={seek} onReviewSource={async sourceJobId => {try {const source = await api<Job>(`/v1/jobs/${sourceJobId}`); await selectRun(source.run_id);} catch (e) {setError((e as Error).message);}}}
         onProjection={setProjection} onStarted={run => {setJob({...run, stage: null}); setHandoff(null); setEvents([]); setProjection([]);}} />}
-      {handoff && plan && (!job?.pipeline || job.pipeline === "perception") && <details className="corrections card"><summary>Correct an entity grounding <span>Creates a new run; preserves original output</span></summary><div className="correction-tools"><label>Entity<select value={correctionEntity} onChange={e => setCorrectionEntity(e.target.value)}><option value="">Choose entity</option>{plan.entities.map(e => <option key={e.entity_id} value={e.entity_id}>{e.semantic_name}</option>)}</select></label><label>Prompt<select value={correctionKind} onChange={e => setCorrectionKind(e.target.value as "point" | "box")}><option value="point">Positive point</option><option value="box">Bounding box</option></select></label><p>{mode === "fixture" ? "Fixture color masks do not respond to visual prompts. This tests correction lineage; live mode uses the SAM prompt." : "Pause the video, select an entity, then click or drag on the image."}</p></div></details>}
+      {handoff && plan && (!job?.pipeline || job.pipeline === "perception") && <details className="corrections card"><summary>Correct an entity grounding <span>Creates a new run; preserves original output</span></summary><div className="correction-tools"><label>Entity<select value={correctionEntity} onChange={e => setCorrectionEntity(e.target.value)}><option value="">Choose entity</option>{plan.entities.map(e => <option key={e.entity_id} value={e.entity_id}>{e.semantic_name}</option>)}</select></label><label>Prompt<select value={correctionKind} onChange={e => setCorrectionKind(e.target.value as "point" | "box" | "association")}><option value="point">Positive point</option><option value="box">Bounding box</option><option value="association">Select existing candidate (no model calls)</option></select></label>{correctionKind === "association" && <><label>Candidate at paused frame<select aria-label="Existing track candidate" value={candidateId} onChange={e => setCandidateId(e.target.value)}><option value="">Choose candidate</option>{tracks.tracks.filter(t => t.frame_index === frame && t.entity_id === correctionEntity && t.observed).map(t => <option key={t.track_id} value={t.provider_track_id || ""}>{t.provider_track_id} ? box {t.bbox_xyxy?.map(n => Math.round(n)).join(", ")}</option>)}</select></label><button disabled={!!busy || !candidateId} onClick={associateCandidate}>Confirm existing mask identity</button><p>Review the mask and its provider ID on the video. This preserves stored masks and records human assistance.</p></>}
+<p>{mode === "fixture" ? "Fixture color masks do not respond to visual prompts. This tests correction lineage; live mode uses the SAM prompt." : "Pause the video, select an entity, then click or drag on the image."}</p></div></details>}
       {selected && job && <RobotizationPanel videoId={selected.video_id} run={job} plan={plan} time={time} onSeek={seek} onStarted={run => {setJob({...run, stage: null}); setEvents([]);}} />}
       <footer><span>VIDEO2ROBOT / BASELINE</span><span>Perception → interaction → robotization</span></footer>
     </main>

@@ -1,0 +1,401 @@
+{
+  "status": "adapted_simulation_training_verified",
+  "full_pdf_project_complete": false,
+  "full_source_task_accepted": false,
+  "date": "2026-11-04",
+  "code_state": {
+    "base_commit": "e30f3c5736656f9986b5a114873255a74fdba194",
+    "working_tree": "uncommitted implementation updates",
+    "current_code_hash": "be2ccaacc7e21c27bfe20d574f2e5ba57011e647c42d07874102a2ddeaaa78f2"
+  },
+  "real_video": {
+    "source_job_id": "job_922277ea40db42038ebf7a91ea08eae1",
+    "reconstruction": {
+      "schema_version": "0.1.0",
+      "job_id": "job_3d1982ab667041c8b89c956b2db71a3d",
+      "video_id": "vid_689eeec47c9640bcb92d89fcb17406a4",
+      "run_id": "run_a5846c71392341f280b3667aa023d778",
+      "status": "QUEUED",
+      "stage": null,
+      "inference_mode": "live",
+      "pipeline": "reconstruction",
+      "error": null,
+      "source_job_id": "job_020cc510177c49bf9599ec05053a9bd6",
+      "created_at": "2026-11-04T07:29:38.417297Z"
+    },
+    "geometry_counts": {
+      "camera_frames": 7,
+      "hand_pose_frames": 14,
+      "object_pose_frames": 17,
+      "relative_pose_frames": 34,
+      "contact_events": 4
+    },
+    "robotization_job_id": "job_90db38a693e54ad6a045d5ff4b727155",
+    "robotization_run_id": "run_4a02b703a16b4750882f6f8fd840dbde",
+    "verified_artifacts": 105,
+    "quality": {
+      "schema_version": "0.3.0",
+      "classification": "Silver",
+      "rubric": "baseline-v1",
+      "checks": {
+        "live_source": true,
+        "nonempty_trajectory": true,
+        "trajectory_valid": true,
+        "simulation_physics": true,
+        "simulation_limits": true,
+        "export_roundtrip": true,
+        "upstream_review_resolved": false,
+        "measured_scale": false,
+        "task_scene_validated": false,
+        "task_success": true
+      },
+      "reasons": [
+        "upstream_review_resolved",
+        "measured_scale",
+        "task_scene_validated"
+      ],
+      "accepted_training_subset": false,
+      "physical_robot_ready": false
+    },
+    "rl_transitions": 11,
+    "rl_roundtrip": true,
+    "task_scope": "Endpoint reach adaptation of a short stirring-motion interval, not validated stirring or pouring"
+  },
+  "fresh_hosted_probe": {
+    "status": "completed",
+    "source": "licensed pouring source, canonical frames 225-254",
+    "provider_test_duration_s": 2,
+    "calls": [
+      {
+        "model": "files-api",
+        "status": "completed",
+        "request_id": "fd4bee61-7dbc-45b8-802c-6513fad32761",
+        "latency_ms": 4343,
+        "usage": {},
+        "attempt": 1
+      },
+      {
+        "model": "muse-spark-1.3",
+        "status": "completed",
+        "request_id": "88a56a6a-4b53-4d9f-a1e2-714affdc1129",
+        "latency_ms": 29703,
+        "usage": {
+          "input_tokens": 2565,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 4348,
+          "output_tokens_details": {
+            "reasoning_tokens": 3364
+          },
+          "total_tokens": 6913
+        },
+        "attempt": 1
+      },
+      {
+        "model": "sam-3.1",
+        "status": "completed",
+        "request_id": "e924c116-3897-4f0c-ba9e-d80dba7f2cba",
+        "latency_ms": 4000,
+        "usage": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "cached_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 0,
+          "video_frames_processed": 50
+        },
+        "attempt": 1
+      }
+    ],
+    "cache_hits": 0,
+    "actual_cost_usd": null,
+    "semantic_primitives": [
+      "GRASP",
+      "STIR"
+    ],
+    "semantic_task": "stir mixture in bowl with utensil while stabilizing bowl",
+    "tracking_records": 30,
+    "tracked_frames": 30,
+    "mask_accuracy": "not_evaluated",
+    "full_source_acceptance": false
+  },
+  "policy_experiments": [
+    {
+      "algorithm": "TD3+BC",
+      "updates": 2000,
+      "seed": 17,
+      "dataset_sha256": "96deeef0c08171992f4fe943030c0212b21c3f1763cf4bd5a59174a5dbc1be85",
+      "policy_sha256": "496b248d2dbf2379afdc97d402c24b2a1e6a8b9c5052a6abee19e89239319b2a",
+      "success_rate": 0.0,
+      "evaluation": [
+        {
+          "seed": 117,
+          "steps": 1,
+          "return": -1.0157546177120453,
+          "success": false,
+          "terminated": true,
+          "truncated": false,
+          "violations": [
+            "JOINT_ACCELERATION"
+          ]
+        },
+        {
+          "seed": 118,
+          "steps": 1,
+          "return": -1.0157546177120453,
+          "success": false,
+          "terminated": true,
+          "truncated": false,
+          "violations": [
+            "JOINT_ACCELERATION"
+          ]
+        },
+        {
+          "seed": 119,
+          "steps": 1,
+          "return": -1.0157546177120453,
+          "success": false,
+          "terminated": true,
+          "truncated": false,
+          "violations": [
+            "JOINT_ACCELERATION"
+          ]
+        }
+      ],
+      "evaluation_distribution": "same configured initial state, not evidence of generalization"
+    },
+    {
+      "algorithm": "TD3+BC",
+      "updates": 2000,
+      "seed": 17,
+      "dataset_sha256": "96deeef0c08171992f4fe943030c0212b21c3f1763cf4bd5a59174a5dbc1be85",
+      "policy_sha256": "f41b4b47b0ec0f0e3fd516de19332e08ef2fa334a0e305a87df1948dbd9beac1",
+      "success_rate": 0.0,
+      "evaluation": [
+        {
+          "seed": 117,
+          "steps": 90,
+          "return": -0.9799893125536685,
+          "success": false,
+          "terminated": false,
+          "truncated": true,
+          "violations": []
+        },
+        {
+          "seed": 118,
+          "steps": 90,
+          "return": -0.9799893125536685,
+          "success": false,
+          "terminated": false,
+          "truncated": true,
+          "violations": []
+        },
+        {
+          "seed": 119,
+          "steps": 90,
+          "return": -0.9799893125536685,
+          "success": false,
+          "terminated": false,
+          "truncated": true,
+          "violations": []
+        }
+      ],
+      "evaluation_distribution": "same configured initial state, not evidence of generalization"
+    },
+    {
+      "algorithm": "TD3+BC",
+      "updates": 2000,
+      "seed": 17,
+      "dataset_sha256": "96deeef0c08171992f4fe943030c0212b21c3f1763cf4bd5a59174a5dbc1be85",
+      "policy_sha256": "cb055478963295d5c948f342aa437d2dc180eae421ff5e48f594442b3f0d3ad0",
+      "success_rate": 0.0,
+      "evaluation": [
+        {
+          "seed": 117,
+          "steps": 90,
+          "return": -1.3888869068540144,
+          "success": false,
+          "terminated": false,
+          "truncated": true,
+          "violations": []
+        },
+        {
+          "seed": 118,
+          "steps": 90,
+          "return": -1.3888869068540144,
+          "success": false,
+          "terminated": false,
+          "truncated": true,
+          "violations": []
+        },
+        {
+          "seed": 119,
+          "steps": 90,
+          "return": -1.3888869068540144,
+          "success": false,
+          "terminated": false,
+          "truncated": true,
+          "violations": []
+        }
+      ],
+      "evaluation_distribution": "same configured initial state, not evidence of generalization"
+    },
+    {
+      "algorithm": "TD3+BC",
+      "updates": 2000,
+      "seed": 17,
+      "dataset_sha256": "96deeef0c08171992f4fe943030c0212b21c3f1763cf4bd5a59174a5dbc1be85",
+      "policy_sha256": "cb055478963295d5c948f342aa437d2dc180eae421ff5e48f594442b3f0d3ad0",
+      "success_rate": 0.0,
+      "evaluation": [
+        {
+          "seed": 117,
+          "steps": 90,
+          "return": -1.3704913011420898,
+          "success": false,
+          "terminated": false,
+          "truncated": true,
+          "violations": []
+        },
+        {
+          "seed": 118,
+          "steps": 90,
+          "return": -1.3704913011420898,
+          "success": false,
+          "terminated": false,
+          "truncated": true,
+          "violations": []
+        },
+        {
+          "seed": 119,
+          "steps": 90,
+          "return": -1.3704913011420898,
+          "success": false,
+          "terminated": false,
+          "truncated": true,
+          "violations": []
+        }
+      ],
+      "evaluation_distribution": "same configured initial state, not evidence of generalization"
+    },
+    {
+      "algorithm": "TD3+BC",
+      "updates": 2000,
+      "seed": 17,
+      "dataset_sha256": "96deeef0c08171992f4fe943030c0212b21c3f1763cf4bd5a59174a5dbc1be85",
+      "policy_sha256": "6a5342c6af15a03ba1040a5f1d045cf4f57ef3534b1d9e80c39bf6f990f03c82",
+      "success_rate": 1.0,
+      "evaluation": [
+        {
+          "seed": 117,
+          "steps": 64,
+          "return": 0.33007132959749086,
+          "success": true,
+          "terminated": true,
+          "truncated": false,
+          "violations": []
+        },
+        {
+          "seed": 118,
+          "steps": 64,
+          "return": 0.33007132959749086,
+          "success": true,
+          "terminated": true,
+          "truncated": false,
+          "violations": []
+        },
+        {
+          "seed": 119,
+          "steps": 64,
+          "return": 0.33007132959749086,
+          "success": true,
+          "terminated": true,
+          "truncated": false,
+          "violations": []
+        }
+      ],
+      "evaluation_distribution": "same configured initial state, not evidence of generalization"
+    },
+    {
+      "algorithm": "TD3+BC",
+      "updates": 2000,
+      "seed": 17,
+      "dataset_sha256": "a1042e06fee87e2b202e1338081fc81e63743f697c1d15307514dad0811016c7",
+      "policy_sha256": "7905d36098745960098ff82831e4624eb83e7b8e53af7cd44edcb8f2e1cd5022",
+      "success_rate": 1.0,
+      "evaluation": [
+        {
+          "seed": 117,
+          "steps": 21,
+          "return": 0.47220270886706295,
+          "success": true,
+          "terminated": true,
+          "truncated": false,
+          "violations": []
+        },
+        {
+          "seed": 118,
+          "steps": 21,
+          "return": 0.47220270886706295,
+          "success": true,
+          "terminated": true,
+          "truncated": false,
+          "violations": []
+        },
+        {
+          "seed": 119,
+          "steps": 21,
+          "return": 0.47220270886706295,
+          "success": true,
+          "terminated": true,
+          "truncated": false,
+          "violations": []
+        }
+      ],
+      "evaluation_distribution": "same configured initial state, not evidence of generalization"
+    }
+  ],
+  "ablations": {
+    "report": "eval/reports/learning-ablations.json",
+    "variants": 9,
+    "accuracy": "not_evaluated; no independent annotations"
+  },
+  "checks": {
+    "worker_regressions": {
+      "passed": 92,
+      "failed": 0
+    },
+    "json_schema_fresh": true,
+    "typescript_contracts_fresh": true,
+    "frontend_typecheck": true,
+    "frontend_build": true,
+    "gymnasium_checker": true,
+    "rebuilt_runtime_saved_policy_replay": true,
+    "browser_interaction": "not_verified; computer-use stopped because current Edge URL could not be determined",
+    "api_ready": true,
+    "frontend_http": 200
+  },
+  "outputs": {
+    "bundle": "data/final-training/video-derived-training-and-policy.zip",
+    "bundle_sha256": "bea6be073348f0de87d8961b9eef35f00999f15a7263b226450b571df0710100",
+    "policy": "data/training/video-derived-endpoint-v1/policy.pt",
+    "replay": "data/final-training/learned-policy-replay.mp4"
+  },
+  "remaining": [
+    "Full source stirring/pouring task validation",
+    "Supported anatomical wrist/tool grasp and support evidence",
+    "Metric scene calibration or independently evaluated adaptation task",
+    "Learned pick-place end-to-end acceptance",
+    "Second robot",
+    "SAM 3D Objects and DINO re-ID",
+    "RLDS/RLBench adapters",
+    "Bimanual and dexterous retargeting",
+    "Independent annotation benchmark",
+    "Browser interaction verification"
+  ]
+}

@@ -1115,6 +1115,27 @@
           ],
           "default": null,
           "title": "Provider Track Id"
+        },
+        "reviewed_by": {
+          "default": "user",
+          "enum": [
+            "user",
+            "assistant"
+          ],
+          "title": "Reviewed By",
+          "type": "string"
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence"
         }
       },
       "required": [
@@ -2789,6 +2810,7 @@
         "RELEASE",
         "WIPE",
         "PRESS",
+        "STIR",
         "UNKNOWN"
       ],
       "title": "Primitive",
@@ -3032,6 +3054,37 @@
           ],
           "title": "Memory Mode",
           "type": "string"
+        },
+        "windowed": {
+          "default": false,
+          "title": "Windowed",
+          "type": "boolean"
+        },
+        "start_s": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Start S",
+          "type": "number"
+        },
+        "end_s": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End S"
+        },
+        "max_window_alignment_relative_rmse": {
+          "default": 0.06,
+          "exclusiveMinimum": 0,
+          "maximum": 0.2,
+          "title": "Max Window Alignment Relative Rmse",
+          "type": "number"
         },
         "image_size": {
           "default": 518,
@@ -3839,6 +3892,20 @@
           "title": "Control Hz",
           "type": "integer"
         },
+        "execution_speed_scale": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Execution Speed Scale",
+          "type": "number"
+        },
+        "final_hold_s": {
+          "default": 0,
+          "maximum": 5,
+          "minimum": 0,
+          "title": "Final Hold S",
+          "type": "number"
+        },
         "position_tolerance_m": {
           "default": 0.015,
           "exclusiveMinimum": 0,
@@ -3896,6 +3963,17 @@
           "default": true,
           "title": "Diagnostic Export",
           "type": "boolean"
+        },
+        "task_scene": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TaskScene"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "quality_rubric": {
           "const": "baseline-v1",
@@ -4199,6 +4277,120 @@
         "error"
       ],
       "title": "StageView",
+      "type": "object"
+    },
+    "TaskScene": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.3.0",
+          "default": "0.3.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task": {
+          "enum": [
+            "reach",
+            "pick_place"
+          ],
+          "title": "Task",
+          "type": "string"
+        },
+        "geometry_source": {
+          "default": "configured_simulation_proxy",
+          "enum": [
+            "configured_simulation_proxy",
+            "measured_task_scene"
+          ],
+          "title": "Geometry Source",
+          "type": "string"
+        },
+        "evidence": {
+          "minLength": 1,
+          "title": "Evidence",
+          "type": "string"
+        },
+        "goal_position_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Goal Position M",
+          "type": "array"
+        },
+        "object_position_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Object Position M",
+          "type": "array"
+        },
+        "object_half_size_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Object Half Size M",
+          "type": "array"
+        },
+        "object_mass_kg": {
+          "default": 0.1,
+          "exclusiveMinimum": 0,
+          "maximum": 10,
+          "title": "Object Mass Kg",
+          "type": "number"
+        },
+        "friction": {
+          "default": 0.8,
+          "exclusiveMinimum": 0,
+          "maximum": 5,
+          "title": "Friction",
+          "type": "number"
+        },
+        "table_top_m": {
+          "default": 0,
+          "title": "Table Top M",
+          "type": "number"
+        },
+        "goal_tolerance_m": {
+          "default": 0.025,
+          "exclusiveMinimum": 0,
+          "maximum": 0.1,
+          "title": "Goal Tolerance M",
+          "type": "number"
+        },
+        "required_lift_m": {
+          "default": 0.04,
+          "exclusiveMinimum": 0,
+          "maximum": 0.3,
+          "title": "Required Lift M",
+          "type": "number"
+        },
+        "success_hold_s": {
+          "default": 0.2,
+          "exclusiveMinimum": 0,
+          "maximum": 2,
+          "title": "Success Hold S",
+          "type": "number"
+        },
+        "horizon_s": {
+          "default": 15,
+          "exclusiveMinimum": 0,
+          "maximum": 120,
+          "title": "Horizon S",
+          "type": "number"
+        }
+      },
+      "required": [
+        "task",
+        "evidence",
+        "goal_position_m"
+      ],
+      "title": "TaskScene",
       "type": "object"
     },
     "TrackFrame": {
@@ -5120,6 +5312,9 @@
     },
     {
       "$ref": "#/$defs/Calibration"
+    },
+    {
+      "$ref": "#/$defs/TaskScene"
     },
     {
       "$ref": "#/$defs/RobotizationConfig"

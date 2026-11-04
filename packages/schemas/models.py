@@ -32,6 +32,7 @@ class Primitive(str, Enum):
     RELEASE = "RELEASE"
     WIPE = "WIPE"
     PRESS = "PRESS"
+    STIR = "STIR"
     UNKNOWN = "UNKNOWN"
 
 
@@ -329,6 +330,8 @@ class Correction(Contract):
     point: Vec2 | None = None
     bbox_xyxy: BBox | None = None
     provider_track_id: str | None = None
+    reviewed_by: Literal["user", "assistant"] = "user"
+    evidence: str | None = None
 
     @model_validator(mode="after")
     def payload(self):

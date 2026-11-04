@@ -18,6 +18,12 @@ class ReconstructionConfig(ReconstructionContract):
     backend: Literal["fixture", "vggt"] = "fixture"
     body_backend: Literal["none", "sam3d"] = "none"
     memory_mode: Literal["standard", "low_vram"] = "standard"
+    # Bound GPU token memory independently of total clip sampling. Every window
+    # shares a reference image and must pass a measured Sim(3) alignment gate.
+    windowed: bool = False
+    start_s: Annotated[FiniteFloat, Field(ge=0)] = 0
+    end_s: Annotated[FiniteFloat, Field(gt=0)] | None = None
+    max_window_alignment_relative_rmse: Annotated[FiniteFloat, Field(gt=0, le=.2)] = .06
     image_size: int = Field(518, ge=224, le=518, multiple_of=14)
     sample_fps: Annotated[FiniteFloat, Field(gt=0, le=10)] = 5
     max_frames_per_shot: int = Field(32, ge=2, le=96)
@@ -38,7 +44,9 @@ class ReconstructionConfig(ReconstructionContract):
 
     @model_validator(mode="after")
     def thresholds(self):
-        if self.memory_mode == "low_vram" and (self.max_frames_per_shot > 4 or self.max_total_frames > 4):
+        if self.end_s is not None and self.end_s <= self.start_s:
+            raise ValueError("end_s must exceed start_s")
+        if self.memory_mode == "low_vram" and not self.windowed and (self.max_frames_per_shot > 4 or self.max_total_frames > 4):
             raise ValueError("low_vram mode supports at most four sampled frames per request; use a short single-shot interval")
         if self.contact_on <= self.contact_off:
             raise ValueError("contact_on must exceed contact_off for hysteresis")

@@ -14,9 +14,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return body;
 }
 
-export default function ReconstructionPanel({videoId, run, time, fps, onStarted, onProjection}: {
+export default function ReconstructionPanel({videoId, run, time, fps, onStarted, onProjection, onSeek, onReviewSource}: {
   videoId: string; run: Run; time: number; fps: number; onStarted: (run: Run) => void;
   onProjection: (points: {entity_id: string; frame_index: number; projected_centroid: number[] | null}[]) => void;
+  onSeek: (time: number) => void;
+  onReviewSource: (jobId: string) => void;
 }) {
   const [report, setReport] = useState<ReconstructionReport | null>(null);
   const [handoff, setHandoff] = useState<LayerTwoHandoff | null>(null);
@@ -26,6 +28,9 @@ export default function ReconstructionPanel({videoId, run, time, fps, onStarted,
   const [busy, setBusy] = useState(false);
   const [body, setBody] = useState(false);
   const [lowMemory, setLowMemory] = useState(true);
+  const [dense, setDense] = useState(false);
+  const [intervalStart, setIntervalStart] = useState(0);
+  const [intervalEnd, setIntervalEnd] = useState(2);
   const [allowReview, setAllowReview] = useState(false);
   const [yaw, setYaw] = useState(25);
   const [pitch, setPitch] = useState(-15);
@@ -52,6 +57,8 @@ export default function ReconstructionPanel({videoId, run, time, fps, onStarted,
   }, [videoId, run.run_id, run.status, isPhaseTwo, onProjection]);
 
   const poses = useMemo(() => [...(window?.hands || []), ...(window?.objects || [])], [window]);
+  const sampleTimes = [...new Set(poses.filter(r => r.pose).map(r => r.timestamp))].sort((a,b) => a-b);
+  const nearestSample = sampleTimes.length ? sampleTimes.reduce((a,b) => Math.abs(a-time) <= Math.abs(b-time) ? a : b) : null;
   const current = poses.filter(r => r.frame_index === frame);
   const shot = current[0]?.shot_id;
   const visible = poses.filter(r => r.pose && r.shot_id === shot);
@@ -72,7 +79,9 @@ export default function ReconstructionPanel({videoId, run, time, fps, onStarted,
         headers: {"Content-Type": "application/json"}, body: JSON.stringify({source_job_id: isPhaseTwo ? run.source_job_id : run.job_id,
           idempotency_key: crypto.randomUUID(), allow_review_source: allowReview,
           config: {backend: run.inference_mode === "fixture" ? "fixture" : "vggt", body_backend: body ? "sam3d" : "none",
-            ...(lowMemory && run.inference_mode !== "fixture" ? {memory_mode: "low_vram", image_size: 224, max_frames_per_shot: 4, max_total_frames: 4} : {})}})});
+            ...(dense ? {windowed: true, start_s: intervalStart, end_s: intervalEnd, sample_fps: 5, max_frames_per_shot: 32, max_total_frames: 32} : {}),
+            ...(lowMemory && run.inference_mode !== "fixture" ? {memory_mode: "low_vram", image_size: 224,
+              max_frames_per_shot: dense ? 32 : 4, max_total_frames: dense ? 32 : 4} : {})}})});
       onStarted(result);
     } catch (e) {setError((e as Error).message);} finally {setBusy(false);}
   }
@@ -85,6 +94,8 @@ export default function ReconstructionPanel({videoId, run, time, fps, onStarted,
     </div>
     {run.inference_mode !== "fixture" && <div className="reconstruction-options">
       <label><input type="checkbox" checked={lowMemory} onChange={e => setLowMemory(e.target.checked)} /> Limited-memory preview: four sampled frames at lower resolution; sparse geometry may not support robotization</label>
+      <label><input type="checkbox" checked={dense} onChange={e => setDense(e.target.checked)} /> Reconstruct a continuous task interval in aligned four-frame windows (slower)</label>
+      {dense && <><label>Interval start (seconds)<input type="number" min={0} step={.1} value={intervalStart} onChange={e => setIntervalStart(+e.target.value)} /></label><label>Interval end (seconds)<input type="number" min={0} step={.1} value={intervalEnd} onChange={e => setIntervalEnd(+e.target.value)} /></label></>}
       <label><input type="checkbox" checked={body} onChange={e => setBody(e.target.checked)} /> Use SAM 3D Body for anatomical wrists</label>
       <label><input type="checkbox" checked={allowReview} onChange={e => setAllowReview(e.target.checked)} /> Explore source with unresolved perception review reasons</label>
     </div>}
@@ -92,6 +103,13 @@ export default function ReconstructionPanel({videoId, run, time, fps, onStarted,
     {isPhaseTwo && !terminal && <p className="reconstruction-pending" role="status">Reconstructing scene → aligning hands and objects → fusing contact → building interaction trajectory…</p>}
     {report && window && <>
       <div className="geometry-metrics"><span><strong>{report.camera_frames}</strong> sampled cameras</span><span><strong>{report.hand_pose_frames}</strong> hand estimates</span><span><strong>{report.object_pose_frames}</strong> object estimates</span><span><strong>{report.contact_events}</strong> contact events</span><span><strong>{report.reprojection_median_px?.toFixed(2) ?? "—"} px</strong> centroid consistency</span></div>
+      {report.hand_pose_frames + report.object_pose_frames === 0 && <div className="reconstruction-review" role="status">
+        <strong>Camera reconstruction finished, but no hand or object has an associated 3D pose.</strong>
+        <p>This run used unresolved source identities. Re-running the same source will retain this result. Review the source masks, save corrections, then reconstruct the corrected perception run.</p>
+        {run.source_job_id && <button onClick={() => onReviewSource(run.source_job_id!)}>Review this run’s source identities</button>}
+      </div>}
+      {nearestSample !== null && <div className="scene-controls"><button onClick={() => onSeek(nearestSample)}>Jump to nearest 3D sample ({nearestSample.toFixed(2)}s)</button>
+        <label>Sample time <select aria-label="3D sample time" value={nearestSample} onChange={e => onSeek(Number(e.target.value))}>{sampleTimes.map(t => <option key={t} value={t}>{t.toFixed(2)}s</option>)}</select></label></div>}
       <div className="reconstruction-grid"><div className="scene-view"><span className="eyebrow">{shot || "SEEK VIDEO"} / RELATIVE SCALE</span>
         <svg viewBox="0 0 500 320" role="img" aria-label="Interactive view of sampled 3D trajectories">
           <path d="M40 260H460 M250 35V290" stroke="#dbe4d9" strokeDasharray="4 6" fill="none" />
@@ -100,7 +118,7 @@ export default function ReconstructionPanel({videoId, run, time, fps, onStarted,
             return <polyline key={track} points={path.map(r => screen(r.pose!.position_xyz).join(",")).join(" ")} fill="none" stroke={palette[i%palette.length]} strokeWidth="2" opacity=".65" />;
           }))}
           {current.filter(r => r.pose).map(row => {const [x,y] = screen(row.pose!.position_xyz); return <g key={row.track_id}><circle cx={x} cy={y} r="6" fill={palette[Math.max(0,names.indexOf(row.entity_id))%palette.length]} /><text x={x+10} y={y-8} fontSize="12">{row.entity_id}</text></g>;})}
-          {!current.some(r => r.pose) && <text x="250" y="160" textAnchor="middle" fill="#7c847f" fontSize="12">No 3D sample at this frame</text>}
+          {!current.some(r => r.pose) && <text x="250" y="160" textAnchor="middle" fill="#7c847f" fontSize="12">{sampleTimes.length ? `No sampled pose at ${time.toFixed(2)}s — choose a sample above` : "No associated 3D poses in this run — review source identities"}</text>}
         </svg>
         <div className="scene-controls"><label>Rotate <input aria-label="Scene yaw" type="range" min="-180" max="180" value={yaw} onChange={e => setYaw(+e.target.value)} /></label><label>Tilt <input aria-label="Scene pitch" type="range" min="-80" max="80" value={pitch} onChange={e => setPitch(+e.target.value)} /></label></div>
         <small>Sampled position paths. Shot-local world; missing frames stay missing. Crosshairs on the video show projected 3D centroids.</small>

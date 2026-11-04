@@ -25,8 +25,32 @@ TRACK_SCHEMA = pa.schema([
     ("identity_status", pa.string()), ("warnings", pa.list_(pa.string())), ("model_run_id", pa.string())])
 
 
+def visual_candidate(records, corrections):
+    """Resolve only a unique mask supported by explicit spatial user evidence."""
+    choices = set()
+    for correction in corrections:
+        matches = []
+        for rec in records:
+            if rec["frame"] != correction["frame_index"]: continue
+            mask = rec["mask"].astype(bool)
+            if correction["kind"] == "point":
+                x, y = map(int, correction["point"])
+                if 0 <= y < mask.shape[0] and 0 <= x < mask.shape[1] and mask[y, x]:
+                    matches.append(rec["object_id"])
+            elif correction["kind"] == "box":
+                x1, y1, x2, y2 = correction["bbox_xyxy"]
+                box = np.zeros_like(mask)
+                box[max(0, int(y1)):int(np.ceil(y2)), max(0, int(x1)):int(np.ceil(x2))] = True
+                intersection = (mask & box).sum()
+                union = (mask | box).sum()
+                if union and intersection/union >= .5: matches.append(rec["object_id"])
+        if len(matches) != 1: return None
+        choices.add(matches[0])
+    return next(iter(choices)) if len(choices) == 1 else None
+
+
 def build_tracklets(records, entity, shot, manifest, frame_map, video_id, model_run_id, bundle_ref, correction=None,
-                    shared_concept=False):
+                    shared_concept=False, visual_corrections=()):
     indexed = defaultdict(dict)
     for rec in records:
         frame = rec["frame"]
@@ -37,6 +61,8 @@ def build_tracklets(records, entity, shot, manifest, frame_map, video_id, model_
         indexed[frame][rec["object_id"]] = rec
     candidates = sorted({r["object_id"] for r in records}) or ["unmatched"]
     selected = correction.get("provider_track_id") if correction and correction["kind"] == "association" else None
+    if selected is None and visual_corrections:
+        selected = visual_candidate(records, visual_corrections)
     if selected is not None and selected not in candidates:
         raise DomainError("E_ASSOCIATION_INVALID", "Selected provider object was not found in this shot")
     if selected is not None:
@@ -68,6 +94,10 @@ def build_tracklets(records, entity, shot, manifest, frame_map, video_id, model_
                 # A same provider ordinal is not proof of identity after full occlusion.
                 associated = False
                 warnings.append("Identity after missing run is unverified")
+            if rec and selected == candidate and correction and global_frame == correction.get("frame_index"):
+                # Explicit review at this frame can establish the current segment;
+                # the gap remains split and is never interpolated across.
+                associated = True
             track_id = f"{entity.entity_id}:{shot.shot_id}:{candidate}:{segment}"
             mask_ref = centroid = normalized = None
             if rec:
@@ -140,8 +170,8 @@ def tracking(provider, video, manifest, plan, frame_map, output: Path, prefix, r
             ref = f"{prefix}/{name}"
             group, masks, stats = build_tracklets(predictions, entity, shot, manifest, frame_map,
                 manifest.video_id, record.last_id, ref, next((c for c in relevant if c["kind"] == "association"), None),
-                shared_concept=concepts.count(entity.sam_prompt.strip().casefold()) > 1 and not any(
-                    c["kind"] in ("point", "box") for c in relevant))
+                shared_concept=concepts.count(entity.sam_prompt.strip().casefold()) > 1,
+                visual_corrections=[c for c in provider_corrections if c["kind"] in ("point", "box")])
             rows.extend(group)
             summaries.extend(stats)
             (output / name).write_bytes(gzip.compress(json.dumps(masks).encode(), mtime=0))
@@ -155,6 +185,8 @@ def tracking(provider, video, manifest, plan, frame_map, output: Path, prefix, r
         shot_file.unlink()
     pq.write_table(pa.Table.from_pylist(rows, schema=TRACK_SCHEMA), output / "tracks.parquet", compression="zstd")
     reasons = []
+    if corrections:
+        reasons.append("Review-assisted entity grounding; reviewer and original observations retained in correction lineage")
     for entity in plan.entities:
         group = [r for r in rows if r["entity_id"] == entity.entity_id]
         frames = {r["frame_index"] for r in group if r["observed"] and r["identity_status"] == "associated"}

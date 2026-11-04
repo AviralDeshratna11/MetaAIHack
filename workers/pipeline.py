@@ -28,7 +28,7 @@ def code_hash():
     sources = {p.as_posix(): file_hash(p) for root in roots for p in sorted(root.rglob("*.py"))}
     sources["requirements.lock"] = file_hash(Path("requirements.lock"))
     for name in ("requirements-robot.txt", "requirements-lerobot.txt", "infra/Robot.Dockerfile", "compose.robot.yaml",
-                 "requirements-geometry.txt", "requirements-geometry-body.txt", "compose.geometry.yaml"):
+                 "requirements-geometry.txt", "requirements-geometry-body.txt", "requirements-rl.txt", "compose.geometry.yaml"):
         if Path(name).is_file():
             sources[name] = file_hash(Path(name))
     return digest(sources)
@@ -198,12 +198,37 @@ def run_job(job_id):
         provider = FixtureProvider() if job.mode == "fixture" else LiveProvider(config=job.config)
         store = Storage()
         corrections = all_corrections(job)
+        inherited = {}
+        # Corrections change grounding, not source normalization or semantics.
+        # Preserve the parent's immutable inputs even when compiler code changed.
+        if job.source_job_id:
+            with transaction() as s:
+                parent = s.get(Job, job.source_job_id)
+                if parent and parent.config.get("pipeline", "perception") == "perception":
+                    parent_artifacts = s.scalars(select(Artifact).where(Artifact.job_id == parent.id)).all()
+                    for name in ("preprocessing", "semantic_parsing"):
+                        inherited[name] = [a for a in parent_artifacts if a.manifest["stage"] == name]
+                    current_correction = s.scalar(select(CorrectionRecord).where(CorrectionRecord.job_id == job.id))
+                    if current_correction and current_correction.data["kind"] == "association":
+                        from workers.perception.reuse import StoredTrackingProvider
+                        provider = StoredTrackingProvider(parent_artifacts, store, job.mode)
         input_key = {"source": video.sha256, "config": job.config}
         results = {}
         for stage_name in STAGES:
             stage_key = digest({**input_key, "stage": stage_name,
                                 "corrections": corrections if stage_name == "tracking" else []})
             stage, cache_hit = stage_start(job.id, token, stage_name, stage_key)
+            if not cache_hit and inherited.get(stage_name):
+                refs = {a.name:a.manifest["uri"] for a in inherited[stage_name]}
+                with transaction() as s:
+                    assert_owner(s, job.id, token)
+                    for a in inherited[stage_name]:
+                        s.add(Artifact(id=uid("art"), job_id=job.id, stage_run_id=stage.id, name=a.name, manifest=a.manifest))
+                    saved = s.get(StageRun, stage.id)
+                    saved.status, saved.result = "COMPLETED", refs
+                    emit(s, s.get(Job,job.id), {"stage_completed":stage_name,"source_artifacts_reused":True})
+                stage.result = refs
+                cache_hit = True
             if not cache_hit:
                 with tempfile.TemporaryDirectory() as tmp:
                     root = Path(tmp)

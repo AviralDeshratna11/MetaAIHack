@@ -33,6 +33,12 @@ eval/reports/*
 !eval/reports/geometry-configured.json
 !eval/reports/live-geometry-models.json
 !eval/reports/live-phase2-geometry.json
+!eval/reports/learning-smoke.json
+!eval/reports/pouring-repair.json
+!eval/reports/live-learning.json
+!eval/reports/learning-ablations.json
+!eval/reports/robot-learning-acceptance.json
+!eval/reports/fresh-provider-probe.json
 *.egg-info/
 *.tsbuildinfo
 coverage/

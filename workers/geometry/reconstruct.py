@@ -33,21 +33,26 @@ class MaskReader:
 def sample_frames(manifest, plan, config):
     selected = set()
     for shot in manifest.shots:
-        mandatory = {shot.start_frame, shot.end_frame - 1}
+        fps = manifest.fps_num / manifest.fps_den
+        first = max(shot.start_frame, int(np.ceil(config.get("start_s", 0)*fps)))
+        last = min(shot.end_frame, int(np.ceil(config["end_s"]*fps)) if config.get("end_s") is not None else shot.end_frame)
+        if last <= first:
+            continue
+        mandatory = {first, last - 1}
         priority = set(mandatory)
         fps = manifest.fps_num / manifest.fps_den
         for action in plan.actions:
             for time in (action.start_s, action.end_s):
                 for offset in (-.2, 0, .2):
                     index = round((time + offset) * fps)
-                    if shot.start_frame <= index < shot.end_frame:
+                    if first <= index < last:
                         priority.add(index)
         cap = config["max_frames_per_shot"]
         candidates = sorted(priority - mandatory)
         if len(priority) > cap:
             candidates = [candidates[i] for i in np.linspace(0, len(candidates)-1, cap-len(mandatory), dtype=int)]
         chosen = mandatory | set(candidates)
-        regular = sorted(set(range(shot.start_frame, shot.end_frame, max(1, round(fps/config["sample_fps"])))) - chosen)
+        regular = sorted(set(range(first, last, max(1, round(fps/config["sample_fps"])))) - chosen)
         count = min(cap - len(chosen), len(regular))
         if count:
             chosen.update(regular[i] for i in np.linspace(0, len(regular)-1, count, dtype=int))
@@ -183,7 +188,7 @@ def reconstruct(video, manifest, plan, tracks, masks, output, config, source_run
                 path = shot_dir / f"frame_{index}.jpg"
                 cv2.imwrite(str(path), image)
                 frame_paths[index] = path
-        packets = provider.reconstruct(frame_paths, manifest, shot_dir, config)
+        packets = provider.reconstruct(frame_paths, manifest, shot_dir, config) if frame_paths else {}
         for index, packet in packets.items():
             camera = CameraFrame(video_id=manifest.video_id, shot_id=shot.shot_id, frame_index=index,
                 timestamp=index * manifest.fps_den / manifest.fps_num, world_frame=world_frame,

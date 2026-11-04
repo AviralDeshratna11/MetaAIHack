@@ -12,21 +12,11 @@ def replay(trajectory, root, output, render=True):
     from packages.robot.panda import Panda
     root, output = Path(root), Path(output)
     robot = Panda(root)
-    xml = ET.parse(root / "panda.xml").getroot()
-    compiler = xml.find("compiler")
-    compiler.set("meshdir", str((root / "assets").resolve()))
-    world = xml.find("worldbody")
-    ET.SubElement(world, "light", pos="0 0 3", dir="0 0 -1", diffuse=".8 .8 .8")
-    ET.SubElement(world, "geom", name="proxy_table", type="plane", size="2 2 .1", pos="0 0 -.01", rgba=".35 .4 .35 1")
-    # Explicit assumed proxy, not an estimated object mesh/pose or validated task scene.
-    ET.SubElement(world, "camera", name="debug", pos="1.6 -1.6 1.2", xyaxes=".707 .707 0 -.3 .3 .9")
-    body = ET.SubElement(world, "body", name="proxy_object", pos=".5 .22 .04")
-    ET.SubElement(body, "freejoint", name="proxy_free")
-    ET.SubElement(body, "geom", name="proxy_box", type="box", size=".025 .025 .035", mass=".1", friction=".8 .005 .0001", rgba=".8 .4 .2 1")
-    keyframe = xml.find("keyframe")
-    if keyframe is not None:
-        xml.remove(keyframe)  # Original qpos key has no newly added free object joint.
-    model = mj.MjModel.from_xml_string(ET.tostring(xml, encoding="unicode"))
+    from packages.robot.scenes import scene_xml, forbidden_contacts
+    from packages.robot.tasks import TaskEvaluator
+    scene = trajectory.config.task_scene
+    evaluator = TaskEvaluator(scene) if scene else None
+    model = mj.MjModel.from_xml_string(scene_xml(root, scene))
     data = mj.MjData(model)
     qadr = model.jnt_qposadr[robot.joints]
     dadr = model.jnt_dofadr[robot.joints]
@@ -66,8 +56,12 @@ def replay(trajectory, root, output, render=True):
             # before applying this row's action (standard state/action alignment).
             while data.time < frame.execution_time_s-1e-9:
                 previous = trajectory.frames[max(0, index-1)]
-                alpha = np.clip((data.time-previous.execution_time_s)/max(frame.execution_time_s-previous.execution_time_s, 1e-8), 0, 1)
+                # The action at the preceding observation is this frame's endpoint
+                # target. Exporters preserve that causal one-tick alignment.
+                alpha = np.clip((data.time-previous.execution_time_s)/max(frame.execution_time_s-previous.execution_time_s,1e-8),0,1)
                 data.ctrl[:7] = np.array(previous.joints_rad)*(1-alpha)+np.array(frame.joints_rad)*alpha
+                if previous.gripper_width_m is not None and frame.gripper_width_m is not None:
+                    data.ctrl[7] = ((1-alpha)*previous.gripper_width_m+alpha*frame.gripper_width_m)/.08*255
                 mj.mj_step(model, data)
                 peak_velocity = np.maximum(peak_velocity, np.abs(data.qvel[dadr]))
                 peak_acceleration = np.maximum(peak_acceleration, np.abs(data.qacc[dadr]))
@@ -79,28 +73,21 @@ def replay(trajectory, root, output, render=True):
                 data.ctrl[7] = frame.gripper_width_m/.08*255
             p = data.xpos[hand]+data.xmat[hand].reshape(3, 3) @ robot.local_tcp
             error = float(np.linalg.norm(p-frame.target_position_m))
-            contacts = []
-            for contact in data.contact[:data.ncon]:
-                if contact.dist >= -1e-4: continue
-                names = [mj.mj_id2name(model, mj.mjtObj.mjOBJ_GEOM, g) or f"geom:{g}" for g in (contact.geom1, contact.geom2)]
-                bodies = [int(model.geom_bodyid[g]) for g in (contact.geom1, contact.geom2)]
-                # Table support of base/object is allowed; all other non-adjacent penetration is diagnostic.
-                if "proxy_table" in names and any(mj.mj_id2name(model, mj.mjtObj.mjOBJ_BODY, b) in ("link0", "proxy_object") for b in bodies):
-                    continue
-                if bodies[0] == bodies[1] or model.body_parentid[bodies[0]] == bodies[1] or model.body_parentid[bodies[1]] == bodies[0]:
-                    continue
-                contacts.append("/".join(names))
+            contacts = forbidden_contacts(model, data, allowed_grasp=bool(scene and scene.task == "pick_place"))
             if contacts: violations.add("COLLISION")
             if error > trajectory.config.simulation_tracking_tolerance_m: violations.add("TCP_TRACKING")
             if np.any(data.qpos[qadr] < robot.lower-.005) or np.any(data.qpos[qadr] > robot.upper+.005): violations.add("JOINT_POSITION")
             if np.any(np.abs(data.qvel[dadr]) > robot.velocity+.01): violations.add("JOINT_VELOCITY")
             if np.any(np.abs(data.qacc[dadr]) > robot.acceleration+.1): violations.add("JOINT_ACCELERATION")
             if not np.isfinite(data.qpos).all(): raise RuntimeError("Nonfinite simulated state")
+            task = evaluator.evaluate(p, data.xpos[object_id], float(data.qpos[7]+data.qpos[8]),
+                0 if index == 0 else frame.execution_time_s-trajectory.frames[index-1].execution_time_s,
+                violations) if evaluator else None
             rows.append({"execution_time_s": frame.execution_time_s, "source_time_s": frame.source_time_s,
                 "sim_time_s": float(data.time),
                 "joints_rad": data.qpos[qadr].tolist(), "joint_velocity_rad_s": data.qvel[dadr].tolist(),
                 "tcp_position_m": p.tolist(), "gripper_width_m": float(data.qpos[7]+data.qpos[8]),
-                "tracking_error_m": error, "contacts": contacts, "proxy_object_position_m": data.xpos[object_id].tolist()})
+                "tracking_error_m": error, "contacts": contacts, "proxy_object_position_m": data.xpos[object_id].tolist(), "task": task})
             if renderer:
                 renderer.update_scene(data, camera="debug")
                 writer.write(cv2.cvtColor(renderer.render(), cv2.COLOR_RGB2BGR))
@@ -108,10 +95,14 @@ def replay(trajectory, root, output, render=True):
         if renderer: renderer.close()
         if writer: writer.release()
     report = {"engine": "mujoco", "version": mj.__version__, "seed": 0, "timestep_s": model.opt.timestep,
-        "controller": "official Panda position actuators; linear control-tick interpolation; zero velocity feedforward", "initial_equilibration_s": 1, "physics_stepped": True,
+        "controller": "official Panda position actuators; action specifies next-tick endpoint; linear interpolation from current command; zero velocity feedforward", "initial_equilibration_s": 1, "physics_stepped": True,
         "scene": "assumed plane and free 0.1kg box proxy; not reconstructed task scene", "grasp_attachment": False,
         "unknown_gripper_behavior": "No inferred command; holds prior simulator control, with closed proxy initialization when initial state is unknown. Never an accepted training action.",
-        "task_success": None, "fluid_transfer_success": None, "task_scene_validated": False,
+        "task_success": bool(evaluator.success) if evaluator else None, "fluid_transfer_success": None,
+        "task_scene_validated": False,
+        "configured_simulation_task": scene.model_dump(mode="json") if scene else None,
+        "simulation_task_success": bool(evaluator.success) if evaluator else None,
+        "source_task_validated": False, "grasp_contact_allowance": "finger-object only" if scene and scene.task == "pick_place" else None,
         "violations": sorted(violations), "passed": not violations,
         "tracking_max_m": max(r["tracking_error_m"] for r in rows),
         "joint_velocity_max_rad_s": peak_velocity.tolist(),

@@ -3,6 +3,10 @@
 For a complete explanation of the architecture, component responsibilities and
 operating procedure, read the [complete workflow guide](docs/complete-workflow.md).
 
+The [robot-learning guide](docs/robot-learning.md) describes the new RL transition
+bundle, Gymnasium environment, offline learner, actual evaluation evidence and
+remaining source-task limitations.
+
 For the running local live app and exact UI/CLI test steps, see
 [local live testing](docs/live-testing.md).
 

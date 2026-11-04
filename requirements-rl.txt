@@ -1,0 +1,4 @@
+# Interactive simulation and reproducible small-policy training; separate from GPU perception.
+gymnasium==1.2.1
+stable-baselines3==2.7.1
+pydantic==2.11.7

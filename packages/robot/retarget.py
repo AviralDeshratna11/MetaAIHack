@@ -96,9 +96,14 @@ def retarget(itr, config, robot, run_id, continuity=True):
         dt = max(b["frame"].timestamp-a["frame"].timestamp,
                  float(np.max(1.875*dq/robot.velocity)), float(np.max(np.sqrt(5.774*dq/robot.acceleration))), 1/config.control_hz)
         # Round up to a control tick so exported timestamps are a fixed-rate grid.
-        dt = np.ceil(dt*config.control_hz)/config.control_hz
+        dt = np.ceil(dt/config.execution_speed_scale*config.control_hz)/config.control_hz
         segments.append((clock, dt, a, b))
         clock += dt
+    if config.final_hold_s:
+        duration = np.ceil(config.final_hold_s*config.control_hz)/config.control_hz
+        segments.append((clock, duration, knots[-1], knots[-1]))
+        clock += duration
+    adaptation.update(execution_speed_scale=config.execution_speed_scale,final_hold_s=config.final_hold_s)
     if clock*config.control_hz > 100000:
         raise DomainError("E_ROBOT_DURATION", "Retimed trajectory exceeds frame quota")
     output, state, commanded_width = [], config.initial_gripper, None

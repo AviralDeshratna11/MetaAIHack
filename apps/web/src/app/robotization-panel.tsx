@@ -46,15 +46,20 @@ export default function RobotizationPanel({videoId, run, time, plan, onSeek, onS
   async function submitRobotization() {
     setBusy(true); setError("");
     try {
+      const payload = {source_job_id: run.pipeline === "robotization" ? run.source_job_id : run.job_id,
+        idempotency_key: crypto.randomUUID(), allow_review_source: allowReview,
+        config: {...JSON.parse(config), hand_id: hand, object_id: object, shot_id: shot, start_s: start, end_s: end}};
+      const check = await read<{ready_for_ik_attempt: boolean; paired_samples: number; reasons: string[]}>(`/v1/videos/${videoId}/robotize/check`, {
+        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)});
+      if (!check.ready_for_ik_attempt) throw new Error(`${check.paired_samples} paired hand/object samples. ${check.reasons.join(". ")}. Correct identities or reconstruct a continuous interval before submitting.`);
       const result = await read<Run>(`/v1/videos/${videoId}/robotize`, {method: "POST", headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({source_job_id: run.pipeline === "robotization" ? run.source_job_id : run.job_id,
-          idempotency_key: crypto.randomUUID(), allow_review_source: allowReview,
-          config: {...JSON.parse(config), hand_id: hand, object_id: object, shot_id: shot, start_s: start, end_s: end}})});
+        body: JSON.stringify(payload)});
       onStarted(result);
     } catch (e) {setError((e as Error).message);} finally {setBusy(false);}
   }
   if (!["reconstruction", "robotization"].includes(run.pipeline || "")) return null;
   const media = artifacts.find(a => a.name === "simulation/simulation_replay.mp4");
+  const bundle = artifacts.find(a => a.name === "learning_bundle.zip");
   return <section className="card reconstruction-panel" aria-label="Phase 3 robotization">
     <div className="card-head"><span>06 / FRANKA · IK · SIMULATION · LEROBOT</span><span>v0.3.0</span></div>
     <div className="reconstruction-tools"><div><h2>Compile a robot demonstration</h2><p>Workspace adaptation works without measured dimensions. It changes task scale and does not establish metric reconstruction.</p></div>
@@ -74,6 +79,7 @@ export default function RobotizationPanel({videoId, run, time, plan, onSeek, onS
     {error && <p role="alert" className="reconstruction-error">{error}</p>}
     {quality && <div><h3>{quality.classification} / {quality.accepted_training_subset ? "Accepted subset" : "Diagnostic output"}</h3>
       <ul>{quality.reasons.map(r => <li key={r}>{r.replaceAll("_", " ")}</li>)}</ul><p>Physical readiness remains unverified. Simulation uses an assumed proxy scene.</p></div>}
+    {bundle && <div><a className="primary" href={bundle.url} download>Download robot learning bundle</a><p>Includes LeRobot data, RL transitions when an explicit task is configured, checksums and quality reasons. Read rl_report.json before training; reviewed data requires an explicit training override.</p></div>}
     {trajectory && <><p>{String(trajectory.adaptation.mode)} · {trajectory.frames.length} retimed commands · {trajectory.inference_mode}</p>
       <input aria-label="Robot execution timeline" type="range" min={0} max={Math.max(0,trajectory.frames.length-1)} step={1}
         value={frame ? trajectory.frames.indexOf(frame) : 0} onChange={e => onSeek(trajectory.frames[Number(e.target.value)].source_time_s)} style={{width:"100%"}} />
@@ -82,7 +88,7 @@ export default function RobotizationPanel({videoId, run, time, plan, onSeek, onS
         <p>Joints (rad): {frame.joints_rad.map(n => n.toFixed(3)).join(" / ")}</p><p role="status">{frame.reasons.join(" · ") || "Kinematic frame checks passed"}</p></>}
       {media && <video ref={replay} src={media.url} controls style={{width:"100%", maxWidth:640}} aria-label="Physics replay"
         onTimeUpdate={() => {if (replay.current && !replay.current.paused && trajectory.frames.length) {const t=replay.current.currentTime; const f=trajectory.frames.reduce((a,b) => Math.abs(a.execution_time_s-t)<=Math.abs(b.execution_time_s-t)?a:b); onSeek(f.source_time_s);}}} />}
-      <div className="artifact-list">{artifacts.filter(a => a.name.startsWith("export/") || ["quality_report.json", "simulation_report.json", "phase3_handoff.json"].includes(a.name)).map(a => <a key={a.name} href={a.url} target="_blank" rel="noreferrer">{a.name}</a>)}</div>
+      <div className="artifact-list">{artifacts.filter(a => a.name.startsWith("export/") || a.name.startsWith("rl/") || ["quality_report.json", "simulation_report.json", "phase3_handoff.json", "learning_manifest.json"].includes(a.name)).map(a => <a key={a.name} href={a.url} target="_blank" rel="noreferrer">{a.name}</a>)}</div>
     </>}
   </section>;
 }
