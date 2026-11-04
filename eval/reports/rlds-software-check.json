@@ -1,0 +1,15 @@
+{
+  "format": "RLDS via official TFDS",
+  "roundtrip_passed": true,
+  "episodes": 1,
+  "transitions": 11,
+  "final_observation_included": true,
+  "tensorflow": "2.20.0",
+  "tensorflow_datasets": "4.9.9",
+  "builder_directory": "dataset/video2_robot_rlds/1.0.0",
+  "observation_source": "simulated",
+  "source_task_validated": false,
+  "accepted_training_subset": false,
+  "source_transitions_sha256": "31a71b4424a928c264b48747e6962f46fdbe8591caeee25379c8126c50012531",
+  "protobuf": "6.33.5"
+}

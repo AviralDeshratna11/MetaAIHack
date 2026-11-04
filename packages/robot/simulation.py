@@ -95,7 +95,7 @@ def replay(trajectory, root, output, render=True):
         if renderer: renderer.close()
         if writer: writer.release()
     report = {"engine": "mujoco", "version": mj.__version__, "seed": 0, "timestep_s": model.opt.timestep,
-        "controller": "official Panda position actuators; action specifies next-tick endpoint; linear interpolation from current command; zero velocity feedforward", "initial_equilibration_s": 1, "physics_stepped": True,
+        "controller": "pinned robot asset position actuators; action specifies next-tick endpoint; linear interpolation from current command; zero velocity feedforward", "initial_equilibration_s": 1, "physics_stepped": True,
         "scene": "assumed plane and free 0.1kg box proxy; not reconstructed task scene", "grasp_attachment": False,
         "unknown_gripper_behavior": "No inferred command; holds prior simulator control, with closed proxy initialization when initial state is unknown. Never an accepted training action.",
         "task_success": bool(evaluator.success) if evaluator else None, "fluid_transfer_success": None,

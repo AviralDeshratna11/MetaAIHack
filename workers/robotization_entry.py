@@ -53,6 +53,22 @@ def run(request, output):
         directory = output/"rl"; directory.mkdir(exist_ok=True)
         (directory/"rl_report.json").write_text(json.dumps({"status":"blocked","reason":str(exc),"accepted_training_subset":False}),encoding="utf-8")
     from packages.robot.bundle import build_bundle
+    if config.export_rlds:
+        try:
+            from packages.robot.rlds_exporter import export_isolated as export_rlds
+            result=export_rlds(runtime.get('rlds_python'),output/'rl',output/'rlds')
+            export['requested_formats_passed']=result['roundtrip_passed']
+        except Exception as exc:
+            directory=output/'rlds';directory.mkdir(exist_ok=True)
+            (directory/'rlds_report.json').write_text(json.dumps({'roundtrip_passed':False,'reason':str(exc)}),encoding='utf-8')
+            export['requested_formats_passed']=False
+        quality=classify(trajectory,simulation,export)
+        # Requested-format failure must also revoke any provisional RL eligibility.
+        if export.get('requested_formats_passed') is False:
+            try:export_transitions(trajectory,simulation,quality,output/'rl')
+            except ValueError:pass  # Already recorded as blocked above.
+        (output/'quality_report.json').write_text(quality.model_dump_json(indent=2),encoding='utf-8')
+        (output/'export_report.json').write_text(json.dumps(export,indent=2),encoding='utf-8')
     build_bundle(output,trajectory,quality)
     handoff = RobotizationHandoff(video_id=itr.video_id, run_id=request["run_id"], source_run_id=itr.run_id,
         inference_mode=itr.quality.inference_mode, artifacts={}, quality=quality)

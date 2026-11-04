@@ -14,8 +14,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return body;
 }
 
-export default function ReconstructionPanel({videoId, run, time, fps, onStarted, onProjection, onSeek, onReviewSource}: {
+export default function ReconstructionPanel({videoId, run, time, fps, duration, onStarted, onProjection, onSeek, onReviewSource}: {
   videoId: string; run: Run; time: number; fps: number; onStarted: (run: Run) => void;
+  duration:number;
   onProjection: (points: {entity_id: string; frame_index: number; projected_centroid: number[] | null}[]) => void;
   onSeek: (time: number) => void;
   onReviewSource: (jobId: string) => void;
@@ -75,13 +76,15 @@ export default function ReconstructionPanel({videoId, run, time, fps, onStarted,
   async function start() {
     setBusy(true); setError("");
     try {
+      const budget=Math.max(4,Math.ceil((intervalEnd-intervalStart)*5)+64);
+      if(dense&&budget>512)throw new Error('Requested interval exceeds the 512-sample budget at 5 FPS; shorten the interval.');
       const result = await request<Run>(`/v1/videos/${videoId}/reconstruct`, {method: "POST",
         headers: {"Content-Type": "application/json"}, body: JSON.stringify({source_job_id: isPhaseTwo ? run.source_job_id : run.job_id,
           idempotency_key: crypto.randomUUID(), allow_review_source: allowReview,
           config: {backend: run.inference_mode === "fixture" ? "fixture" : "vggt", body_backend: body ? "sam3d" : "none",
-            ...(dense ? {windowed: true, start_s: intervalStart, end_s: intervalEnd, sample_fps: 5, max_frames_per_shot: 32, max_total_frames: 32} : {}),
+            ...(dense ? {windowed: true, start_s: intervalStart, end_s: intervalEnd, sample_fps: 5, max_frames_per_shot: budget, max_total_frames: budget} : {}),
             ...(lowMemory && run.inference_mode !== "fixture" ? {memory_mode: "low_vram", image_size: 224,
-              max_frames_per_shot: dense ? 32 : 4, max_total_frames: dense ? 32 : 4} : {})}})});
+              max_frames_per_shot: dense ? budget : 4, max_total_frames: dense ? budget : 4} : {})}})});
       onStarted(result);
     } catch (e) {setError((e as Error).message);} finally {setBusy(false);}
   }
@@ -95,6 +98,8 @@ export default function ReconstructionPanel({videoId, run, time, fps, onStarted,
     {run.inference_mode !== "fixture" && <div className="reconstruction-options">
       <label><input type="checkbox" checked={lowMemory} onChange={e => setLowMemory(e.target.checked)} /> Limited-memory preview: four sampled frames at lower resolution; sparse geometry may not support robotization</label>
       <label><input type="checkbox" checked={dense} onChange={e => setDense(e.target.checked)} /> Reconstruct a continuous task interval in aligned four-frame windows (slower)</label>
+      <button disabled={!duration||busy} onClick={()=>{setDense(true);setIntervalStart(0);setIntervalEnd(duration);}}>Use whole clip ({duration.toFixed(2)}s)</button>
+      {dense&&<small>Explicit sample budget: {Math.ceil((intervalEnd-intervalStart)*5)+64}, including action-boundary headroom, at 5 FPS. GPU windows remain bounded; total runtime increases.</small>}
       {dense && <><label>Interval start (seconds)<input type="number" min={0} step={.1} value={intervalStart} onChange={e => setIntervalStart(+e.target.value)} /></label><label>Interval end (seconds)<input type="number" min={0} step={.1} value={intervalEnd} onChange={e => setIntervalEnd(+e.target.value)} /></label></>}
       <label><input type="checkbox" checked={body} onChange={e => setBody(e.target.checked)} /> Use SAM 3D Body for anatomical wrists</label>
       <label><input type="checkbox" checked={allowReview} onChange={e => setAllowReview(e.target.checked)} /> Explore source with unresolved perception review reasons</label>

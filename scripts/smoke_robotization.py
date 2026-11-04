@@ -45,7 +45,7 @@ def main():
                         hands=[h], objects=[obj], contacts=contacts))
     itr = N(video_id="synthetic-panda-diagnostic", run_id="synthetic-source", task="Synthetic diagnostic reach; no grasp", frames=frames,
             quality=N(review_reasons=["Synthetic input; not human reconstruction"], inference_mode="fixture"))
-    config = RobotizationConfig(hand_id="hand", object_id="object", shot_id="shot", end_s=2.01 if args.task_reach else 1.01,
+    config = RobotizationConfig(robot_id=robot.spec.get('robot_id','panda'),hand_id="hand", object_id="object", shot_id="shot", end_s=2.01 if args.task_reach else 1.01,
         calibration=Calibration(mode="measured", residual_m=0, evidence="Synthetic coordinates constructed from official Panda FK"),
         tcp_quaternion_xyzw=matrix_quaternion(r), initial_gripper="open")
     if args.task_reach:

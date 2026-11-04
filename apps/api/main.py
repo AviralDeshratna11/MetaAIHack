@@ -356,3 +356,5 @@ from apps.api.reconstruction import router as reconstruction_router
 app.include_router(reconstruction_router)
 from apps.api.robotization import router as robotization_router
 app.include_router(robotization_router)
+from apps.api.catalog import router as catalog_router
+app.include_router(catalog_router)

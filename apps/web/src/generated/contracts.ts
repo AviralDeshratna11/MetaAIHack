@@ -44,6 +44,7 @@ export type Video2RobotContracts =
   | GeometryWindow
   | InteractionTrajectory
   | Calibration1
+  | CalibrationRequest
   | TaskScene
   | RobotizationConfig
   | RobotizationRequest
@@ -614,10 +615,35 @@ export type ScaleMPerUnit = number;
 export type BaseFromWorld = number[][];
 export type Evidence1 = string;
 export type ResidualM = number | null;
+export type CorrespondenceHash = string | null;
+export type CorrespondenceCount1 = number | null;
 export type SchemaVersion56 = "0.3.0";
+/**
+ * @minItems 3
+ * @maxItems 1000
+ */
+export type WorldPoints = [
+  [number, number, number],
+  [number, number, number],
+  [number, number, number],
+  ...[number, number, number][]
+];
+/**
+ * @minItems 3
+ * @maxItems 1000
+ */
+export type BasePointsM = [
+  [number, number, number],
+  [number, number, number],
+  [number, number, number],
+  ...[number, number, number][]
+];
+export type Evidence2 = string;
+export type MaxResidualM = number;
+export type SchemaVersion57 = "0.3.0";
 export type Task2 = "reach" | "pick_place";
 export type GeometrySource = "configured_simulation_proxy" | "measured_task_scene";
-export type Evidence2 = string;
+export type Evidence3 = string;
 /**
  * @minItems 3
  * @maxItems 3
@@ -640,12 +666,16 @@ export type GoalToleranceM = number;
 export type RequiredLiftM = number;
 export type SuccessHoldS = number;
 export type HorizonS = number;
-export type SchemaVersion57 = "0.3.0";
+export type SchemaVersion58 = "0.3.0";
+export type RobotId = "panda" | "fr3";
 export type HandId4 = string;
 export type ObjectId4 = string;
 export type ShotId11 = string;
 export type StartS3 = number;
 export type EndS3 = number;
+export type RequireFullInterval = boolean;
+export type BoundaryToleranceS = number;
+export type EpisodeEnd = "task_success" | "trajectory_end";
 /**
  * @minItems 3
  * @maxItems 3
@@ -675,13 +705,14 @@ export type OpenWidthM = number;
 export type ClosedWidthM = number;
 export type MaxGripperSpeedMS = number;
 export type RequireExport = boolean;
+export type ExportRlds = boolean;
 export type DiagnosticExport = boolean;
 export type QualityRubric = "baseline-v1";
-export type SchemaVersion58 = "0.3.0";
+export type SchemaVersion59 = "0.3.0";
 export type SourceJobId4 = string;
 export type IdempotencyKey2 = string;
 export type AllowReviewSource1 = boolean;
-export type SchemaVersion59 = "0.3.0";
+export type SchemaVersion60 = "0.3.0";
 export type FrameIndex10 = number;
 export type SourceTimeS = number;
 export type ExecutionTimeS = number;
@@ -723,7 +754,7 @@ export type Collisions = string[];
 export type Valid = boolean;
 export type Reasons1 = string[];
 export type Origin5 = "retargeted" | "interpolated";
-export type SchemaVersion60 = "0.3.0";
+export type SchemaVersion61 = "0.3.0";
 export type VideoId14 = string;
 export type RunId9 = string;
 export type SourceRunId3 = string;
@@ -731,13 +762,13 @@ export type Task3 = string;
 export type InferenceMode13 = "live" | "fixture";
 export type ReviewReasons5 = string[];
 export type Frames1 = RobotFrame[];
-export type SchemaVersion61 = "0.3.0";
+export type SchemaVersion62 = "0.3.0";
 export type Classification = "Gold" | "Silver" | "Reject";
 export type Rubric = "baseline-v1";
 export type Reasons2 = string[];
 export type AcceptedTrainingSubset = boolean;
 export type PhysicalRobotReady = false;
-export type SchemaVersion62 = "0.3.0";
+export type SchemaVersion63 = "0.3.0";
 export type VideoId15 = string;
 export type RunId10 = string;
 export type SourceRunId4 = string;
@@ -1418,12 +1449,21 @@ export interface Calibration1 {
   base_from_world?: BaseFromWorld;
   evidence: Evidence1;
   residual_m?: ResidualM;
+  correspondence_hash?: CorrespondenceHash;
+  correspondence_count?: CorrespondenceCount1;
+}
+export interface CalibrationRequest {
+  schema_version?: SchemaVersion56;
+  world_points: WorldPoints;
+  base_points_m: BasePointsM;
+  evidence: Evidence2;
+  max_residual_m?: MaxResidualM;
 }
 export interface TaskScene {
-  schema_version?: SchemaVersion56;
+  schema_version?: SchemaVersion57;
   task: Task2;
   geometry_source?: GeometrySource;
-  evidence: Evidence2;
+  evidence: Evidence3;
   goal_position_m: GoalPositionM;
   object_position_m?: ObjectPositionM;
   object_half_size_m?: ObjectHalfSizeM;
@@ -1436,12 +1476,16 @@ export interface TaskScene {
   horizon_s?: HorizonS;
 }
 export interface RobotizationConfig {
-  schema_version?: SchemaVersion57;
+  schema_version?: SchemaVersion58;
+  robot_id?: RobotId;
   hand_id: HandId4;
   object_id: ObjectId4;
   shot_id: ShotId11;
   start_s?: StartS3;
   end_s?: EndS3;
+  require_full_interval?: RequireFullInterval;
+  boundary_tolerance_s?: BoundaryToleranceS;
+  episode_end?: EpisodeEnd;
   calibration?: Calibration1;
   workspace_center_m?: WorkspaceCenterM;
   workspace_extent_m?: WorkspaceExtentM;
@@ -1460,19 +1504,20 @@ export interface RobotizationConfig {
   closed_width_m?: ClosedWidthM;
   max_gripper_speed_m_s?: MaxGripperSpeedMS;
   require_export?: RequireExport;
+  export_rlds?: ExportRlds;
   diagnostic_export?: DiagnosticExport;
   task_scene?: TaskScene | null;
   quality_rubric?: QualityRubric;
 }
 export interface RobotizationRequest {
-  schema_version?: SchemaVersion58;
+  schema_version?: SchemaVersion59;
   source_job_id: SourceJobId4;
   idempotency_key: IdempotencyKey2;
   config: RobotizationConfig;
   allow_review_source?: AllowReviewSource1;
 }
 export interface RobotFrame {
-  schema_version?: SchemaVersion59;
+  schema_version?: SchemaVersion60;
   frame_index: FrameIndex10;
   source_time_s: SourceTimeS;
   execution_time_s: ExecutionTimeS;
@@ -1492,7 +1537,7 @@ export interface RobotFrame {
   origin: Origin5;
 }
 export interface RobotTrajectory {
-  schema_version?: SchemaVersion60;
+  schema_version?: SchemaVersion61;
   video_id: VideoId14;
   run_id: RunId9;
   source_run_id: SourceRunId3;
@@ -1511,7 +1556,7 @@ export interface Adaptation {
   [k: string]: unknown;
 }
 export interface QualityReport {
-  schema_version?: SchemaVersion61;
+  schema_version?: SchemaVersion62;
   classification: Classification;
   rubric?: Rubric;
   checks: Checks;
@@ -1523,7 +1568,7 @@ export interface Checks {
   [k: string]: boolean | null;
 }
 export interface RobotizationHandoff {
-  schema_version?: SchemaVersion62;
+  schema_version?: SchemaVersion63;
   video_id: VideoId15;
   run_id: RunId10;
   source_run_id: SourceRunId4;

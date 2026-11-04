@@ -1,0 +1,77 @@
+{
+  "checked_at_utc": "2026-11-04T18:05:54.103488+00:00",
+  "git_head": "e15f3f44b3bfef22facd1c89659a0e7ac81b6b41",
+  "working_tree_dirty": true,
+  "source_hash": "553f6c3e87a8a74ed1f995e9bcba2908df845fe6ec599271ee083a5d074767e5",
+  "checks": {
+    "health": true,
+    "configuration": true,
+    "datasets": true,
+    "submission_routes": true
+  },
+  "evidence": {
+    "phase1": {
+      "available": true,
+      "path": "eval/reports/live-smoke.json",
+      "scope": "Recorded evidence; not fresh inference",
+      "sha256": "a4aed61bda2d02a3c0ec945451f0c5fb40e0afa0708b4a5e363918a08283d4b8"
+    },
+    "geometry": {
+      "available": true,
+      "path": "eval/reports/live-phase2-geometry.json",
+      "scope": "Recorded evidence; not fresh inference",
+      "sha256": "21be23b3f8d0e5b223c284fc6d80bd96185a91a680249837eb071bf97a68b1c6"
+    },
+    "learning": {
+      "available": true,
+      "path": "eval/reports/robot-learning-acceptance.json",
+      "scope": "Recorded evidence; not fresh inference",
+      "sha256": "f37e1e5656f23d9350f0d9f08662e197235bff563d615091c10b6c8e9f1099dd"
+    },
+    "fr3": {
+      "available": true,
+      "path": "eval/reports/fr3-software-smoke.json",
+      "scope": "Recorded evidence; not fresh inference",
+      "sha256": "a51891d33c994977d21e60f9e5bb944b4e5b036aef72528b2be4081f6f0383d2"
+    },
+    "rlds": {
+      "available": true,
+      "path": "eval/reports/rlds-software-check.json",
+      "scope": "Recorded evidence; not fresh inference",
+      "sha256": "48cddd7fecfe7a5c5158934a4401f1a97acc90b8e30bffa18db5cace83914d5a"
+    },
+    "runtime": {
+      "mode": "live",
+      "meta_key_configured": true,
+      "models": {
+        "semantics": "muse-spark-1.3",
+        "tracking": "sam-3.1"
+      },
+      "robots": {
+        "panda": {
+          "asset_manifest_available": true
+        },
+        "fr3": {
+          "asset_manifest_available": true
+        }
+      },
+      "geometry_configured": true,
+      "body_configured": true,
+      "rlds_configured": true,
+      "note": "Configuration inventory only; worker execution is verified separately. No inference or credential values are returned."
+    },
+    "dataset_count": 5
+  },
+  "passed": true,
+  "scope": "Service and evidence inventory only; tests/build must run separately",
+  "fresh_model_calls": 0,
+  "full_source_manipulation_validated": false,
+  "extensions_not_accepted": [
+    "SAM 3D Objects",
+    "DINO re-ID",
+    "RLBench",
+    "bimanual",
+    "dexterous retargeting",
+    "physical robot deployment"
+  ]
+}

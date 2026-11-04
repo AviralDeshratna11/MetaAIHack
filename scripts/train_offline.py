@@ -48,11 +48,14 @@ def main():
     args.output.mkdir(parents=True,exist_ok=False)
     torch.manual_seed(args.seed); np.random.seed(args.seed); torch.set_num_threads(2)
     if 'initial_command_joints_rad' not in report: raise ValueError('Initial controller state missing; regenerate transitions')
-    env = PandaTaskEnv(args.assets,report['task'],control_hz=report['control_hz'],initial_joints=report['initial_command_joints_rad'],
-        initial_gripper_width_m=report['initial_gripper_width_m'])
+    task_config=dict(report['task'])
+    if report.get('episode_end')=='trajectory_end':
+        task_config['horizon_s']=report['execution_duration_s']
+    env = PandaTaskEnv(args.assets,task_config,control_hz=report['control_hz'],initial_joints=report['initial_command_joints_rad'],
+        initial_gripper_width_m=report['initial_gripper_width_m'],terminate_on_success=report.get('episode_end','task_success')=='task_success')
     low, high = env.action_space.low, env.action_space.high
     goal = np.asarray(report['task']['goal_position_m'],dtype=np.float32)
-    horizon = report['task']['horizon_s']
+    horizon = env.scene.horizon_s
     raw = np.asarray([r['observation']+goal.tolist()+[r['timestamp']/horizon] for r in rows],dtype=np.float32)
     mean, std = raw.mean(0), np.maximum(raw.std(0),.01)
     state = torch.tensor((raw-mean)/std)
@@ -132,6 +135,7 @@ def main():
         'review_override':args.allow_review,'accepted_training_subset':report['accepted_training_subset'],
         'policy_constraint':'dataset per-joint action support; evaluation endpoint slew 0.0005 rad and 0.003m per tick',
         'source_task_validated':False,'physical_robot_ready':False,'torch':torch.__version__}
+    result.update(episode_end=report.get('episode_end','task_success'),evaluation_horizon_s=horizon)
     (args.output/'training_report.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
     print(json.dumps(result))
 

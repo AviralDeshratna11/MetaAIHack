@@ -724,12 +724,96 @@
           ],
           "default": null,
           "title": "Residual M"
+        },
+        "correspondence_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Correspondence Hash"
+        },
+        "correspondence_count": {
+          "anyOf": [
+            {
+              "minimum": 3,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Correspondence Count"
         }
       },
       "required": [
         "evidence"
       ],
       "title": "Calibration",
+      "type": "object"
+    },
+    "CalibrationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.3.0",
+          "default": "0.3.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "world_points": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "maxItems": 1000,
+          "minItems": 3,
+          "title": "World Points",
+          "type": "array"
+        },
+        "base_points_m": {
+          "items": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "maxItems": 1000,
+          "minItems": 3,
+          "title": "Base Points M",
+          "type": "array"
+        },
+        "evidence": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Evidence",
+          "type": "string"
+        },
+        "max_residual_m": {
+          "default": 0.02,
+          "exclusiveMinimum": 0,
+          "maximum": 0.1,
+          "title": "Max Residual M",
+          "type": "number"
+        }
+      },
+      "required": [
+        "world_points",
+        "base_points_m",
+        "evidence"
+      ],
+      "title": "CalibrationRequest",
       "type": "object"
     },
     "CameraFrame": {
@@ -3103,7 +3187,7 @@
         },
         "max_frames_per_shot": {
           "default": 32,
-          "maximum": 96,
+          "maximum": 512,
           "minimum": 2,
           "title": "Max Frames Per Shot",
           "type": "integer"
@@ -3808,6 +3892,15 @@
           "title": "Schema Version",
           "type": "string"
         },
+        "robot_id": {
+          "default": "panda",
+          "enum": [
+            "panda",
+            "fr3"
+          ],
+          "title": "Robot Id",
+          "type": "string"
+        },
         "hand_id": {
           "minLength": 1,
           "title": "Hand Id",
@@ -3834,6 +3927,27 @@
           "exclusiveMinimum": 0,
           "title": "End S",
           "type": "number"
+        },
+        "require_full_interval": {
+          "default": false,
+          "title": "Require Full Interval",
+          "type": "boolean"
+        },
+        "boundary_tolerance_s": {
+          "default": 0.21,
+          "maximum": 0.3,
+          "minimum": 0,
+          "title": "Boundary Tolerance S",
+          "type": "number"
+        },
+        "episode_end": {
+          "default": "task_success",
+          "enum": [
+            "task_success",
+            "trajectory_end"
+          ],
+          "title": "Episode End",
+          "type": "string"
         },
         "calibration": {
           "$ref": "#/$defs/Calibration"
@@ -3957,6 +4071,11 @@
         "require_export": {
           "default": true,
           "title": "Require Export",
+          "type": "boolean"
+        },
+        "export_rlds": {
+          "default": false,
+          "title": "Export Rlds",
           "type": "boolean"
         },
         "diagnostic_export": {
@@ -5312,6 +5431,9 @@
     },
     {
       "$ref": "#/$defs/Calibration"
+    },
+    {
+      "$ref": "#/$defs/CalibrationRequest"
     },
     {
       "$ref": "#/$defs/TaskScene"

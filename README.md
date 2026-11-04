@@ -1,5 +1,10 @@
 # Video2Robot — perception, interaction and robot compiler
 
+Start with the [submission guide](docs/SUBMISSION.md) for feature scope, exact
+verification commands and evidence. The compiler now supports Panda and an
+explicit FR3/Panda-hand simulation composition, optional official TFDS/RLDS,
+measured point calibration and a [local dataset catalog](http://127.0.0.1:53000/datasets).
+
 For a complete explanation of the architecture, component responsibilities and
 operating procedure, read the [complete workflow guide](docs/complete-workflow.md).
 
@@ -46,7 +51,7 @@ Requirements: Docker Desktop running with Linux containers, Python 3.11+, Node
 not required for the normal startup path. Run from this directory:
 
 ```powershell
-Copy-Item .env.example .env
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.lock
 npm.cmd ci

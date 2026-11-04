@@ -35,6 +35,12 @@ def test_rl_recording_end_is_truncation_and_final_unobserved_action_is_excluded(
     states[1]['task']['success'] = True
     result = export_transitions(trajectory,sim,N(accepted_training_subset=False),tmp_path)
     assert result['transitions']==1
+    trajectory.config.episode_end='trajectory_end'
+    result=export_transitions(trajectory,sim,N(accepted_training_subset=False),tmp_path)
+    assert result['transitions']==2 and result['source_interval_s']==[0,.2]
+    retained=pq.read_table(tmp_path/'transitions.parquet').to_pylist()
+    assert not any(row['terminated'] for row in retained) and retained[-1]['truncated']
+    assert result['execution_duration_s']==pytest.approx(.2)
     frames[1].gripper_width_m=None
     with pytest.raises(ValueError): export_transitions(trajectory,sim,N(accepted_training_subset=False),tmp_path)
 

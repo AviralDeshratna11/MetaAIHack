@@ -39,6 +39,10 @@ eval/reports/*
 !eval/reports/learning-ablations.json
 !eval/reports/robot-learning-acceptance.json
 !eval/reports/fresh-provider-probe.json
+!eval/reports/fr3-software-smoke.json
+!eval/reports/rlds-software-check.json
+!eval/reports/submission-check.json
+!eval/reports/submission-integration.json
 *.egg-info/
 *.tsbuildinfo
 coverage/

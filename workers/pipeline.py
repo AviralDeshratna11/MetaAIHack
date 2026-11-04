@@ -28,7 +28,7 @@ def code_hash():
     sources = {p.as_posix(): file_hash(p) for root in roots for p in sorted(root.rglob("*.py"))}
     sources["requirements.lock"] = file_hash(Path("requirements.lock"))
     for name in ("requirements-robot.txt", "requirements-lerobot.txt", "infra/Robot.Dockerfile", "compose.robot.yaml",
-                 "requirements-geometry.txt", "requirements-geometry-body.txt", "requirements-rl.txt", "compose.geometry.yaml"):
+                 "requirements-geometry.txt", "requirements-geometry-body.txt", "requirements-rl.txt", "requirements-rlds.txt", "compose.geometry.yaml", "Dockerfile.rlds", "compose.rlds.yaml"):
         if Path(name).is_file():
             sources[name] = file_hash(Path(name))
     return digest(sources)

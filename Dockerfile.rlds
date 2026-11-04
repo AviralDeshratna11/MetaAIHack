@@ -1,0 +1,4 @@
+# Optional CPU export runtime. Build Dockerfile.robot / compose.robot.yaml first.
+FROM video2robot-robot:dev
+COPY requirements-rlds.txt /tmp/requirements-rlds.txt
+RUN python -m venv /opt/rlds && /opt/rlds/bin/pip install --no-cache-dir -r /tmp/requirements-rlds.txt && /opt/rlds/bin/pip check

@@ -18,11 +18,13 @@ def fingerprint(root):
         if not path.is_relative_to(root.resolve()) or not path.is_file() or file_hash(path) != expected:
             raise DomainError("E_ROBOT_ASSETS", "Robot asset changed or is missing", 503)
     import importlib.metadata
-    return {"model": "Franka Emika Panda", "commit": manifest["commit"], "asset_hash": digest(manifest),
+    fr3=manifest.get('robot')=='fr3'
+    return {"model": "Franka FR3 with Panda hand (simulation composition)" if fr3 else "Franka Emika Panda", "robot_id":"fr3" if fr3 else "panda", "commit": manifest["commit"], "asset_hash": digest(manifest),
             "mujoco": importlib.metadata.version("mujoco"), "scipy": importlib.metadata.version("scipy"),
-            "joint_order": [f"joint{i}" for i in range(1, 8)], "units": "meters/radians",
-            "velocity_limits_rad_s": [2.175]*4+[2.61]*3, "acceleration_limits_rad_s2": [15, 7.5, 10, 12.5, 15, 20, 20],
-            "limits_source": "Franka Panda control parameters; independently constrained trajectory",
+            "joint_order": [f"{'fr3_' if fr3 else ''}joint{i}" for i in range(1, 8)], "units": "meters/radians",
+            "velocity_limits_rad_s": [1.]*7 if fr3 else [2.175]*4+[2.61]*3, "acceleration_limits_rad_s2": [5.]*7 if fr3 else [15, 7.5, 10, 12.5, 15, 20, 20],
+            "limits_source": "Configured 1 rad/s and 5 rad/s2 simulation ceilings; FR3 position bounds and actuator saturation from pinned asset; physical limits not certified" if fr3 else "Franka Panda control parameters; independently constrained trajectory",
+            "model_file":"fr3_hand.xml" if fr3 else "panda.xml","base_body":"fr3_link0" if fr3 else "link0",
             "tcp": "hand local z +0.1034m; task orientation configured", "quaternion_order": "xyzw"}
 
 
@@ -31,9 +33,9 @@ class Panda:
         import mujoco
         self.mj = mujoco
         self.spec = fingerprint(root)
-        self.model = mujoco.MjModel.from_xml_path(str(Path(root) / "panda.xml"))
+        self.model = mujoco.MjModel.from_xml_path(str(Path(root) / self.spec['model_file']))
         self.data = mujoco.MjData(self.model)
-        self.joints = [mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_JOINT, f"joint{i}") for i in range(1, 8)]
+        self.joints = [mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_JOINT, name) for name in self.spec['joint_order']]
         self.qadr = self.model.jnt_qposadr[self.joints]
         self.dadr = self.model.jnt_dofadr[self.joints]
         self.hand = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, "hand")

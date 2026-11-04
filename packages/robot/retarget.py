@@ -20,21 +20,7 @@ def gripper_transition(state, contacts):
     return state if state in ("closed", "hold") else "unknown"
 
 
-def retarget(itr, config, robot, run_id, continuity=True):
-    selected = [f for f in itr.frames if f.shot_id == config.shot_id and config.start_s <= f.timestamp <= config.end_s]
-    if not selected:
-        raise DomainError("E_ROBOT_INTERVAL", "No frames in selected shot/interval")
-    observations = []
-    for frame in selected:
-        hands = [p for p in frame.hands if p.entity_id == config.hand_id and p.pose is not None]
-        objects = [p for p in frame.objects if p.entity_id == config.object_id and p.pose is not None]
-        if len(hands) == len(objects) == 1:
-            observations.append((frame, hands[0], objects[0]))
-    if len(observations) < 2:
-        raise DomainError("E_ROBOT_GEOMETRY", "Need at least two associated hand/object pose samples")
-    worlds = {f.world_frame for f, _, _ in observations}
-    if len(worlds) != 1:
-        raise DomainError("E_ROBOT_FRAME", "Cannot retarget across different world frames")
+def construct_targets(observations,config):
     points, object_anchor, object_driven = [], None, 0
     for frame, hand, obj in observations:
         hp, op = np.array(hand.pose.position_xyz), np.array(obj.pose.position_xyz)
@@ -66,6 +52,33 @@ def retarget(itr, config, robot, run_id, continuity=True):
     targets += config.tcp_offset_m
     adaptation.update(target_source="Object translation plus contact-onset hand offset during coupled contact; otherwise hand position",
                       object_driven_samples=object_driven, tcp_offset_frame="robot_base")
+    return targets,adaptation
+
+
+def retarget(itr, config, robot, run_id, continuity=True):
+    if config.robot_id!=robot.spec.get('robot_id','panda'):
+        raise DomainError('E_ROBOT_MODEL','Selected robot does not match the pinned asset model',409)
+    if config.require_full_interval:
+        from packages.robot.coverage import coverage
+        report=coverage([f.model_dump(mode='json') for f in itr.frames],config)
+        if not report['ready_for_ik_attempt']:
+            raise DomainError('E_ROBOT_COVERAGE','; '.join(report['reasons']),409)
+    selected = [f for f in itr.frames if f.shot_id == config.shot_id and config.start_s <= f.timestamp <= config.end_s]
+    if not selected:
+        raise DomainError("E_ROBOT_INTERVAL", "No frames in selected shot/interval")
+    observations = []
+    for frame in selected:
+        hands = [p for p in frame.hands if p.entity_id == config.hand_id and p.pose is not None]
+        objects = [p for p in frame.objects if p.entity_id == config.object_id and p.pose is not None]
+        if len(hands) == len(objects) == 1:
+            observations.append((frame, hands[0], objects[0]))
+    if len(observations) < 2:
+        raise DomainError("E_ROBOT_GEOMETRY", "Need at least two associated hand/object pose samples")
+    worlds = {f.world_frame for f, _, _ in observations}
+    if len(worlds) != 1:
+        raise DomainError("E_ROBOT_FRAME", "Cannot retarget across different world frames")
+    targets, adaptation = construct_targets(observations,config)
+    calibration=config.calibration
     rotation = quaternion_matrix(config.tcp_quaternion_xyzw)
     knots, previous, issues = [], robot.home.copy(), list(itr.quality.review_reasons)
     issues += ["Configured task orientation; human wrist orientation is not measured", "Gripper state is inferred; grasp validity is unverified"]
@@ -103,7 +116,8 @@ def retarget(itr, config, robot, run_id, continuity=True):
         duration = np.ceil(config.final_hold_s*config.control_hz)/config.control_hz
         segments.append((clock, duration, knots[-1], knots[-1]))
         clock += duration
-    adaptation.update(execution_speed_scale=config.execution_speed_scale,final_hold_s=config.final_hold_s)
+    adaptation.update(execution_speed_scale=config.execution_speed_scale,final_hold_s=config.final_hold_s,
+        requested_interval_s=[config.start_s,config.end_s],observed_interval_s=[observations[0][0].timestamp,observations[-1][0].timestamp],execution_duration_s=clock)
     if clock*config.control_hz > 100000:
         raise DomainError("E_ROBOT_DURATION", "Retimed trajectory exceeds frame quota")
     output, state, commanded_width = [], config.initial_gripper, None

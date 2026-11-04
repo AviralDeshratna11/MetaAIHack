@@ -18,11 +18,12 @@ from packages.schemas.robotization import TaskScene
 class PandaTaskEnv(gym.Env):
     metadata = {"render_modes": ["rgb_array"], "render_fps": 30}
 
-    def __init__(self, assets, scene, control_hz=30, render_mode=None, initial_joints=None, initial_gripper_width_m=.08):
+    def __init__(self, assets, scene, control_hz=30, render_mode=None, initial_joints=None, initial_gripper_width_m=.08, terminate_on_success=True):
         super().__init__()
         if render_mode not in (None, "rgb_array"): raise ValueError("Unsupported render mode")
         if not 5 <= control_hz <= 120: raise ValueError("Invalid control frequency")
         self.robot = Panda(Path(assets))
+        self.terminate_on_success=terminate_on_success
         self.scene = TaskScene.model_validate(scene) if isinstance(scene,dict) else scene
         self.model = mj.MjModel.from_xml_string(scene_xml(assets,self.scene))
         self.data = mj.MjData(self.model)
@@ -90,7 +91,7 @@ class PandaTaskEnv(gym.Env):
             if forbidden_contacts(self.model,self.data,self.scene.task=='pick_place'): violations.add('COLLISION')
         self.last_command = action.astype(float).copy()
         task = self.evaluator.evaluate(self.tcp(),self.data.xpos[self.object],self.data.qpos[self.fingers].sum(),1/self.control_hz,violations)
-        terminated = bool(task['success'] or violations)
+        terminated = bool((task['success'] and self.terminate_on_success) or violations)
         truncated = bool(not terminated and self.data.time >= self.scene.horizon_s-1e-9)
         self.finished = terminated or truncated
         return self.observation(),task['reward'],terminated,truncated,{**task,'violations':sorted(violations),'sim_time_s':float(self.data.time)}

@@ -1,0 +1,103 @@
+OUTPUT ZIP CONTENTS
+
+Newly generated bundles include simulation/simulation_replay.mp4 directly.
+The existing downloaded sample remains a short endpoint reach; it does not become
+a complete 22-second action by updating the software. Full-trajectory RL export
+is opt-in and records source_interval_s and execution_duration_s in rl_report.json.
+See docs/full-workflow-testing.md for exact testing steps and remaining limitations.
+
+New optional output: if "Include official TFDS/RLDS export" is enabled and its
+runtime succeeds, rlds/dataset/ contains official nested-episode TFDS records and
+rlds/rlds_report.json records reader verification. The final observation is a
+separate is_last step with action_valid=false. Silver review restrictions remain.
+Bundles now identify Panda or the explicit FR3/Panda-hand simulation composition.
+Counts below describe the earlier sample; new run sizes can differ.
+
+The ZIP contains robot demonstration data, RL transitions, simulator video,
+and verification reports. This description applies to the verified Phase 3
+sample for the repaired pouring-video upload.
+
+1. rl/transitions.parquet
+   Contains 11 RL transitions: current state, action, next state, reward,
+   termination/truncation flags, timing, and source lineage.
+
+2. rl/rl_report.json
+   Explains state/action fields, units, the configured task, initial conditions,
+   control rate, checksum, and training eligibility.
+
+3. export/dataset/data/
+   Official LeRobot dataset with 43 samples in one episode, containing
+   simulated observations and robot actions.
+
+4. export/dataset/videos/
+   Simulator camera video synchronized with the LeRobot samples.
+
+5. export/dataset/meta/
+   Feature definitions, dataset statistics, task descriptions, and episode
+   indexing. Includes info.json, stats.json, tasks.parquet, and episode metadata.
+
+6. export/dataset/provenance.json
+   Source-to-robot adaptation details and source-video timestamp mapping.
+
+7. robot_trajectory.json
+   Target and achieved tool-center-point (TCP) poses, seven robot joint
+   commands, gripper widths, source/execution times, and validity checks.
+
+8. simulation_report.json
+   Measured simulated states, tracking errors, collision and limit checks,
+   and the configured simulation task result.
+
+9. export_report.json
+   Official LeRobot reader validation. This sample records
+   roundtrip_passed: true.
+
+10. quality_report.json
+    Silver classification and outstanding reasons: unresolved upstream review,
+    unverified metric scale, and lack of source-task scene validation.
+
+11. source_provenance.json
+    Source hashes, model-request information, reviewed identity corrections,
+    and compiler provenance.
+
+12. learning_manifest.json
+    Bundle contents, file checksums, robot requirements, task scope,
+    and training eligibility.
+
+Some reports also appear inside their corresponding subfolders, including
+export/export_report.json and simulation/simulation_report.json.
+
+WHAT THE ROBOT ACTIONS AND OBSERVATIONS MEAN
+
+Each action contains eight values: seven absolute joint targets in radians
+and gripper width in meters. The targets specify the next control-tick endpoint;
+the simulator controller interpolates from the current command to that endpoint.
+
+Each RL observation contains 21 values: seven joint positions, gripper width,
+seven joint velocities, TCP position (xyz), and object position (xyz).
+Robot observations in this bundle are simulated, not real robot telemetry.
+
+WHY THERE ARE 43 LEROBOT SAMPLES BUT 11 RL TRANSITIONS
+
+The LeRobot dataset retains the complete recorded command/state sequence.
+The RL export stops at the configured endpoint task's successful termination,
+which occurs after 11 transitions in this sample. The last command without a
+measured successor is not fabricated into an additional RL transition.
+
+CURRENT SCOPE AND LIMITATIONS
+
+This sample represents a simulated endpoint-reaching adaptation of a short
+source-video interval. It does not validate the complete pouring or stirring
+task, the original physical dimensions, or a stable tool grasp.
+
+The quality classification is Silver. The bundle records:
+  accepted_training_subset: false
+  source_task_validated: false
+  physical_robot_ready: false
+
+Training on this reviewed data requires an explicit review override in the
+provided trainer. The override does not change its quality classification or
+establish physical robot readiness.
+
+The standard learning ZIP contains data, not a trained policy checkpoint or
+the original human video. Separately prepared packages may include a trained
+policy; inspect their manifests to distinguish them from the standard bundle.

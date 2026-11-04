@@ -21,8 +21,10 @@ x-backend: &backend
     SAM3D_BODY_CHECKPOINT: ${SAM3D_BODY_CHECKPOINT:-}
     SAM3D_MHR_PATH: ${SAM3D_MHR_PATH:-}
     ROBOT_ASSETS: ${ROBOT_ASSETS:-data/robots/franka_emika_panda}
+    FR3_ASSETS: ${FR3_ASSETS:-data/robots/franka_fr3}
     ROBOT_PYTHON: ${ROBOT_PYTHON:-}
     LEROBOT_PYTHON: ${LEROBOT_PYTHON:-}
+    RLDS_PYTHON: ${RLDS_PYTHON:-}
     WEB_ORIGIN: http://127.0.0.1:53000
   volumes: [".:/app"]
   depends_on:

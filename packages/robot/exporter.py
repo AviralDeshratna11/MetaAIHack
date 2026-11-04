@@ -45,7 +45,7 @@ def official_export(request, output):
         raise RuntimeError("Unknown gripper commands cannot be exported as training actions")
     output = Path(output)
     root = output / "dataset"
-    names = [f"joint{i}.rad" for i in range(1, 8)]+["gripper_width.m"]
+    names = [name+'.rad' for name in trajectory['robot']['joint_order']]+["gripper_width.m"]
     features = {"observation.state": {"dtype": "float32", "shape": (8,), "names": names},
                 "action": {"dtype": "float32", "shape": (8,), "names": names}}
     # Simulator replay is the only robot image observation; never label human frames robot camera data.
@@ -54,7 +54,7 @@ def official_export(request, output):
     if capture and capture.isOpened():
         features["observation.images.simulator"] = {"dtype": "video", "shape": (360, 640, 3), "names": ["height", "width", "channels"]}
     dataset = LeRobotDataset.create(repo_id="local/video2robot", fps=trajectory["config"]["control_hz"],
-        root=root, features=features, robot_type="franka_panda_simulated", video_backend="pyav")
+        root=root, features=features, robot_type=trajectory['robot'].get('robot_id','panda')+'_simulated', video_backend="pyav")
     for index, (frame, state) in enumerate(zip(frames, states)):
         if abs(frame["execution_time_s"]-state["execution_time_s"]) > 1e-6:
             raise RuntimeError("Command/state timestamps disagree")

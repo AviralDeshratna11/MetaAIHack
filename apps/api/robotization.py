@@ -11,9 +11,33 @@ from packages.common.config import settings
 from packages.common.storage import Storage
 from packages.common.utils import DomainError, file_hash
 from packages.schemas.api import JobView
-from packages.schemas.robotization import RobotizationRequest, RobotTrajectory, QualityReport, RobotizationHandoff
+from packages.schemas.robotization import RobotizationConfig, RobotizationRequest, RobotTrajectory, QualityReport, RobotizationHandoff
+from packages.schemas.robotization import CalibrationRequest,Calibration
 
 router = APIRouter()
+
+
+@router.post('/v1/calibration/fit',response_model=Calibration)
+def calibrate(body:CalibrationRequest):
+    from packages.robot.calibration import fit_calibration
+    try:return fit_calibration(body.world_points,body.base_points_m,body.evidence,body.max_residual_m)
+    except ValueError as exc:raise DomainError('E_CALIBRATION',str(exc),422) from exc
+
+
+@router.get('/v1/videos/{video_id}/robotize/proposal')
+def robot_proposal(video_id:str,source_job_id:str,robot_id:str='panda',hand_id:str|None=None,object_id:str|None=None):
+    from apps.api.main import job_or_error
+    from packages.schemas.reconstruction import InteractionTrajectory
+    from packages.robot.proposal import suggest
+    if robot_id not in ('panda','fr3'):raise DomainError('E_ROBOT_MODEL','Unknown robot',422)
+    with transaction() as session:
+        source=job_or_error(session,source_job_id)
+        if source.video_id!=video_id or source.config.get('pipeline')!='reconstruction' or source.status not in ('COMPLETED','NEEDS_REVIEW'):
+            raise DomainError('E_ROBOT_SOURCE','Select a finished reconstruction of this video',409)
+        artifact=session.scalar(select(Artifact).where(Artifact.job_id==source.id,Artifact.name=='interaction_trajectory.json.gz'))
+        if artifact is None:raise DomainError('E_ROBOT_INPUTS','Interaction trajectory unavailable',409)
+        itr=InteractionTrajectory.model_validate_json(gzip.decompress(Storage().read(artifact.manifest['uri'])))
+    return suggest(itr,robot_id,hand_id,object_id)
 
 
 @router.post("/v1/videos/{video_id}/robotize/check")
@@ -27,22 +51,8 @@ def check_robot_inputs(video_id: str, body: RobotizationRequest):
         if artifact is None: raise DomainError("E_ROBOT_INPUTS", "Interaction trajectory unavailable", 409)
         itr = json.loads(gzip.decompress(Storage().read(artifact.manifest["uri"])))
     cfg = body.config
-    pairs = []
-    for f in itr['frames']:
-        if f['shot_id'] != cfg.shot_id or not cfg.start_s <= f['timestamp'] <= cfg.end_s: continue
-        hand = [p for p in f['hands'] if p['entity_id']==cfg.hand_id and p['pose'] is not None]
-        obj = [p for p in f['objects'] if p['entity_id']==cfg.object_id and p['pose'] is not None]
-        if len(hand)==len(obj)==1:
-            pairs.append((f,hand[0],obj[0]))
-    reasons=[]
-    if len(pairs)<2: reasons.append('Need at least two simultaneous associated hand/object poses in the selected interval')
-    for previous,current in zip(pairs,pairs[1:]):
-        if current[0]['timestamp']-previous[0]['timestamp']>cfg.max_gap_s+1e-9: reasons.append('Unsupported geometry gap')
-        if current[0]['world_frame']!=previous[0]['world_frame']: reasons.append('World frame changes')
-        if current[1]['track_id']!=previous[1]['track_id'] or current[2]['track_id']!=previous[2]['track_id']: reasons.append('Track identity changes')
-    return {'ready_for_ik_attempt':not reasons,'paired_samples':len(pairs),
-        'sample_times_s':[p[0]['timestamp'] for p in pairs],'reasons':sorted(set(reasons)),
-        'meaning':'Input continuity only; IK, gripper, dynamics, task validity and export still require execution'}
+    from packages.robot.coverage import coverage
+    return coverage(itr['frames'],cfg)
 
 
 @router.post("/v1/videos/{video_id}/robotize", status_code=202, response_model=JobView)
@@ -55,7 +65,7 @@ def robotize(video_id: str, body: RobotizationRequest):
             raise DomainError("E_ROBOT_SOURCE", "Select a finished reconstruction run of this video", 409)
         existing = session.scalar(select(Job).where(Job.video_id == video_id, Job.idempotency_key == "phase3:"+body.idempotency_key))
         if existing:
-            if existing.source_job_id != source.id or existing.config["robotization"]["config"] != body.config.model_dump(mode="json") or existing.config["robotization"]["allow_review_source"] != body.allow_review_source:
+            if existing.source_job_id != source.id or RobotizationConfig.model_validate(existing.config["robotization"]["config"]).model_dump(mode="json") != body.config.model_dump(mode="json") or existing.config["robotization"]["allow_review_source"] != body.allow_review_source:
                 raise DomainError("E_IDEMPOTENCY_CONFLICT", "Key already used with different robotization inputs", 409)
             return job_view(existing)
         handoff = session.scalar(select(Artifact).where(Artifact.job_id == source.id, Artifact.name == "phase2_handoff.json"))
@@ -65,14 +75,15 @@ def robotize(video_id: str, body: RobotizationRequest):
         if not manifest["ready_for_robotization"] and not body.allow_review_source:
             raise DomainError("E_REVIEW_REQUIRED", "Resolve source review or explicitly allow exploratory robotization", 409)
         cfg = settings()
-        asset_manifest = Path(cfg.robot_assets) / "asset_manifest.json"
+        assets = cfg.robot_assets if body.config.robot_id=='panda' else cfg.fr3_assets
+        asset_manifest = Path(assets) / "asset_manifest.json"
         if not asset_manifest.is_file():
             raise DomainError("E_ROBOT_ASSETS", "Download official assets using python -m scripts.robot_assets", 503)
         # Runtime validation happens on the worker, which can be native or a different image.
         frozen = {**run_config(), "pipeline": "robotization", "inference_mode": source.mode,
             "robotization": {"config": body.config.model_dump(mode="json"), "allow_review_source": body.allow_review_source,
-                "assets": cfg.robot_assets, "asset_manifest_sha256": file_hash(asset_manifest),
-                "python": cfg.robot_python, "lerobot_python": cfg.lerobot_python}}
+                "assets": assets, "asset_manifest_sha256": file_hash(asset_manifest),
+                "python": cfg.robot_python, "lerobot_python": cfg.lerobot_python,"rlds_python":cfg.rlds_python}}
         return job_view(schedule(session, video, "phase3:"+body.idempotency_key, frozen, source.id))
 
 

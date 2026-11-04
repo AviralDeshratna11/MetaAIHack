@@ -1,0 +1,16 @@
+# Apply last, after compose.robot.yaml and optionally compose.geometry.yaml.
+services:
+  api:
+    image: video2robot-rlds:dev
+    build:
+      context: .
+      dockerfile: Dockerfile.rlds
+    environment:
+      RLDS_PYTHON: /opt/rlds/bin/python
+  worker:
+    image: video2robot-rlds:dev
+    build:
+      context: .
+      dockerfile: Dockerfile.rlds
+    environment:
+      RLDS_PYTHON: /opt/rlds/bin/python

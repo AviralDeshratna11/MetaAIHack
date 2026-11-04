@@ -23,6 +23,7 @@ def export_transitions(trajectory, simulation, quality, output):
         (output/"rl_report.json").write_text(json.dumps(report), encoding="utf-8")
         return report
     rows = []
+    episode_end=getattr(trajectory.config,'episode_end','task_success')
     def obs(s):
         return s["joints_rad"]+[s["gripper_width_m"]]+s["joint_velocity_rad_s"]+s["tcp_position_m"]+s["proxy_object_position_m"]
     for i in range(len(frames)-1):
@@ -33,7 +34,7 @@ def export_transitions(trajectory, simulation, quality, output):
             raise ValueError("Action/state time mismatch")
         task = b.get("task")
         if not task or not np.isfinite(task["reward"]): raise ValueError("Missing task reward")
-        terminated = task["success"] is True
+        terminated = task["success"] is True and episode_end=='task_success'
         rows.append({"episode_index": 0, "step_index": i, "timestamp": a["execution_time_s"],
             "source_time_s": frames[i].source_time_s, "duration_s": b["sim_time_s"]-a["sim_time_s"],
             "observation": obs(a), "action": command.joints_rad+[command.gripper_width_m],
@@ -58,7 +59,9 @@ def export_transitions(trajectory, simulation, quality, output):
         "roundtrip_passed":True, "sha256":file_hash(path), "action":"next-tick absolute joint radians[7], gripper width meters; linear interpolation controller",
         "observation":"joints[7], gripper width, joint velocities[7], TCP xyz[3], object xyz[3]",
         "reward":"configured simulation task shaping at successor state", "observation_source":"simulated",
-        "terminal_semantics":"task success terminates; recording end truncates with discount 1",
+        "terminal_semantics":"task success terminates; recording end truncates with discount 1" if episode_end=='task_success' else "Full command recording retained; recording end truncates; endpoint success does not validate the full action",
+        "episode_end":episode_end,"source_interval_s":[frames[0].source_time_s,frames[len(rows)].source_time_s],
+        "execution_duration_s":states[len(rows)]['execution_time_s']-states[0]['execution_time_s'],
         "source_task_validated":False, "accepted_training_subset":quality.accepted_training_subset,
         "simulation_only":True, "task":trajectory.config.task_scene.model_dump(mode='json')}
     report['initial_command_joints_rad'] = frames[0].joints_rad

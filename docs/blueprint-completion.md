@@ -49,3 +49,13 @@ pouring, validated grasp/support/scale, a learned pick-place task, second embodi
 SAM 3D Objects, DINO re-ID, RLDS/RLBench, bimanual and dexterous paths remain unverified
 or unimplemented. These must not be hidden behind a successful endpoint example.
 See [robot-learning guide](robot-learning.md) and the acceptance report.
+
+## Submission functionality update
+
+The earlier gap inventory above is historical. A second adapter (official FR3 arm
+with explicitly composed Panda hand) now passed actual FK/IK, physics, rendering,
+LeRobot and RL-transition checks. Official TFDS/RLDS export now passed a complete
+reader round-trip on video-derived transitions. Measured correspondence fitting,
+advisory interval/task selection and a downloadable dataset catalog are integrated
+in the API and UI. See [submission guide](SUBMISSION.md) for reproduction and
+remaining research extensions; these changes do not validate the full source task.

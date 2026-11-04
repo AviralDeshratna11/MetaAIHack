@@ -5,7 +5,8 @@ from pathlib import Path
 
 def scene_xml(root, scene=None):
     root = Path(root)
-    xml = ET.parse(root/"panda.xml").getroot()
+    from packages.robot.panda import fingerprint
+    xml = ET.parse(root/fingerprint(root)['model_file']).getroot()
     xml.find("compiler").set("meshdir", str((root/"assets").resolve()))
     world = xml.find("worldbody")
     ET.SubElement(world, "light", pos="0 0 3", dir="0 0 -1", diffuse=".8 .8 .8")
@@ -35,7 +36,7 @@ def forbidden_contacts(model, data, allowed_grasp=False):
         names = [mj.mj_id2name(model, mj.mjtObj.mjOBJ_GEOM, g) or f"geom:{g}" for g in (contact.geom1,contact.geom2)]
         bodies = [int(model.geom_bodyid[g]) for g in (contact.geom1,contact.geom2)]
         body_names = [mj.mj_id2name(model, mj.mjtObj.mjOBJ_BODY, b) for b in bodies]
-        if "proxy_table" in names and any(b in ("link0","proxy_object") for b in body_names): continue
+        if "proxy_table" in names and any(b in ("link0","fr3_link0","proxy_object") for b in body_names): continue
         if allowed_grasp and "proxy_object" in body_names and any(b in ("left_finger","right_finger") for b in body_names): continue
         if bodies[0] == bodies[1] or model.body_parentid[bodies[0]] == bodies[1] or model.body_parentid[bodies[1]] == bodies[0]: continue
         result.append("/".join(names))

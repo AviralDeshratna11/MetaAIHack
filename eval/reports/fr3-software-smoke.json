@@ -1,0 +1,245 @@
+{
+  "status": "passed",
+  "mode": "synthetic_inputs_real_robot_simulator_and_exporter",
+  "elapsed_s": 23.612,
+  "robot": {
+    "model": "Franka FR3 with Panda hand (simulation composition)",
+    "robot_id": "fr3",
+    "commit": "98a70c569c4c1b6da467a20012f766ee1f8dc521",
+    "asset_hash": "b53f45dd0cbc530d15f0e6e2e15861a861f2c373b9ca4db953a5dab4e21b9fec",
+    "mujoco": "3.3.7",
+    "scipy": "1.15.3",
+    "joint_order": [
+      "fr3_joint1",
+      "fr3_joint2",
+      "fr3_joint3",
+      "fr3_joint4",
+      "fr3_joint5",
+      "fr3_joint6",
+      "fr3_joint7"
+    ],
+    "units": "meters/radians",
+    "velocity_limits_rad_s": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "acceleration_limits_rad_s2": [
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0
+    ],
+    "limits_source": "Configured 1 rad/s and 5 rad/s2 simulation ceilings; FR3 position bounds and actuator saturation from pinned asset; physical limits not certified",
+    "model_file": "fr3_hand.xml",
+    "base_body": "fr3_link0",
+    "tcp": "hand local z +0.1034m; task orientation configured",
+    "quaternion_order": "xyzw"
+  },
+  "frames": 63,
+  "valid_frames": 63,
+  "simulation": {
+    "engine": "mujoco",
+    "version": "3.3.7",
+    "seed": 0,
+    "timestep_s": 0.002,
+    "controller": "official Panda position actuators; action specifies next-tick endpoint; linear interpolation from current command; zero velocity feedforward",
+    "initial_equilibration_s": 1,
+    "physics_stepped": true,
+    "scene": "assumed plane and free 0.1kg box proxy; not reconstructed task scene",
+    "grasp_attachment": false,
+    "unknown_gripper_behavior": "No inferred command; holds prior simulator control, with closed proxy initialization when initial state is unknown. Never an accepted training action.",
+    "task_success": true,
+    "fluid_transfer_success": null,
+    "task_scene_validated": false,
+    "configured_simulation_task": {
+      "schema_version": "0.3.0",
+      "task": "reach",
+      "geometry_source": "configured_simulation_proxy",
+      "evidence": "Synthetic controlled reach task; not reconstructed human task",
+      "goal_position_m": [
+        0.4331335915540756,
+        0.0,
+        0.5552387091806079
+      ],
+      "object_position_m": [
+        0.5,
+        0.0,
+        0.035
+      ],
+      "object_half_size_m": [
+        0.02,
+        0.02,
+        0.035
+      ],
+      "object_mass_kg": 0.1,
+      "friction": 0.8,
+      "table_top_m": 0.0,
+      "goal_tolerance_m": 0.006,
+      "required_lift_m": 0.04,
+      "success_hold_s": 0.2,
+      "horizon_s": 3.0
+    },
+    "simulation_task_success": true,
+    "source_task_validated": false,
+    "grasp_contact_allowance": null,
+    "violations": [],
+    "passed": true,
+    "tracking_max_m": 0.005139818529571348,
+    "joint_velocity_max_rad_s": [
+      2.3576370927865116e-05,
+      0.056690229550428774,
+      1.2799218751235276e-05,
+      0.05144850732865204,
+      0.00014173109514814078,
+      0.005882285467291197,
+      1.8902343486215856e-05
+    ],
+    "joint_acceleration_max_rad_s2": [
+      0.01372769335882708,
+      1.16310826163786,
+      0.008240499231694481,
+      1.4404271311483094,
+      0.05358754241418803,
+      0.33125272468041284,
+      0.011140703640991331
+    ],
+    "joint_limit_check_rate": "every physics substep after explicit initial equilibration",
+    "time_quantization_max_s": 0.0013333333333349628,
+    "object_displacement_m": 4.037298273473772e-17,
+    "rendered": true,
+    "render_error": null,
+    "torque_limits": "asset actuator force saturation; feasibility not independently certified",
+    "jerk_limits": "not_evaluated"
+  },
+  "export": {
+    "lerobot_version": "0.4.1",
+    "format": "v3.0",
+    "roundtrip_passed": true,
+    "frames": 63,
+    "episodes": 1,
+    "images_decoded": true,
+    "state": "measured simulated joints/width at command interval start",
+    "action": "next-tick absolute joint/width endpoint targets; linear interpolation controller; final row holds",
+    "joint_order": [
+      "fr3_joint1.rad",
+      "fr3_joint2.rad",
+      "fr3_joint3.rad",
+      "fr3_joint4.rad",
+      "fr3_joint5.rad",
+      "fr3_joint6.rad",
+      "fr3_joint7.rad",
+      "gripper_width.m"
+    ],
+    "diagnostic_only": true,
+    "accepted_training_subset": false,
+    "source_run_id": "synthetic-source",
+    "run_id": "phase3-diagnostic"
+  },
+  "quality": {
+    "schema_version": "0.3.0",
+    "classification": "Reject",
+    "rubric": "baseline-v1",
+    "checks": {
+      "live_source": false,
+      "nonempty_trajectory": true,
+      "trajectory_valid": true,
+      "simulation_physics": true,
+      "simulation_limits": true,
+      "export_roundtrip": true,
+      "requested_exports": true,
+      "upstream_review_resolved": false,
+      "measured_scale": true,
+      "task_scene_validated": false,
+      "task_success": true
+    },
+    "reasons": [
+      "live_source",
+      "upstream_review_resolved",
+      "task_scene_validated"
+    ],
+    "accepted_training_subset": false,
+    "physical_robot_ready": false
+  },
+  "rl": {
+    "status": "completed",
+    "format": "video2robot-transitions-v1",
+    "transitions": 33,
+    "roundtrip_passed": true,
+    "sha256": "6fcfa1cf3e3abf760a2d27f7e10edf5bfc92499671e62595e32eb826c5b7f96a",
+    "action": "next-tick absolute joint radians[7], gripper width meters; linear interpolation controller",
+    "observation": "joints[7], gripper width, joint velocities[7], TCP xyz[3], object xyz[3]",
+    "reward": "configured simulation task shaping at successor state",
+    "observation_source": "simulated",
+    "terminal_semantics": "task success terminates; recording end truncates with discount 1",
+    "source_task_validated": false,
+    "accepted_training_subset": false,
+    "simulation_only": true,
+    "task": {
+      "schema_version": "0.3.0",
+      "task": "reach",
+      "geometry_source": "configured_simulation_proxy",
+      "evidence": "Synthetic controlled reach task; not reconstructed human task",
+      "goal_position_m": [
+        0.4331335915540756,
+        0.0,
+        0.5552387091806079
+      ],
+      "object_position_m": [
+        0.5,
+        0.0,
+        0.035
+      ],
+      "object_half_size_m": [
+        0.02,
+        0.02,
+        0.035
+      ],
+      "object_mass_kg": 0.1,
+      "friction": 0.8,
+      "table_top_m": 0.0,
+      "goal_tolerance_m": 0.006,
+      "required_lift_m": 0.04,
+      "success_hold_s": 0.2,
+      "horizon_s": 3.0
+    },
+    "initial_command_joints_rad": [
+      0.0,
+      -0.4,
+      0.0,
+      -1.9,
+      0.0,
+      1.5,
+      0.7854
+    ],
+    "initial_gripper_width_m": 0.08,
+    "control_hz": 30
+  },
+  "artifacts": {
+    "robot_trajectory.json": "8bf4da9648ac81456fed308021abea712c6697a54d310a0ed5873ff4af5c6a01",
+    "export/export_report.json": "078d24feab9d8fdf1b3e6f8513a1bff9c48812fe04a225fb473314ce7269a1b1",
+    "export/export_request.json": "baea55314f28867b7bd9bf7db2ff9ccb3b222c4b864875308678c1768bc78fa1",
+    "export/export_stderr.log": "1649d83d2ff07b5d648ed6e6912a083b032828c10ce75dc8dcb988093f80d84c",
+    "export/export_stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "export/dataset/provenance.json": "367354f4e00e84d15dcbb46ed947e39fdd0f259b54e28c35f4109b586f461395",
+    "export/dataset/data/chunk-000/file-000.parquet": "06073da61617a0373f29d08903cf62a0c55b33ae92a66586fa1ed4ef76bb776a",
+    "export/dataset/meta/info.json": "e9a848d40ca36293609dd10334fa2b35621c2793b302b06ddafca3afc116fe7e",
+    "export/dataset/meta/stats.json": "3b649417be21064208999367b379a577c7c65660f17c499aaa121dd9fafc8c79",
+    "export/dataset/meta/tasks.parquet": "4416ace8180ce2024d6a1b6657ac16b7f970aee9595864783fcabea2a338b63b",
+    "export/dataset/meta/episodes/chunk-000/file-000.parquet": "4805279107c061ae3444b6008e74520eb6ab306650ab358255ccdf73e749c3dd",
+    "export/dataset/videos/observation.images.simulator/chunk-000/file-000.mp4": "4d09792bcb698d9b09d3665ca84ba51ac5deca47a1226c3685a9c895beedcbe8",
+    "rl/rl_report.json": "993194149e1b714d3e9720b77774f6c5235a8a2d6342f00db07b1016fa910f9d",
+    "rl/transitions.parquet": "6fcfa1cf3e3abf760a2d27f7e10edf5bfc92499671e62595e32eb826c5b7f96a",
+    "simulation/simulation_replay.mp4": "e66d09f8b7192af4e8431acb5575046dff2a359bf83e3603dc57414f72001c5d",
+    "simulation/simulation_report.json": "feaebf69cc3ccddeb2651ce7c9b0229a328395ebd488876d8de0fb3c9d32cf23"
+  },
+  "output": "data/phase3-smoke/run-xc8no3u9",
+  "live_models_executed": false
+}

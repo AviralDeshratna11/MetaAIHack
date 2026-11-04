@@ -1,6 +1,7 @@
 # Video2Robot: architecture, workflow and operating procedure
 
 This guide explains the implementation through Phase 3 and how to operate it.
+For exact clicks and full-clip output limits, read [full workflow testing](full-workflow-testing.md).
 Status reflects the verification recorded by 4 November 2026. Consult the linked
 machine-readable reports for individual runs; this guide is not a new test result.
 
@@ -368,3 +369,11 @@ Credentials, checkpoints, source media, generated datasets and bulk raw model
 outputs remain outside Git. A fresh checkout needs its own configured runtimes,
 authorized assets and local configuration; the repository alone does not contain
 the installed model environment.
+## Submission feature update
+
+The [submission guide](SUBMISSION.md) is the current feature inventory and test
+entry point. Phase 3 now offers Panda/FR3 selection, an advisory continuous-interval
+and endpoint-task suggestion, measured correspondence calibration, optional
+official TFDS/RLDS export and the `/datasets` catalog. Existing historical results
+above retain their original scope. Optional research extensions and physical
+source-task validation are not completed by these additions.

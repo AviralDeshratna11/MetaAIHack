@@ -26,7 +26,7 @@ class ReconstructionConfig(ReconstructionContract):
     max_window_alignment_relative_rmse: Annotated[FiniteFloat, Field(gt=0, le=.2)] = .06
     image_size: int = Field(518, ge=224, le=518, multiple_of=14)
     sample_fps: Annotated[FiniteFloat, Field(gt=0, le=10)] = 5
-    max_frames_per_shot: int = Field(32, ge=2, le=96)
+    max_frames_per_shot: int = Field(32, ge=2, le=512)
     max_total_frames: int = Field(96, ge=2, le=512)
     max_points_per_entity: int = Field(256, ge=16, le=2048)
     contact_distance_2d_px: Annotated[FiniteFloat, Field(gt=0)] = 12

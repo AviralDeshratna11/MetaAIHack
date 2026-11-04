@@ -1,5 +1,8 @@
 # Robot-learning output and verification
 
+For click-by-click testing and the distinction between full-clip coverage and
+complete action replication, see [full workflow testing](full-workflow-testing.md).
+
 The compiler now produces a downloadable learning bundle containing official
 LeRobot data and, when a task is explicitly configured, offline RL transitions.
 The repository also contains a Gymnasium environment and an offline TD3+BC learner.

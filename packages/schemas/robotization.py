@@ -22,6 +22,8 @@ class Calibration(RobotContract):
     evidence: str = Field(min_length=1)
     # A measured scale does not alone establish grasp or task validity.
     residual_m: Annotated[FiniteFloat, Field(ge=0)] | None = None
+    correspondence_hash: str | None = None
+    correspondence_count: int | None = Field(None,ge=3)
 
     @model_validator(mode="after")
     def rigid(self):
@@ -60,11 +62,15 @@ class TaskScene(RobotContract):
 
 
 class RobotizationConfig(RobotContract):
+    robot_id: Literal["panda","fr3"] = "panda"
     hand_id: str = Field(min_length=1)
     object_id: str = Field(min_length=1)
     shot_id: str = Field(min_length=1)
     start_s: Annotated[FiniteFloat, Field(ge=0)] = 0
     end_s: Positive = 120
+    require_full_interval: bool = False
+    boundary_tolerance_s: Annotated[FiniteFloat, Field(ge=0,le=.3)] = .21
+    episode_end: Literal['task_success','trajectory_end'] = 'task_success'
     calibration: Calibration = Field(default_factory=lambda: Calibration(evidence="Automatic workspace adaptation; unknown physical dimensions"))
     workspace_center_m: Vec3 = Field(default_factory=lambda: [.45, 0, .4])
     workspace_extent_m: Annotated[FiniteFloat, Field(gt=0, le=.4)] = .18
@@ -83,6 +89,7 @@ class RobotizationConfig(RobotContract):
     closed_width_m: Annotated[FiniteFloat, Field(ge=0, le=.08)] = 0
     max_gripper_speed_m_s: Positive = .1
     require_export: bool = True
+    export_rlds: bool = False
     diagnostic_export: bool = True
     task_scene: TaskScene | None = None
     # Frozen rubric; changes are part of config/hash and do not alter old results.
@@ -104,6 +111,13 @@ class RobotizationRequest(RobotContract):
     idempotency_key: str = Field(min_length=1, max_length=200)
     config: RobotizationConfig
     allow_review_source: bool = False
+
+
+class CalibrationRequest(RobotContract):
+    world_points: list[Vec3] = Field(min_length=3,max_length=1000)
+    base_points_m: list[Vec3] = Field(min_length=3,max_length=1000)
+    evidence: str = Field(min_length=1,max_length=2000)
+    max_residual_m: Annotated[FiniteFloat,Field(gt=0,le=.1)] = .02
 
 
 class RobotFrame(RobotContract):
