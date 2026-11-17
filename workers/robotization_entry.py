@@ -23,7 +23,15 @@ def run(request, output):
     config = RobotizationConfig.model_validate(runtime["config"])
     itr = InteractionTrajectory.model_validate(request["itr"])
     robot = Panda(runtime["assets"])
-    trajectory = retarget(itr, config, robot, request["run_id"])
+    replication = None
+    if config.mode == "skill":
+        from packages.robot.replicate import replicate
+        trajectory, skill, part, placement = replicate(itr, config, robot, request["run_id"], request.get("metric_hint"), request.get("semantic_plan"))
+        # The generated task scene is part of the frozen result, not of the request.
+        config, replication = trajectory.config, (skill, part, placement)
+        (output / "skill_model.json").write_text(skill.model_dump_json(indent=2), encoding="utf-8")
+    else:
+        trajectory = retarget(itr, config, robot, request["run_id"])
     trajectory.review_reasons = sorted(set(trajectory.review_reasons+request["handoff"]["review_reasons"]))
     (output / "robot_trajectory.json").write_text(trajectory.model_dump_json(indent=2), encoding="utf-8")
     sim_dir = output / "simulation"
@@ -31,6 +39,12 @@ def run(request, output):
     simulation = replay(trajectory, runtime["assets"], sim_dir)
     # Public API uses a flat report name; media and dataset stay in subdirectories.
     (output / "simulation_report.json").write_text(json.dumps(simulation, indent=2), encoding="utf-8")
+    if replication:
+        from packages.robot.replicate import summarize, variations
+        skill, part, placement = replication
+        results = variations(skill, part, config, robot, runtime["assets"], request["run_id"], itr)
+        (output / "replication_report.json").write_text(summarize(request["run_id"], itr, skill, part, placement,
+            trajectory, simulation, results, request.get("metric_hint")).model_dump_json(indent=2), encoding="utf-8")
     export_dir = output / "export"
     export_dir.mkdir()
     export = {"roundtrip_passed": False, "status": "not_requested"}
@@ -81,4 +95,13 @@ if __name__ == "__main__":
     parser.add_argument("--request", required=True)
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
-    run(json.loads(Path(args.request).read_text()), args.output)
+    try:
+        run(json.loads(Path(args.request).read_text()), args.output)
+    except Exception as exc:
+        # The parent worker deletes this directory; hand it the reason explicitly
+        # so an unreachable placement or unsupported motion is not reported as a crash.
+        from packages.common.utils import DomainError
+        domain = isinstance(exc, DomainError)
+        Path(args.output, "error.json").write_text(json.dumps({"code": exc.code if domain else "E_ROBOT_RUNTIME",
+            "message": str(exc)[:2000], "status": exc.status if domain else 503}), encoding="utf-8")
+        raise

@@ -388,6 +388,141 @@
       "title": "Anchor",
       "type": "object"
     },
+    "ArticulatedObject": {
+      "additionalProperties": false,
+      "description": "Simulated stand-in generated from a skill. Not a reconstruction of the source object.",
+      "properties": {
+        "schema_version": {
+          "const": "0.4.0",
+          "default": "0.4.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "template": {
+          "enum": [
+            "lid",
+            "door",
+            "drawer",
+            "knob",
+            "button"
+          ],
+          "title": "Template",
+          "type": "string"
+        },
+        "joint": {
+          "enum": [
+            "revolute",
+            "prismatic"
+          ],
+          "title": "Joint",
+          "type": "string"
+        },
+        "momentary": {
+          "default": false,
+          "title": "Momentary",
+          "type": "boolean"
+        },
+        "position_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Position M",
+          "type": "array"
+        },
+        "yaw_rad": {
+          "default": 0,
+          "title": "Yaw Rad",
+          "type": "number"
+        },
+        "radius_m": {
+          "default": 0.2,
+          "maximum": 0.4,
+          "minimum": 0.08,
+          "title": "Radius M",
+          "type": "number"
+        },
+        "width_m": {
+          "default": 0.3,
+          "maximum": 0.6,
+          "minimum": 0.1,
+          "title": "Width M",
+          "type": "number"
+        },
+        "start": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "goal": {
+          "minimum": 0,
+          "title": "Goal",
+          "type": "number"
+        },
+        "limit": {
+          "exclusiveMinimum": 0,
+          "title": "Limit",
+          "type": "number"
+        },
+        "tolerance": {
+          "exclusiveMinimum": 0,
+          "title": "Tolerance",
+          "type": "number"
+        },
+        "mass_kg": {
+          "default": 0.1,
+          "exclusiveMinimum": 0,
+          "maximum": 5,
+          "title": "Mass Kg",
+          "type": "number"
+        },
+        "damping": {
+          "default": 0.05,
+          "minimum": 0,
+          "title": "Damping",
+          "type": "number"
+        },
+        "friction_loss": {
+          "default": 0.15,
+          "minimum": 0,
+          "title": "Friction Loss",
+          "type": "number"
+        },
+        "scale_source": {
+          "enum": [
+            "measured_calibration",
+            "body_scale_estimate",
+            "hand_extent_estimate",
+            "template_default"
+          ],
+          "title": "Scale Source",
+          "type": "string"
+        },
+        "placement_source": {
+          "default": "canonical",
+          "enum": [
+            "canonical",
+            "configured",
+            "measured_calibration"
+          ],
+          "title": "Placement Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "template",
+        "joint",
+        "position_m",
+        "goal",
+        "limit",
+        "tolerance",
+        "scale_source"
+      ],
+      "title": "ArticulatedObject",
+      "type": "object"
+    },
     "ArtifactManifest": {
       "additionalProperties": false,
       "properties": {
@@ -1200,11 +1335,27 @@
           "default": null,
           "title": "Provider Track Id"
         },
+        "provider_track_ids": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider Track Ids"
+        },
         "reviewed_by": {
           "default": "user",
           "enum": [
             "user",
-            "assistant"
+            "assistant",
+            "heuristic"
           ],
           "title": "Reviewed By",
           "type": "string"
@@ -2569,6 +2720,49 @@
       "title": "ModelRunView",
       "type": "object"
     },
+    "MotionFit": {
+      "additionalProperties": false,
+      "description": "One candidate explanation of the contact-phase motion.",
+      "properties": {
+        "schema_version": {
+          "const": "0.4.0",
+          "default": "0.4.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "static",
+            "prismatic",
+            "revolute"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "relative_rmse": {
+          "minimum": 0,
+          "title": "Relative Rmse",
+          "type": "number"
+        },
+        "bic": {
+          "title": "Bic",
+          "type": "number"
+        },
+        "parameters": {
+          "minimum": 0,
+          "title": "Parameters",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "relative_rmse",
+        "bic",
+        "parameters"
+      ],
+      "title": "MotionFit",
+      "type": "object"
+    },
     "Pose3D": {
       "additionalProperties": false,
       "properties": {
@@ -3647,6 +3841,358 @@
       "title": "RelativeFrame",
       "type": "object"
     },
+    "ReplicationConfig": {
+      "additionalProperties": false,
+      "description": "How a skill is re-instantiated on the robot.",
+      "properties": {
+        "schema_version": {
+          "const": "0.4.0",
+          "default": "0.4.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "template": {
+          "default": "auto",
+          "enum": [
+            "auto",
+            "lid",
+            "door",
+            "drawer",
+            "knob",
+            "button",
+            "object"
+          ],
+          "title": "Template",
+          "type": "string"
+        },
+        "direction": {
+          "default": "auto",
+          "enum": [
+            "auto",
+            "open",
+            "close"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "up_hint_world": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Up Hint World",
+          "type": "array"
+        },
+        "default_radius_m": {
+          "default": 0.18,
+          "maximum": 0.3,
+          "minimum": 0.1,
+          "title": "Default Radius M",
+          "type": "number"
+        },
+        "default_travel_m": {
+          "default": 0.15,
+          "maximum": 0.25,
+          "minimum": 0.03,
+          "title": "Default Travel M",
+          "type": "number"
+        },
+        "default_twist_rad": {
+          "default": 1.5707963267948966,
+          "maximum": 1.8,
+          "minimum": 0.3,
+          "title": "Default Twist Rad",
+          "type": "number"
+        },
+        "default_press_m": {
+          "default": 0.012,
+          "maximum": 0.03,
+          "minimum": 0.004,
+          "title": "Default Press M",
+          "type": "number"
+        },
+        "use_video_scale": {
+          "default": true,
+          "title": "Use Video Scale",
+          "type": "boolean"
+        },
+        "object_position_m": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Position M"
+        },
+        "object_yaw_rad": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Yaw Rad"
+        },
+        "min_angle_rad": {
+          "default": 0.2,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Min Angle Rad",
+          "type": "number"
+        },
+        "pregrasp_distance_m": {
+          "default": 0.08,
+          "maximum": 0.2,
+          "minimum": 0.03,
+          "title": "Pregrasp Distance M",
+          "type": "number"
+        },
+        "grasp_dwell_s": {
+          "default": 1.0,
+          "maximum": 5,
+          "minimum": 0.2,
+          "title": "Grasp Dwell S",
+          "type": "number"
+        },
+        "limit_fraction": {
+          "default": 0.3,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Limit Fraction",
+          "type": "number"
+        },
+        "success_fraction": {
+          "default": 0.85,
+          "exclusiveMinimum": 0.5,
+          "maximum": 1,
+          "title": "Success Fraction",
+          "type": "number"
+        },
+        "success_hold_s": {
+          "default": 0.3,
+          "exclusiveMinimum": 0,
+          "maximum": 2,
+          "title": "Success Hold S",
+          "type": "number"
+        },
+        "variations": {
+          "default": 4,
+          "maximum": 32,
+          "minimum": 0,
+          "title": "Variations",
+          "type": "integer"
+        },
+        "variation_seed": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Variation Seed",
+          "type": "integer"
+        },
+        "variation_position_m": {
+          "default": 0.03,
+          "maximum": 0.1,
+          "minimum": 0,
+          "title": "Variation Position M",
+          "type": "number"
+        },
+        "variation_yaw_rad": {
+          "default": 0.15,
+          "maximum": 0.5,
+          "minimum": 0,
+          "title": "Variation Yaw Rad",
+          "type": "number"
+        },
+        "variation_scale": {
+          "default": 0.1,
+          "maximum": 0.3,
+          "minimum": 0,
+          "title": "Variation Scale",
+          "type": "number"
+        }
+      },
+      "title": "ReplicationConfig",
+      "type": "object"
+    },
+    "ReplicationReport": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.4.0",
+          "default": "0.4.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "source_run_id": {
+          "title": "Source Run Id",
+          "type": "string"
+        },
+        "skill": {
+          "$ref": "#/$defs/SkillModel"
+        },
+        "scene": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArticulatedObject"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "transport": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportTask"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "metric_scale": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Metric Scale"
+        },
+        "scene_source": {
+          "const": "generated_from_skill_template",
+          "default": "generated_from_skill_template",
+          "title": "Scene Source",
+          "type": "string"
+        },
+        "placement": {
+          "title": "Placement",
+          "type": "string"
+        },
+        "demonstrated_displacement": {
+          "title": "Demonstrated Displacement",
+          "type": "number"
+        },
+        "replicated_displacement": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Replicated Displacement"
+        },
+        "replicated_fraction": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Replicated Fraction"
+        },
+        "simulation_task_success": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Simulation Task Success"
+        },
+        "phases": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Phases",
+          "type": "array"
+        },
+        "variations": {
+          "items": {
+            "$ref": "#/$defs/VariationResult"
+          },
+          "title": "Variations",
+          "type": "array"
+        },
+        "variation_success_rate": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variation Success Rate"
+        },
+        "source_task_validated": {
+          "const": false,
+          "default": false,
+          "title": "Source Task Validated",
+          "type": "boolean"
+        },
+        "physical_robot_ready": {
+          "const": false,
+          "default": false,
+          "title": "Physical Robot Ready",
+          "type": "boolean"
+        },
+        "review_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "run_id",
+        "source_run_id",
+        "skill",
+        "placement",
+        "demonstrated_displacement",
+        "phases",
+        "variations",
+        "review_reasons"
+      ],
+      "title": "ReplicationReport",
+      "type": "object"
+    },
     "RobotFrame": {
       "additionalProperties": false,
       "properties": {
@@ -3779,10 +4325,23 @@
         "origin": {
           "enum": [
             "retargeted",
-            "interpolated"
+            "interpolated",
+            "planned"
           ],
           "title": "Origin",
           "type": "string"
+        },
+        "phase": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Phase"
         }
       },
       "required": [
@@ -3900,6 +4459,18 @@
           ],
           "title": "Robot Id",
           "type": "string"
+        },
+        "mode": {
+          "default": "trajectory",
+          "enum": [
+            "trajectory",
+            "skill"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "replication": {
+          "$ref": "#/$defs/ReplicationConfig"
         },
         "hand_id": {
           "minLength": 1,
@@ -4296,6 +4867,336 @@
       "title": "Shot",
       "type": "object"
     },
+    "SkillModel": {
+      "additionalProperties": false,
+      "description": "What was demonstrated, expressed relative to the manipulated part.",
+      "properties": {
+        "schema_version": {
+          "const": "0.4.0",
+          "default": "0.4.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "hand_id": {
+          "title": "Hand Id",
+          "type": "string"
+        },
+        "object_id": {
+          "title": "Object Id",
+          "type": "string"
+        },
+        "shot_id": {
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "revolute",
+            "prismatic",
+            "static",
+            "transport",
+            "unconstrained"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "transport": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TransportSkill"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "start_world": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start World"
+        },
+        "end_world": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End World"
+        },
+        "axis_world": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Axis World"
+        },
+        "origin_world": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 3,
+              "minItems": 3,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origin World"
+        },
+        "radius_units": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Radius Units"
+        },
+        "displacement": {
+          "default": 0,
+          "title": "Displacement",
+          "type": "number"
+        },
+        "displacement_unit": {
+          "default": "none",
+          "enum": [
+            "rad",
+            "reconstruction_units",
+            "none"
+          ],
+          "title": "Displacement Unit",
+          "type": "string"
+        },
+        "direction": {
+          "default": "unknown",
+          "enum": [
+            "open",
+            "close",
+            "unknown"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "direction_evidence": {
+          "title": "Direction Evidence",
+          "type": "string"
+        },
+        "axis_alignment": {
+          "default": "unknown",
+          "enum": [
+            "horizontal",
+            "vertical",
+            "oblique",
+            "unknown"
+          ],
+          "title": "Axis Alignment",
+          "type": "string"
+        },
+        "approach_alignment": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approach Alignment"
+        },
+        "template": {
+          "enum": [
+            "lid",
+            "door",
+            "drawer",
+            "knob",
+            "button",
+            "object",
+            "none"
+          ],
+          "title": "Template",
+          "type": "string"
+        },
+        "progress_times_s": {
+          "items": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "title": "Progress Times S",
+          "type": "array"
+        },
+        "progress": {
+          "items": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "title": "Progress",
+          "type": "array"
+        },
+        "phases": {
+          "items": {
+            "$ref": "#/$defs/SkillPhase"
+          },
+          "title": "Phases",
+          "type": "array"
+        },
+        "fits": {
+          "items": {
+            "$ref": "#/$defs/MotionFit"
+          },
+          "title": "Fits",
+          "type": "array"
+        },
+        "samples": {
+          "minimum": 0,
+          "title": "Samples",
+          "type": "integer"
+        },
+        "contact_samples": {
+          "minimum": 0,
+          "title": "Contact Samples",
+          "type": "integer"
+        },
+        "motion_source": {
+          "enum": [
+            "hand_during_contact",
+            "hand_during_planned_action",
+            "object",
+            "hand_whole_interval"
+          ],
+          "title": "Motion Source",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "semantic_hint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Semantic Hint"
+        },
+        "review_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "hand_id",
+        "object_id",
+        "shot_id",
+        "kind",
+        "direction_evidence",
+        "template",
+        "progress_times_s",
+        "progress",
+        "phases",
+        "fits",
+        "samples",
+        "contact_samples",
+        "motion_source",
+        "confidence",
+        "review_reasons"
+      ],
+      "title": "SkillModel",
+      "type": "object"
+    },
+    "SkillPhase": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.4.0",
+          "default": "0.4.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "name": {
+          "enum": [
+            "approach",
+            "manipulate",
+            "retreat"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "start_s": {
+          "minimum": 0,
+          "title": "Start S",
+          "type": "number"
+        },
+        "end_s": {
+          "minimum": 0,
+          "title": "End S",
+          "type": "number"
+        },
+        "samples": {
+          "minimum": 0,
+          "title": "Samples",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "start_s",
+        "end_s",
+        "samples"
+      ],
+      "title": "SkillPhase",
+      "type": "object"
+    },
     "StageResult": {
       "additionalProperties": false,
       "properties": {
@@ -4410,10 +5311,22 @@
         "task": {
           "enum": [
             "reach",
-            "pick_place"
+            "pick_place",
+            "articulated"
           ],
           "title": "Task",
           "type": "string"
+        },
+        "articulation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArticulatedObject"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "geometry_source": {
           "default": "configured_simulation_proxy",
@@ -4494,6 +5407,18 @@
           "exclusiveMinimum": 0,
           "maximum": 2,
           "title": "Success Hold S",
+          "type": "number"
+        },
+        "hold_at_goal": {
+          "default": false,
+          "title": "Hold At Goal",
+          "type": "boolean"
+        },
+        "goal_support_m": {
+          "default": 0,
+          "maximum": 0.4,
+          "minimum": 0,
+          "title": "Goal Support M",
           "type": "number"
         },
         "horizon_s": {
@@ -4915,6 +5840,153 @@
       "title": "TracksResponse",
       "type": "object"
     },
+    "TransportSkill": {
+      "additionalProperties": false,
+      "description": "A carried object: where it went relative to gravity and to the reach.",
+      "properties": {
+        "schema_version": {
+          "const": "0.4.0",
+          "default": "0.4.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "horizontal_units": {
+          "minimum": 0,
+          "title": "Horizontal Units",
+          "type": "number"
+        },
+        "rise_units": {
+          "title": "Rise Units",
+          "type": "number"
+        },
+        "peak_units": {
+          "minimum": 0,
+          "title": "Peak Units",
+          "type": "number"
+        },
+        "heading_rad": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Heading Rad"
+        },
+        "released": {
+          "title": "Released",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "horizontal_units",
+        "rise_units",
+        "peak_units",
+        "released"
+      ],
+      "title": "TransportSkill",
+      "type": "object"
+    },
+    "TransportTask": {
+      "additionalProperties": false,
+      "description": "Generated pick-and-carry task. The box is a stand-in for the carried object.",
+      "properties": {
+        "schema_version": {
+          "const": "0.4.0",
+          "default": "0.4.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "object_position_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Object Position M",
+          "type": "array"
+        },
+        "object_half_size_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Object Half Size M",
+          "type": "array"
+        },
+        "object_mass_kg": {
+          "default": 0.05,
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Object Mass Kg",
+          "type": "number"
+        },
+        "grasp_yaw_rad": {
+          "default": 1.5707963267948966,
+          "title": "Grasp Yaw Rad",
+          "type": "number"
+        },
+        "displacement_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Displacement M",
+          "type": "array"
+        },
+        "lift_m": {
+          "maximum": 0.4,
+          "minimum": 0.03,
+          "title": "Lift M",
+          "type": "number"
+        },
+        "release": {
+          "title": "Release",
+          "type": "boolean"
+        },
+        "tolerance_m": {
+          "default": 0.03,
+          "exclusiveMinimum": 0,
+          "maximum": 0.1,
+          "title": "Tolerance M",
+          "type": "number"
+        },
+        "scale_source": {
+          "enum": [
+            "measured_calibration",
+            "body_scale_estimate",
+            "hand_extent_estimate",
+            "template_default"
+          ],
+          "title": "Scale Source",
+          "type": "string"
+        },
+        "placement_source": {
+          "default": "canonical",
+          "enum": [
+            "canonical",
+            "configured",
+            "measured_calibration"
+          ],
+          "title": "Placement Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "object_position_m",
+        "displacement_m",
+        "lift_m",
+        "release",
+        "scale_source"
+      ],
+      "title": "TransportTask",
+      "type": "object"
+    },
     "UploadCompleteResponse": {
       "additionalProperties": false,
       "properties": {
@@ -5036,6 +6108,94 @@
         "inference_mode"
       ],
       "title": "UploadResponse",
+      "type": "object"
+    },
+    "VariationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "0.4.0",
+          "default": "0.4.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "index": {
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "position_m": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Position M",
+          "type": "array"
+        },
+        "yaw_rad": {
+          "title": "Yaw Rad",
+          "type": "number"
+        },
+        "radius_m": {
+          "title": "Radius M",
+          "type": "number"
+        },
+        "planned": {
+          "title": "Planned",
+          "type": "boolean"
+        },
+        "success": {
+          "title": "Success",
+          "type": "boolean"
+        },
+        "final_joint": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Final Joint"
+        },
+        "goal": {
+          "title": "Goal",
+          "type": "number"
+        },
+        "violations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Violations",
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "index",
+        "position_m",
+        "yaw_rad",
+        "radius_m",
+        "planned",
+        "success",
+        "goal",
+        "violations"
+      ],
+      "title": "VariationResult",
       "type": "object"
     },
     "VideoAsset": {
@@ -5455,6 +6615,33 @@
     },
     {
       "$ref": "#/$defs/RobotizationHandoff"
+    },
+    {
+      "$ref": "#/$defs/MotionFit"
+    },
+    {
+      "$ref": "#/$defs/SkillPhase"
+    },
+    {
+      "$ref": "#/$defs/SkillModel"
+    },
+    {
+      "$ref": "#/$defs/ArticulatedObject"
+    },
+    {
+      "$ref": "#/$defs/ReplicationConfig"
+    },
+    {
+      "$ref": "#/$defs/VariationResult"
+    },
+    {
+      "$ref": "#/$defs/ReplicationReport"
+    },
+    {
+      "$ref": "#/$defs/TransportSkill"
+    },
+    {
+      "$ref": "#/$defs/TransportTask"
     }
   ],
   "title": "Video2RobotContracts"

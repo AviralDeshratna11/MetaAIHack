@@ -32,6 +32,7 @@ class Panda:
     def __init__(self, root):
         import mujoco
         self.mj = mujoco
+        self.root = Path(root)
         self.spec = fingerprint(root)
         self.model = mujoco.MjModel.from_xml_path(str(Path(root) / self.spec['model_file']))
         self.data = mujoco.MjData(self.model)

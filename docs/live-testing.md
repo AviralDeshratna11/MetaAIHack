@@ -35,7 +35,7 @@ can pass. A review override retains these uncertainties.
 ## 1. Upload and verify real perception
 
 1. Check that the workspace says **LIVE**.
-2. Click **Upload video** and choose an authorized 10–120 second MP4. The existing
+2. Click **Upload video** and choose an authorized 2–120 second MP4 (set by `MIN_DURATION`/`MAX_DURATION`). The existing
    `data/golden/pouring.mp4` is a licensed 22.88-second test source. Prefer a fixed
    camera, visible hand/object, a simple rigid task, and few occlusions.
 3. Selecting a file starts upload and processing automatically; there is no

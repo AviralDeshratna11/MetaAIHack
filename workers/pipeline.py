@@ -148,7 +148,8 @@ def all_corrections(job):
             visited.add(current.id)
             row = s.scalar(select(CorrectionRecord).where(CorrectionRecord.job_id == current.id))
             if row:
-                corrections.insert(0, row.data)
+                # One run may carry several corrections (automatic association resolves a group at once).
+                corrections[0:0] = row.data.get("batch", [row.data])
             current = s.get(Job, current.source_job_id) if current.source_job_id else None
     # Keep anchors on different frames. A new visual prompt creates a new provider
     # ID namespace, so an older association must not select its previous ordinal.
@@ -209,7 +210,7 @@ def run_job(job_id):
                     for name in ("preprocessing", "semantic_parsing"):
                         inherited[name] = [a for a in parent_artifacts if a.manifest["stage"] == name]
                     current_correction = s.scalar(select(CorrectionRecord).where(CorrectionRecord.job_id == job.id))
-                    if current_correction and current_correction.data["kind"] == "association":
+                    if current_correction and all(c["kind"] == "association" for c in current_correction.data.get("batch", [current_correction.data])):
                         from workers.perception.reuse import StoredTrackingProvider
                         provider = StoredTrackingProvider(parent_artifacts, store, job.mode)
         input_key = {"source": video.sha256, "config": job.config}

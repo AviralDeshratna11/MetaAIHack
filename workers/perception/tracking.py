@@ -63,14 +63,16 @@ def build_tracklets(records, entity, shot, manifest, frame_map, video_id, model_
     selected = correction.get("provider_track_id") if correction and correction["kind"] == "association" else None
     if selected is None and visual_corrections:
         selected = visual_candidate(records, visual_corrections)
-    if selected is not None and selected not in candidates:
+    # A stitched identity names every provider id that is this entity in turn.
+    chosen = list((correction or {}).get("provider_track_ids") or ([selected] if selected is not None else []))
+    if any(c not in candidates for c in chosen):
         raise DomainError("E_ASSOCIATION_INVALID", "Selected provider object was not found in this shot")
-    if selected is not None:
-        candidates = [selected]
+    if chosen:
+        candidates = chosen
     rows, masks, summaries = [], {}, []
     for candidate in candidates:
-        ambiguous = (len(candidates) > 1 or shared_concept) and candidate != selected
-        associated = not ambiguous and (len(candidates) == 1 or candidate == selected)
+        ambiguous = (len(candidates) > 1 or shared_concept) and candidate not in chosen
+        associated = not ambiguous and (len(candidates) == 1 or candidate in chosen)
         segment = 0
         missing = 0
         seen = False
@@ -94,7 +96,7 @@ def build_tracklets(records, entity, shot, manifest, frame_map, video_id, model_
                 # A same provider ordinal is not proof of identity after full occlusion.
                 associated = False
                 warnings.append("Identity after missing run is unverified")
-            if rec and selected == candidate and correction and global_frame == correction.get("frame_index"):
+            if rec and candidate in chosen and correction and global_frame == correction.get("frame_index"):
                 # Explicit review at this frame can establish the current segment;
                 # the gap remains split and is never interpolated across.
                 associated = True
@@ -187,6 +189,8 @@ def tracking(provider, video, manifest, plan, frame_map, output: Path, prefix, r
     reasons = []
     if corrections:
         reasons.append("Review-assisted entity grounding; reviewer and original observations retained in correction lineage")
+    if any(c.get("reviewed_by") == "heuristic" for c in corrections):
+        reasons.append("Automatic motion-role association of shared-concept entities; not human reviewed")
     for entity in plan.entities:
         group = [r for r in rows if r["entity_id"] == entity.entity_id]
         frames = {r["frame_index"] for r in group if r["observed"] and r["identity_status"] == "associated"}

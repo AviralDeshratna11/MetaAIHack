@@ -330,7 +330,10 @@ class Correction(Contract):
     point: Vec2 | None = None
     bbox_xyxy: BBox | None = None
     provider_track_id: str | None = None
-    reviewed_by: Literal["user", "assistant"] = "user"
+    # One thing the tracker lost and found again under new ids: all of them are this entity.
+    provider_track_ids: list[str] | None = None
+    # "heuristic" marks an automatic proposal that no person checked.
+    reviewed_by: Literal["user", "assistant", "heuristic"] = "user"
     evidence: str | None = None
 
     @model_validator(mode="after")

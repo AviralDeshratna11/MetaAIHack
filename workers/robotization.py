@@ -12,6 +12,19 @@ from apps.api.orchestration import assert_owner, emit
 from packages.common.utils import DomainError, digest, uid
 
 
+def metric_hint(store, refs, root, hand_id):
+    """Meters per reconstruction unit from the person in the video, when geometry provides it."""
+    from packages.robot.metric import estimate_scale
+    alignments = json.loads(store.read(refs["alignments.json"])) if "alignments.json" in refs else []
+    hands = []
+    if "hand_pose.parquet" in refs:
+        import pyarrow.parquet as pq
+        path = root / "hand_pose.parquet"
+        store.download(refs["hand_pose.parquet"], path)
+        hands = pq.read_table(path, columns=["entity_id", "pose", "points_world"]).to_pylist()
+    return estimate_scale(alignments, hands, hand_id)
+
+
 def execute(job, token, store):
     from workers.pipeline import stage_start, publish_directory
     runtime = job.config["robotization"]
@@ -35,7 +48,7 @@ def execute(job, token, store):
                 provenance['model_requests'].append({k:model.data.get(k) for k in
                     ('model_run_id','model','revision','input_hash','status','request_id','latency_ms','usage','actual_cost_usd')})
             for correction in session.scalars(select(CorrectionRecord).where(CorrectionRecord.job_id==ancestor.id)).all():
-                provenance['corrections'].append(correction.data)
+                provenance['corrections'].extend(correction.data.get('batch', [correction.data]))
             ancestor = session.get(Job,ancestor.source_job_id) if ancestor.source_job_id else None
     refs = {a.name: a.manifest["uri"] for a in artifacts}
     if not {"interaction_trajectory.json.gz", "phase2_handoff.json"} <= refs.keys():
@@ -60,6 +73,10 @@ def execute(job, token, store):
                 request = {"itr": json.loads(gzip.decompress(store.read(refs["interaction_trajectory.json.gz"]))),
                     "handoff": json.loads(store.read(refs["phase2_handoff.json"])), "runtime": runtime,
                     "run_id": job.run_id,"provenance":provenance}
+                if runtime["config"].get("mode") == "skill":
+                    request["metric_hint"] = metric_hint(store, refs, root, runtime["config"]["hand_id"])
+                    if "semantic_plan.json" in refs:
+                        request["semantic_plan"] = json.loads(store.read(refs["semantic_plan.json"]))
                 request_path = root / "request.json"
                 request_path.write_text(json.dumps(request), encoding="utf-8")
                 output = root / "output"
@@ -70,7 +87,13 @@ def execute(job, token, store):
                     (output / "robot_stdout.log").write_bytes(completed.stdout)
                     (output / "robot_stderr.log").write_bytes(completed.stderr)
                     if completed.returncode:
-                        raise DomainError("E_ROBOT_RUNTIME", "Robot runtime failed; inspect worker logs", 503)
+                        # The temporary directory, and the logs in it, do not outlive this block.
+                        reported = output / "error.json"
+                        if reported.is_file():
+                            failure = json.loads(reported.read_text(encoding="utf-8"))
+                            raise DomainError(failure["code"], failure["message"], failure["status"])
+                        tail = completed.stderr.decode(errors="replace").strip().splitlines()[-1:] or ["no error output"]
+                        raise DomainError("E_ROBOT_RUNTIME", f"Robot runtime failed: {tail[0][:500]}", 503)
                 else:
                     from workers.robotization_entry import run
                     run(request, output)

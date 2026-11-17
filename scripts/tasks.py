@@ -7,7 +7,7 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("task", choices=["up", "down", "api", "worker", "dispatch", "web", "test", "media-tests", "smoke", "phase2-smoke", "phase3-smoke", "baseline-live", "ablations", "robot-assets", "schemas", "check", "golden"])
+    parser.add_argument("task", choices=["up", "down", "api", "worker", "dispatch", "web", "test", "media-tests", "smoke", "phase2-smoke", "phase3-smoke", "replicate", "baseline-live", "ablations", "robot-assets", "schemas", "check", "golden"])
     task = parser.parse_args().task
     npm = "npm.cmd" if os.name == "nt" else "npm"
     tasks = {
@@ -22,6 +22,7 @@ def main():
         "smoke": [[sys.executable, "-m", "scripts.smoke"]],
         "phase2-smoke": [[sys.executable, "-m", "scripts.smoke_reconstruction"]],
         "phase3-smoke": [[sys.executable, "-m", "scripts.smoke_robotization"]],
+        "replicate": [[sys.executable, "-m", "scripts.replicate_demo", "--demo", "laptop_lid"], [sys.executable, "-m", "scripts.replicate_demo", "--demo", "drawer"]],
         "baseline-live": [[sys.executable, "-m", "scripts.baseline_acceptance"]],
         "ablations": [[sys.executable, "-m", "scripts.baseline_ablations"]],
         "robot-assets": [[sys.executable, "-m", "scripts.robot_assets"]],

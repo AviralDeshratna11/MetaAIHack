@@ -51,7 +51,16 @@ export type Video2RobotContracts =
   | RobotFrame
   | RobotTrajectory
   | QualityReport
-  | RobotizationHandoff;
+  | RobotizationHandoff
+  | MotionFit
+  | SkillPhase
+  | SkillModel
+  | ArticulatedObject
+  | ReplicationConfig
+  | VariationResult
+  | ReplicationReport
+  | TransportSkill
+  | TransportTask;
 export type SchemaVersion = "0.1.0";
 export type Nodes = string[];
 export type SchemaVersion1 = "0.1.0";
@@ -84,7 +93,8 @@ export type Kind = "point" | "box" | "association";
 export type Point = [number, number] | null;
 export type BboxXyxy = [number, number, number, number] | null;
 export type ProviderTrackId = string | null;
-export type ReviewedBy = "user" | "assistant";
+export type ProviderTrackIds = string[] | null;
+export type ReviewedBy = "user" | "assistant" | "heuristic";
 export type Evidence = string | null;
 export type SchemaVersion4 = "0.1.0";
 export type EntityId1 = string;
@@ -641,7 +651,28 @@ export type BasePointsM = [
 export type Evidence2 = string;
 export type MaxResidualM = number;
 export type SchemaVersion57 = "0.3.0";
-export type Task2 = "reach" | "pick_place";
+export type Task2 = "reach" | "pick_place" | "articulated";
+export type SchemaVersion58 = "0.4.0";
+export type Template = "lid" | "door" | "drawer" | "knob" | "button";
+export type Joint = "revolute" | "prismatic";
+export type Momentary = boolean;
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type PositionM = [number, number, number];
+export type YawRad = number;
+export type RadiusM = number;
+export type WidthM = number;
+export type Start = number;
+export type Goal = number;
+export type Limit = number;
+export type Tolerance = number;
+export type MassKg = number;
+export type Damping = number;
+export type FrictionLoss = number;
+export type ScaleSource = "measured_calibration" | "body_scale_estimate" | "hand_extent_estimate" | "template_default";
+export type PlacementSource = "canonical" | "configured" | "measured_calibration";
 export type GeometrySource = "configured_simulation_proxy" | "measured_task_scene";
 export type Evidence3 = string;
 /**
@@ -665,9 +696,38 @@ export type TableTopM = number;
 export type GoalToleranceM = number;
 export type RequiredLiftM = number;
 export type SuccessHoldS = number;
+export type HoldAtGoal = boolean;
+export type GoalSupportM = number;
 export type HorizonS = number;
-export type SchemaVersion58 = "0.3.0";
+export type SchemaVersion59 = "0.3.0";
 export type RobotId = "panda" | "fr3";
+export type Mode1 = "trajectory" | "skill";
+export type SchemaVersion60 = "0.4.0";
+export type Template1 = "auto" | "lid" | "door" | "drawer" | "knob" | "button" | "object";
+export type Direction = "auto" | "open" | "close";
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type UpHintWorld = [number, number, number];
+export type DefaultRadiusM = number;
+export type DefaultTravelM = number;
+export type DefaultTwistRad = number;
+export type DefaultPressM = number;
+export type UseVideoScale = boolean;
+export type ObjectPositionM1 = [number, number, number] | null;
+export type ObjectYawRad = number | null;
+export type MinAngleRad = number;
+export type PregraspDistanceM = number;
+export type GraspDwellS = number;
+export type LimitFraction = number;
+export type SuccessFraction = number;
+export type SuccessHoldS1 = number;
+export type Variations = number;
+export type VariationSeed = number;
+export type VariationPositionM = number;
+export type VariationYawRad = number;
+export type VariationScale = number;
 export type HandId4 = string;
 export type ObjectId4 = string;
 export type ShotId11 = string;
@@ -708,11 +768,11 @@ export type RequireExport = boolean;
 export type ExportRlds = boolean;
 export type DiagnosticExport = boolean;
 export type QualityRubric = "baseline-v1";
-export type SchemaVersion59 = "0.3.0";
+export type SchemaVersion61 = "0.3.0";
 export type SourceJobId4 = string;
 export type IdempotencyKey2 = string;
 export type AllowReviewSource1 = boolean;
-export type SchemaVersion60 = "0.3.0";
+export type SchemaVersion62 = "0.3.0";
 export type FrameIndex10 = number;
 export type SourceTimeS = number;
 export type ExecutionTimeS = number;
@@ -753,8 +813,9 @@ export type OrientationErrorRad = number;
 export type Collisions = string[];
 export type Valid = boolean;
 export type Reasons1 = string[];
-export type Origin5 = "retargeted" | "interpolated";
-export type SchemaVersion61 = "0.3.0";
+export type Origin5 = "retargeted" | "interpolated" | "planned";
+export type Phase = string | null;
+export type SchemaVersion63 = "0.3.0";
 export type VideoId14 = string;
 export type RunId9 = string;
 export type SourceRunId3 = string;
@@ -762,18 +823,119 @@ export type Task3 = string;
 export type InferenceMode13 = "live" | "fixture";
 export type ReviewReasons5 = string[];
 export type Frames1 = RobotFrame[];
-export type SchemaVersion62 = "0.3.0";
+export type SchemaVersion64 = "0.3.0";
 export type Classification = "Gold" | "Silver" | "Reject";
 export type Rubric = "baseline-v1";
 export type Reasons2 = string[];
 export type AcceptedTrainingSubset = boolean;
 export type PhysicalRobotReady = false;
-export type SchemaVersion63 = "0.3.0";
+export type SchemaVersion65 = "0.3.0";
 export type VideoId15 = string;
 export type RunId10 = string;
 export type SourceRunId4 = string;
 export type InferenceMode14 = "fixture" | "live";
 export type Certification2 = "simulation_and_export_report";
+export type SchemaVersion66 = "0.4.0";
+export type Kind2 = "static" | "prismatic" | "revolute";
+export type RelativeRmse = number;
+export type Bic = number;
+export type Parameters = number;
+export type SchemaVersion67 = "0.4.0";
+export type Name1 = "approach" | "manipulate" | "retreat";
+export type StartS4 = number;
+export type EndS4 = number;
+export type Samples = number;
+export type SchemaVersion68 = "0.4.0";
+export type HandId5 = string;
+export type ObjectId5 = string;
+export type ShotId12 = string;
+export type Kind3 = "revolute" | "prismatic" | "static" | "transport" | "unconstrained";
+export type SchemaVersion69 = "0.4.0";
+export type HorizontalUnits = number;
+export type RiseUnits = number;
+export type PeakUnits = number;
+export type HeadingRad = number | null;
+export type Released = boolean;
+export type StartWorld = [number, number, number] | null;
+export type EndWorld = [number, number, number] | null;
+export type AxisWorld = [number, number, number] | null;
+export type OriginWorld = [number, number, number] | null;
+export type RadiusUnits = number | null;
+export type Displacement = number;
+export type DisplacementUnit = "rad" | "reconstruction_units" | "none";
+export type Direction1 = "open" | "close" | "unknown";
+export type DirectionEvidence = string;
+export type AxisAlignment = "horizontal" | "vertical" | "oblique" | "unknown";
+export type ApproachAlignment = number | null;
+export type Template2 = "lid" | "door" | "drawer" | "knob" | "button" | "object" | "none";
+export type ProgressTimesS = number[];
+export type Progress = number[];
+export type Phases = SkillPhase[];
+export type Fits = MotionFit[];
+export type Samples1 = number;
+export type ContactSamples = number;
+export type MotionSource = "hand_during_contact" | "hand_during_planned_action" | "object" | "hand_whole_interval";
+export type Confidence4 = number;
+export type SemanticHint = string | null;
+export type ReviewReasons6 = string[];
+export type SchemaVersion70 = "0.4.0";
+export type Index = number;
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type PositionM1 = [number, number, number];
+export type YawRad1 = number;
+export type RadiusM1 = number;
+export type Planned = boolean;
+export type Success = boolean;
+export type FinalJoint = number | null;
+export type Goal1 = number;
+export type Violations = string[];
+export type Reason1 = string | null;
+export type SchemaVersion71 = "0.4.0";
+export type RunId11 = string;
+export type SourceRunId5 = string;
+export type SchemaVersion72 = "0.4.0";
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type ObjectPositionM2 = [number, number, number];
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type ObjectHalfSizeM1 = [number, number, number];
+export type ObjectMassKg1 = number;
+export type GraspYawRad = number;
+/**
+ * @minItems 3
+ * @maxItems 3
+ */
+export type DisplacementM = [number, number, number];
+export type LiftM = number;
+export type Release = boolean;
+export type ToleranceM = number;
+export type ScaleSource1 = "measured_calibration" | "body_scale_estimate" | "hand_extent_estimate" | "template_default";
+export type PlacementSource1 = "canonical" | "configured" | "measured_calibration";
+export type MetricScale = {
+  [k: string]: unknown;
+} | null;
+export type SceneSource = "generated_from_skill_template";
+export type Placement = string;
+export type DemonstratedDisplacement = number;
+export type ReplicatedDisplacement = number | null;
+export type ReplicatedFraction = number | null;
+export type SimulationTaskSuccess = boolean | null;
+export type Phases1 = {
+  [k: string]: unknown;
+}[];
+export type Variations1 = VariationResult[];
+export type VariationSuccessRate = number | null;
+export type SourceTaskValidated = false;
+export type PhysicalRobotReady1 = false;
+export type ReviewReasons7 = string[];
 
 export interface ActionGraph {
   schema_version?: SchemaVersion;
@@ -814,6 +976,7 @@ export interface Correction {
   point?: Point;
   bbox_xyxy?: BboxXyxy;
   provider_track_id?: ProviderTrackId;
+  provider_track_ids?: ProviderTrackIds;
   reviewed_by?: ReviewedBy;
   evidence?: Evidence;
 }
@@ -1462,6 +1625,7 @@ export interface CalibrationRequest {
 export interface TaskScene {
   schema_version?: SchemaVersion57;
   task: Task2;
+  articulation?: ArticulatedObject | null;
   geometry_source?: GeometrySource;
   evidence: Evidence3;
   goal_position_m: GoalPositionM;
@@ -1473,11 +1637,37 @@ export interface TaskScene {
   goal_tolerance_m?: GoalToleranceM;
   required_lift_m?: RequiredLiftM;
   success_hold_s?: SuccessHoldS;
+  hold_at_goal?: HoldAtGoal;
+  goal_support_m?: GoalSupportM;
   horizon_s?: HorizonS;
 }
-export interface RobotizationConfig {
+/**
+ * Simulated stand-in generated from a skill. Not a reconstruction of the source object.
+ */
+export interface ArticulatedObject {
   schema_version?: SchemaVersion58;
+  template: Template;
+  joint: Joint;
+  momentary?: Momentary;
+  position_m: PositionM;
+  yaw_rad?: YawRad;
+  radius_m?: RadiusM;
+  width_m?: WidthM;
+  start?: Start;
+  goal: Goal;
+  limit: Limit;
+  tolerance: Tolerance;
+  mass_kg?: MassKg;
+  damping?: Damping;
+  friction_loss?: FrictionLoss;
+  scale_source: ScaleSource;
+  placement_source?: PlacementSource;
+}
+export interface RobotizationConfig {
+  schema_version?: SchemaVersion59;
   robot_id?: RobotId;
+  mode?: Mode1;
+  replication?: ReplicationConfig;
   hand_id: HandId4;
   object_id: ObjectId4;
   shot_id: ShotId11;
@@ -1509,15 +1699,42 @@ export interface RobotizationConfig {
   task_scene?: TaskScene | null;
   quality_rubric?: QualityRubric;
 }
+/**
+ * How a skill is re-instantiated on the robot.
+ */
+export interface ReplicationConfig {
+  schema_version?: SchemaVersion60;
+  template?: Template1;
+  direction?: Direction;
+  up_hint_world?: UpHintWorld;
+  default_radius_m?: DefaultRadiusM;
+  default_travel_m?: DefaultTravelM;
+  default_twist_rad?: DefaultTwistRad;
+  default_press_m?: DefaultPressM;
+  use_video_scale?: UseVideoScale;
+  object_position_m?: ObjectPositionM1;
+  object_yaw_rad?: ObjectYawRad;
+  min_angle_rad?: MinAngleRad;
+  pregrasp_distance_m?: PregraspDistanceM;
+  grasp_dwell_s?: GraspDwellS;
+  limit_fraction?: LimitFraction;
+  success_fraction?: SuccessFraction;
+  success_hold_s?: SuccessHoldS1;
+  variations?: Variations;
+  variation_seed?: VariationSeed;
+  variation_position_m?: VariationPositionM;
+  variation_yaw_rad?: VariationYawRad;
+  variation_scale?: VariationScale;
+}
 export interface RobotizationRequest {
-  schema_version?: SchemaVersion59;
+  schema_version?: SchemaVersion61;
   source_job_id: SourceJobId4;
   idempotency_key: IdempotencyKey2;
   config: RobotizationConfig;
   allow_review_source?: AllowReviewSource1;
 }
 export interface RobotFrame {
-  schema_version?: SchemaVersion60;
+  schema_version?: SchemaVersion62;
   frame_index: FrameIndex10;
   source_time_s: SourceTimeS;
   execution_time_s: ExecutionTimeS;
@@ -1535,9 +1752,10 @@ export interface RobotFrame {
   valid: Valid;
   reasons: Reasons1;
   origin: Origin5;
+  phase?: Phase;
 }
 export interface RobotTrajectory {
-  schema_version?: SchemaVersion61;
+  schema_version?: SchemaVersion63;
   video_id: VideoId14;
   run_id: RunId9;
   source_run_id: SourceRunId3;
@@ -1556,7 +1774,7 @@ export interface Adaptation {
   [k: string]: unknown;
 }
 export interface QualityReport {
-  schema_version?: SchemaVersion62;
+  schema_version?: SchemaVersion64;
   classification: Classification;
   rubric?: Rubric;
   checks: Checks;
@@ -1568,7 +1786,7 @@ export interface Checks {
   [k: string]: boolean | null;
 }
 export interface RobotizationHandoff {
-  schema_version?: SchemaVersion63;
+  schema_version?: SchemaVersion65;
   video_id: VideoId15;
   run_id: RunId10;
   source_run_id: SourceRunId4;
@@ -1579,4 +1797,115 @@ export interface RobotizationHandoff {
 }
 export interface Artifacts3 {
   [k: string]: string;
+}
+/**
+ * One candidate explanation of the contact-phase motion.
+ */
+export interface MotionFit {
+  schema_version?: SchemaVersion66;
+  kind: Kind2;
+  relative_rmse: RelativeRmse;
+  bic: Bic;
+  parameters: Parameters;
+}
+export interface SkillPhase {
+  schema_version?: SchemaVersion67;
+  name: Name1;
+  start_s: StartS4;
+  end_s: EndS4;
+  samples: Samples;
+}
+/**
+ * What was demonstrated, expressed relative to the manipulated part.
+ */
+export interface SkillModel {
+  schema_version?: SchemaVersion68;
+  hand_id: HandId5;
+  object_id: ObjectId5;
+  shot_id: ShotId12;
+  kind: Kind3;
+  transport?: TransportSkill | null;
+  start_world?: StartWorld;
+  end_world?: EndWorld;
+  axis_world?: AxisWorld;
+  origin_world?: OriginWorld;
+  radius_units?: RadiusUnits;
+  displacement?: Displacement;
+  displacement_unit?: DisplacementUnit;
+  direction?: Direction1;
+  direction_evidence: DirectionEvidence;
+  axis_alignment?: AxisAlignment;
+  approach_alignment?: ApproachAlignment;
+  template: Template2;
+  progress_times_s: ProgressTimesS;
+  progress: Progress;
+  phases: Phases;
+  fits: Fits;
+  samples: Samples1;
+  contact_samples: ContactSamples;
+  motion_source: MotionSource;
+  confidence: Confidence4;
+  semantic_hint?: SemanticHint;
+  review_reasons: ReviewReasons6;
+}
+/**
+ * A carried object: where it went relative to gravity and to the reach.
+ */
+export interface TransportSkill {
+  schema_version?: SchemaVersion69;
+  horizontal_units: HorizontalUnits;
+  rise_units: RiseUnits;
+  peak_units: PeakUnits;
+  heading_rad?: HeadingRad;
+  released: Released;
+}
+export interface VariationResult {
+  schema_version?: SchemaVersion70;
+  index: Index;
+  position_m: PositionM1;
+  yaw_rad: YawRad1;
+  radius_m: RadiusM1;
+  planned: Planned;
+  success: Success;
+  final_joint?: FinalJoint;
+  goal: Goal1;
+  violations: Violations;
+  reason?: Reason1;
+}
+export interface ReplicationReport {
+  schema_version?: SchemaVersion71;
+  run_id: RunId11;
+  source_run_id: SourceRunId5;
+  skill: SkillModel;
+  scene?: ArticulatedObject | null;
+  transport?: TransportTask | null;
+  metric_scale?: MetricScale;
+  scene_source?: SceneSource;
+  placement: Placement;
+  demonstrated_displacement: DemonstratedDisplacement;
+  replicated_displacement?: ReplicatedDisplacement;
+  replicated_fraction?: ReplicatedFraction;
+  simulation_task_success?: SimulationTaskSuccess;
+  phases: Phases1;
+  variations: Variations1;
+  variation_success_rate?: VariationSuccessRate;
+  source_task_validated?: SourceTaskValidated;
+  physical_robot_ready?: PhysicalRobotReady1;
+  review_reasons: ReviewReasons7;
+}
+/**
+ * Generated pick-and-carry task. The box is a stand-in for the carried object.
+ */
+export interface TransportTask {
+  schema_version?: SchemaVersion72;
+  object_position_m: ObjectPositionM2;
+  object_half_size_m?: ObjectHalfSizeM1;
+  object_mass_kg?: ObjectMassKg1;
+  grasp_yaw_rad?: GraspYawRad;
+  displacement_m: DisplacementM;
+  lift_m: LiftM;
+  release: Release;
+  tolerance_m?: ToleranceM;
+  scale_source: ScaleSource1;
+  placement_source?: PlacementSource1;
 }

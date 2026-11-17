@@ -33,7 +33,8 @@ class Settings(BaseSettings):
     ffprobe: str = "ffprobe"
     processing_fps: int = 15
     max_upload_bytes: int = 524288000
-    min_duration: float = 10
+    # Short manipulations (opening a lid or a drawer) take a few seconds.
+    min_duration: float = 2
     max_duration: float = 120
     max_model_calls: int = 16
     stage_timeout_seconds: int = 900

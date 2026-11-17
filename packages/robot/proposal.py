@@ -41,3 +41,30 @@ def suggest(itr,robot_id='panda',hand_id=None,object_id=None):
     return {'available':True,'config':cfg.model_dump(mode='json'),'paired_samples':len(chunk),'known_gripper_samples':known,
         'reasons':['Suggestion uses estimated source geometry and a configured tool orientation.','Endpoint reach is an adapted task, not validation of the original manipulation.'],
         'requires_review':True,'scope':'single-arm endpoint adaptation'}
+
+
+def suggest_skill(itr,robot_id='panda',hand_id=None,object_id=None,plan=None):
+    """Best supported articulated skill over every observed hand/object pair and shot."""
+    from packages.common.utils import DomainError
+    from packages.robot.skill import extract_skill
+    actors=[e.entity_id for e in itr.entities if e.role=='actor' and (not hand_id or e.entity_id==hand_id)]
+    objects=[e.entity_id for e in itr.entities if e.role!='actor' and (not object_id or e.entity_id==object_id)]
+    found=[];failures=set()
+    for shot in sorted({f.shot_id for f in itr.frames}):
+        times=[f.timestamp for f in itr.frames if f.shot_id==shot]
+        for hand in actors:
+            for thing in objects:
+                cfg=RobotizationConfig(robot_id=robot_id,mode='skill',hand_id=hand,object_id=thing,shot_id=shot,
+                    start_s=min(times),end_s=max(max(times),min(times)+1e-3),initial_gripper='open')
+                try:skill=extract_skill(itr,cfg,plan)
+                except DomainError as exc:failures.add(exc.message);continue
+                # A measured motion outranks a resting hand whose action is only named by the plan.
+                if skill.template!='none':found.append(((skill.kind!='static',skill.confidence),cfg,skill))
+                else:failures.add(f'{hand}/{thing} in {shot}: motion looks {skill.kind}')
+    if not found:return {'available':False,'reasons':sorted(failures) or ['No hand/object pair has enough pose samples to infer a skill.']}
+    _,cfg,skill=max(found,key=lambda c:c[0])
+    return {'available':True,'config':cfg.model_dump(mode='json'),'skill':skill.model_dump(mode='json'),
+        'paired_samples':skill.samples,'known_gripper_samples':skill.contact_samples,
+        'reasons':[f'Inferred a {skill.kind} joint ({skill.template}); direction {skill.direction}. {skill.direction_evidence}.',
+            'The robot replays the process on a generated stand-in object; the source object is not reconstructed.',*skill.review_reasons],
+        'requires_review':True,'scope':'single-arm articulated skill replication'}

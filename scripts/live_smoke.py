@@ -32,7 +32,15 @@ def main():
     cfg = settings()
     client = httpx.Client(base_url=args.api, timeout=120)
     def call(method, path, **kwargs):
-        result = client.request(method, path, **kwargs)
+        # Polling must survive a brief API restart; the queued job keeps running.
+        for attempt in range(6):
+            try:
+                result = client.request(method, path, **kwargs)
+                break
+            except httpx.TransportError:
+                if attempt == 5:
+                    raise
+                time.sleep(5)
         result.raise_for_status()
         return result.json()
     health = call("GET", "/health/ready")

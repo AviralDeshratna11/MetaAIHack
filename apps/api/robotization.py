@@ -13,6 +13,7 @@ from packages.common.utils import DomainError, file_hash
 from packages.schemas.api import JobView
 from packages.schemas.robotization import RobotizationConfig, RobotizationRequest, RobotTrajectory, QualityReport, RobotizationHandoff
 from packages.schemas.robotization import CalibrationRequest,Calibration
+from packages.schemas.replication import ReplicationReport, SkillModel
 
 router = APIRouter()
 
@@ -25,11 +26,12 @@ def calibrate(body:CalibrationRequest):
 
 
 @router.get('/v1/videos/{video_id}/robotize/proposal')
-def robot_proposal(video_id:str,source_job_id:str,robot_id:str='panda',hand_id:str|None=None,object_id:str|None=None):
+def robot_proposal(video_id:str,source_job_id:str,robot_id:str='panda',hand_id:str|None=None,object_id:str|None=None,mode:str='trajectory'):
     from apps.api.main import job_or_error
     from packages.schemas.reconstruction import InteractionTrajectory
-    from packages.robot.proposal import suggest
+    from packages.robot.proposal import suggest,suggest_skill
     if robot_id not in ('panda','fr3'):raise DomainError('E_ROBOT_MODEL','Unknown robot',422)
+    if mode not in ('trajectory','skill'):raise DomainError('E_ROBOT_MODE','Unknown robotization mode',422)
     with transaction() as session:
         source=job_or_error(session,source_job_id)
         if source.video_id!=video_id or source.config.get('pipeline')!='reconstruction' or source.status not in ('COMPLETED','NEEDS_REVIEW'):
@@ -37,7 +39,8 @@ def robot_proposal(video_id:str,source_job_id:str,robot_id:str='panda',hand_id:s
         artifact=session.scalar(select(Artifact).where(Artifact.job_id==source.id,Artifact.name=='interaction_trajectory.json.gz'))
         if artifact is None:raise DomainError('E_ROBOT_INPUTS','Interaction trajectory unavailable',409)
         itr=InteractionTrajectory.model_validate_json(gzip.decompress(Storage().read(artifact.manifest['uri'])))
-    return suggest(itr,robot_id,hand_id,object_id)
+        semantics=semantic_plan(session,source.id)
+    return suggest_skill(itr,robot_id,hand_id,object_id,semantics) if mode=='skill' else suggest(itr,robot_id,hand_id,object_id)
 
 
 @router.post("/v1/videos/{video_id}/robotize/check")
@@ -50,7 +53,13 @@ def check_robot_inputs(video_id: str, body: RobotizationRequest):
         artifact = session.scalar(select(Artifact).where(Artifact.job_id == source.id,Artifact.name == "interaction_trajectory.json.gz"))
         if artifact is None: raise DomainError("E_ROBOT_INPUTS", "Interaction trajectory unavailable", 409)
         itr = json.loads(gzip.decompress(Storage().read(artifact.manifest["uri"])))
+        semantics = semantic_plan(session, source.id)
     cfg = body.config
+    if cfg.mode == "skill":
+        # A skill needs the hand path, not gap-free paired samples.
+        from packages.robot.replicate import readiness
+        from packages.schemas.reconstruction import InteractionTrajectory
+        return readiness(InteractionTrajectory.model_validate(itr), cfg, semantics)
     from packages.robot.coverage import coverage
     return coverage(itr['frames'],cfg)
 
@@ -87,6 +96,12 @@ def robotize(video_id: str, body: RobotizationRequest):
         return job_view(schedule(session, video, "phase3:"+body.idempotency_key, frozen, source.id))
 
 
+def semantic_plan(session, job_id):
+    """The perception plan a reconstruction inherited: who does which action, and when."""
+    artifact = session.scalar(select(Artifact).where(Artifact.job_id == job_id, Artifact.name == "semantic_plan.json"))
+    return json.loads(Storage().read(artifact.manifest["uri"])) if artifact else None
+
+
 def result(video_id, run_id, name):
     from apps.api.main import artifact_for
     artifact = artifact_for(video_id, run_id, name)
@@ -116,3 +131,13 @@ def simulation_report(video_id: str, run_id: str):
 @router.get("/v1/videos/{video_id}/learning-report")
 def learning_report(video_id: str, run_id: str):
     return result(video_id, run_id, "rl/rl_report.json")
+
+
+@router.get("/v1/videos/{video_id}/skill-model", response_model=SkillModel)
+def skill_model(video_id: str, run_id: str):
+    return result(video_id, run_id, "skill_model.json")
+
+
+@router.get("/v1/videos/{video_id}/replication-report", response_model=ReplicationReport)
+def replication_report(video_id: str, run_id: str):
+    return result(video_id, run_id, "replication_report.json")
