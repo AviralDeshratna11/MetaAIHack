@@ -1,4 +1,5 @@
 # Optional CPU robotization/simulation runtime; keep heavy ML separate.
 mujoco==3.3.7
 scipy==1.15.3
-
+# Bundled FFmpeg so simulator replays can be re-encoded to browser-playable H.264.
+imageio-ffmpeg==0.6.0

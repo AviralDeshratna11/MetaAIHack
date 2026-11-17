@@ -12,7 +12,7 @@ def replay(trajectory, root, output, render=True):
     from packages.robot.panda import Panda
     root, output = Path(root), Path(output)
     robot = Panda(root)
-    from packages.robot.scenes import scene_xml, forbidden_contacts
+    from packages.robot.scenes import scene_xml, forbidden_contacts, task_joint, reset_task, object_position, grasp_allowed
     from packages.robot.tasks import TaskEvaluator
     scene = trajectory.config.task_scene
     evaluator = TaskEvaluator(scene) if scene else None
@@ -27,6 +27,8 @@ def replay(trajectory, root, output, render=True):
     width = trajectory.frames[0].gripper_width_m
     if width is not None:
         data.qpos[7:9] = width/2
+    joint_address = task_joint(model)
+    if joint_address is not None: reset_task(model, data, scene)
     mj.mj_forward(model, data)
     # Explicit initial equilibration under the same controller, never hidden task execution.
     for _ in range(round(1/model.opt.timestep)):
@@ -49,7 +51,9 @@ def replay(trajectory, root, output, render=True):
     peak_velocity, peak_acceleration = np.zeros(7), np.zeros(7)
     hand = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "hand")
     object_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "proxy_object")
-    start_object = data.xpos[object_id].copy()
+    start_object = object_position(model, data)
+    start_joint = float(data.qpos[joint_address]) if joint_address is not None else None
+    peak_joint = 0.
     try:
         for index, frame in enumerate(trajectory.frames):
             # Advance previous control to this timestamp, then record the observation
@@ -73,44 +77,55 @@ def replay(trajectory, root, output, render=True):
                 data.ctrl[7] = frame.gripper_width_m/.08*255
             p = data.xpos[hand]+data.xmat[hand].reshape(3, 3) @ robot.local_tcp
             error = float(np.linalg.norm(p-frame.target_position_m))
-            contacts = forbidden_contacts(model, data, allowed_grasp=bool(scene and scene.task == "pick_place"))
+            contacts = forbidden_contacts(model, data, allowed_grasp=grasp_allowed(scene))
             if contacts: violations.add("COLLISION")
             if error > trajectory.config.simulation_tracking_tolerance_m: violations.add("TCP_TRACKING")
             if np.any(data.qpos[qadr] < robot.lower-.005) or np.any(data.qpos[qadr] > robot.upper+.005): violations.add("JOINT_POSITION")
             if np.any(np.abs(data.qvel[dadr]) > robot.velocity+.01): violations.add("JOINT_VELOCITY")
             if np.any(np.abs(data.qacc[dadr]) > robot.acceleration+.1): violations.add("JOINT_ACCELERATION")
             if not np.isfinite(data.qpos).all(): raise RuntimeError("Nonfinite simulated state")
-            task = evaluator.evaluate(p, data.xpos[object_id], float(data.qpos[7]+data.qpos[8]),
+            located = object_position(model, data)
+            joint_value = float(data.qpos[joint_address]) if joint_address is not None else None
+            if joint_value is not None: peak_joint = max(peak_joint, abs(joint_value-start_joint))
+            task = evaluator.evaluate(p, located, float(data.qpos[7]+data.qpos[8]),
                 0 if index == 0 else frame.execution_time_s-trajectory.frames[index-1].execution_time_s,
-                violations) if evaluator else None
+                violations, joint_value) if evaluator else None
             rows.append({"execution_time_s": frame.execution_time_s, "source_time_s": frame.source_time_s,
                 "sim_time_s": float(data.time),
                 "joints_rad": data.qpos[qadr].tolist(), "joint_velocity_rad_s": data.qvel[dadr].tolist(),
                 "tcp_position_m": p.tolist(), "gripper_width_m": float(data.qpos[7]+data.qpos[8]),
-                "tracking_error_m": error, "contacts": contacts, "proxy_object_position_m": data.xpos[object_id].tolist(), "task": task})
+                "tracking_error_m": error, "contacts": contacts, "proxy_object_position_m": located.tolist(), "task": task,
+                **({"task_joint_value": joint_value} if joint_value is not None else {}),
+                **({"phase": frame.phase} if frame.phase else {})})
             if renderer:
                 renderer.update_scene(data, camera="debug")
                 writer.write(cv2.cvtColor(renderer.render(), cv2.COLOR_RGB2BGR))
     finally:
         if renderer: renderer.close()
         if writer: writer.release()
+    video = None
+    if renderer:
+        from packages.robot.video import browser_playable
+        video = browser_playable(output / "simulation_replay.mp4")
     report = {"engine": "mujoco", "version": mj.__version__, "seed": 0, "timestep_s": model.opt.timestep,
         "controller": "pinned robot asset position actuators; action specifies next-tick endpoint; linear interpolation from current command; zero velocity feedforward", "initial_equilibration_s": 1, "physics_stepped": True,
-        "scene": "assumed plane and free 0.1kg box proxy; not reconstructed task scene", "grasp_attachment": False,
+        "scene": "articulated stand-in generated from the inferred skill; not a reconstruction of the source object" if joint_address is not None else "assumed plane and free box proxy; not reconstructed task scene", "grasp_attachment": False,
+        "task_joint": None if joint_address is None else {"start": start_joint, "final": float(data.qpos[joint_address]), "goal": scene.articulation.goal, "peak": peak_joint,
+            "unit": "rad" if scene.articulation.joint == "revolute" else "m"},
         "unknown_gripper_behavior": "No inferred command; holds prior simulator control, with closed proxy initialization when initial state is unknown. Never an accepted training action.",
         "task_success": bool(evaluator.success) if evaluator else None, "fluid_transfer_success": None,
         "task_scene_validated": False,
         "configured_simulation_task": scene.model_dump(mode="json") if scene else None,
         "simulation_task_success": bool(evaluator.success) if evaluator else None,
-        "source_task_validated": False, "grasp_contact_allowance": "finger-object only" if scene and scene.task == "pick_place" else None,
+        "source_task_validated": False, "grasp_contact_allowance": "finger-object only" if grasp_allowed(scene) else None,
         "violations": sorted(violations), "passed": not violations,
         "tracking_max_m": max(r["tracking_error_m"] for r in rows),
         "joint_velocity_max_rad_s": peak_velocity.tolist(),
         "joint_acceleration_max_rad_s2": peak_acceleration.tolist(),
         "joint_limit_check_rate": "every physics substep after explicit initial equilibration",
         "time_quantization_max_s": max(abs(r["sim_time_s"]-r["execution_time_s"]) for r in rows),
-        "object_displacement_m": float(np.linalg.norm(data.xpos[object_id]-start_object)),
-        "rendered": renderer is not None, "render_error": render_error, "torque_limits": "asset actuator force saturation; feasibility not independently certified",
+        "object_displacement_m": float(np.linalg.norm(object_position(model, data)-start_object)),
+        "rendered": renderer is not None, "render_error": render_error, "video": video, "torque_limits": "asset actuator force saturation; feasibility not independently certified",
         "jerk_limits": "not_evaluated", "states": rows}
     (output / "simulation_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report

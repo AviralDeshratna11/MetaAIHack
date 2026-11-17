@@ -65,10 +65,14 @@ def sample_frames(manifest, plan, config):
 def selected_tracks(rows):
     groups = defaultdict(list)
     for row in rows:
-        groups[(row["frame_index"], row["entity_id"])].append(row)
-    # Never arbitrarily select one candidate when semantic association is ambiguous.
+        # A stitched identity has one row per provider id in every frame; only the
+        # one actually seen in this frame is a candidate.
+        if row["observed"]:
+            groups[(row["frame_index"], row["entity_id"])].append(row)
+    # Never arbitrarily select one candidate when semantic association is ambiguous:
+    # two candidates seen in the same frame are still rejected.
     return {key: values[0] for key, values in groups.items() if len(values) == 1
-            and values[0]["observed"] and values[0]["identity_status"] == "associated"}
+            and values[0]["identity_status"] == "associated"}
 
 
 def body_hand(packet, entity, mask, frame_id, world_frame, max_rmse):

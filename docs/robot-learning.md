@@ -215,6 +215,19 @@ JSON `TaskScene` and an explicit step budget. That path trains from new simulato
 experience; it does not consume a human-video dataset. PPO convergence is not
 claimed by the current acceptance evidence.
 
+## Learning from replicated skills
+
+Skill-mode runs ([skill replication](skill-replication.md)) export the same bundle
+with a generated articulated or pick-and-carry task. A planned physical pick,
+carry and place now succeeds in simulation with the box held by finger friction.
+Cloning a full skill from its single demonstration needs three trainer settings
+that short reaches did not: a wider network (`--hidden 256`), noise injected into
+the cloned observations (`--state-noise 0.5`) so the policy tolerates its own
+drift, and a controller adapter whose per-tick limits come from the
+demonstration instead of a fixed 0.0005 rad. With those, a policy cloned from
+the drawer run opened the drawer in closed-loop physics. One start state was
+evaluated; that is not generalization.
+
 ## What remains outside the demonstrated result
 
 The original blueprint includes P2/P3 extensions: SAM 3D Objects, DINO re-ID,

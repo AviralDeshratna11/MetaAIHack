@@ -6,6 +6,8 @@ from typing import Union
 from pydantic import TypeAdapter
 from packages.schemas.robotization import (Calibration, CalibrationRequest, TaskScene, RobotizationConfig, RobotizationRequest,
     RobotFrame, RobotTrajectory, QualityReport, RobotizationHandoff)
+from packages.schemas.replication import (MotionFit, SkillPhase, SkillModel, ArticulatedObject, ReplicationConfig,
+    VariationResult, ReplicationReport, TransportSkill, TransportTask)
 
 from packages.schemas.models import (ActionGraph, ArtifactManifest, Correction, Entity, ErrorResponse,
     JobEvent, LayerOneHandoffManifest, ModelRun, ProcessRequest, Provenance, SemanticPlan, StageResult,
@@ -25,7 +27,8 @@ def main():
         ReconstructionRequest, ReconstructionConfig, Pose3D, Alignment, CameraFrame, PoseFrame, RelativeFrame,
         ContactFrame, InteractionEvent, RefinedAction, AffordancePatch, ReconstructionReport, LayerTwoHandoff,
         GeometryWindow, InteractionTrajectory, Calibration, CalibrationRequest, TaskScene, RobotizationConfig, RobotizationRequest,
-        RobotFrame, RobotTrajectory, QualityReport, RobotizationHandoff]
+        RobotFrame, RobotTrajectory, QualityReport, RobotizationHandoff, MotionFit, SkillPhase, SkillModel,
+        ArticulatedObject, ReplicationConfig, VariationResult, ReplicationReport, TransportSkill, TransportTask]
     schema = TypeAdapter(types).json_schema()
     schema["title"] = "Video2RobotContracts"
     content = json.dumps(schema, indent=2, ensure_ascii=False) + "\n"

@@ -10,7 +10,7 @@ from gymnasium import spaces
 import mujoco as mj
 
 from packages.robot.panda import Panda
-from packages.robot.scenes import scene_xml, forbidden_contacts
+from packages.robot.scenes import scene_xml, forbidden_contacts, task_joint, reset_task, object_position, grasp_allowed
 from packages.robot.tasks import TaskEvaluator
 from packages.schemas.robotization import TaskScene
 
@@ -31,6 +31,7 @@ class PandaTaskEnv(gym.Env):
         self.dadr = self.model.jnt_dofadr[self.robot.joints]
         self.hand = mj.mj_name2id(self.model,mj.mjtObj.mjOBJ_BODY,'hand')
         self.object = mj.mj_name2id(self.model,mj.mjtObj.mjOBJ_BODY,'proxy_object')
+        self.task_joint = task_joint(self.model)
         self.fingers = [self.model.jnt_qposadr[mj.mj_name2id(self.model,mj.mjtObj.mjOBJ_JOINT,n)] for n in ('finger_joint1','finger_joint2')]
         self.action_space = spaces.Box(np.r_[self.robot.lower,0].astype(np.float32),np.r_[self.robot.upper,.08].astype(np.float32))
         self.observation_space = spaces.Box(-np.inf,np.inf,shape=(25,),dtype=np.float32)
@@ -52,7 +53,7 @@ class PandaTaskEnv(gym.Env):
 
     def observation(self):
         return np.r_[self.data.qpos[self.qadr],self.data.qpos[self.fingers].sum(),self.data.qvel[self.dadr],
-            self.tcp(),self.data.xpos[self.object],self.scene.goal_position_m,
+            self.tcp(),object_position(self.model,self.data),self.scene.goal_position_m,
             min(float(self.data.time)/self.scene.horizon_s,1.)].astype(np.float32)
 
     def reset(self, *, seed=None, options=None):
@@ -64,6 +65,7 @@ class PandaTaskEnv(gym.Env):
         self.data.qpos[self.fingers] = self.initial_gripper_width_m/2
         self.data.ctrl[:7] = self.initial_joints
         self.data.ctrl[7] = self.initial_gripper_width_m/.08*255
+        if self.task_joint is not None: reset_task(self.model,self.data,self.scene)
         mj.mj_forward(self.model,self.data)
         for _ in range(round(1/self.model.opt.timestep)): mj.mj_step(self.model,self.data)
         self.data.time = 0
@@ -88,9 +90,10 @@ class PandaTaskEnv(gym.Env):
             if np.any(self.data.qpos[self.qadr] < self.robot.lower-.005) or np.any(self.data.qpos[self.qadr] > self.robot.upper+.005): violations.add('JOINT_POSITION')
             if np.any(np.abs(self.data.qvel[self.dadr]) > self.robot.velocity+.01): violations.add('JOINT_VELOCITY')
             if np.any(np.abs(self.data.qacc[self.dadr]) > self.robot.acceleration+.1): violations.add('JOINT_ACCELERATION')
-            if forbidden_contacts(self.model,self.data,self.scene.task=='pick_place'): violations.add('COLLISION')
+            if forbidden_contacts(self.model,self.data,grasp_allowed(self.scene)): violations.add('COLLISION')
         self.last_command = action.astype(float).copy()
-        task = self.evaluator.evaluate(self.tcp(),self.data.xpos[self.object],self.data.qpos[self.fingers].sum(),1/self.control_hz,violations)
+        task = self.evaluator.evaluate(self.tcp(),object_position(self.model,self.data),self.data.qpos[self.fingers].sum(),1/self.control_hz,violations,
+            None if self.task_joint is None else float(self.data.qpos[self.task_joint]))
         terminated = bool((task['success'] and self.terminate_on_success) or violations)
         truncated = bool(not terminated and self.data.time >= self.scene.horizon_s-1e-9)
         self.finished = terminated or truncated

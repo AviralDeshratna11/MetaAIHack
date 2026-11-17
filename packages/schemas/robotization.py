@@ -6,6 +6,7 @@ from pydantic import Field, FiniteFloat, model_validator
 
 from packages.schemas.models import Contract
 from packages.schemas.reconstruction import Vec3, Quat
+from packages.schemas.replication import ArticulatedObject, ReplicationConfig
 
 Joint7 = Annotated[list[FiniteFloat], Field(min_length=7, max_length=7)]
 Positive = Annotated[FiniteFloat, Field(gt=0)]
@@ -36,7 +37,9 @@ class Calibration(RobotContract):
 
 
 class TaskScene(RobotContract):
-    task: Literal["reach", "pick_place"]
+    task: Literal["reach", "pick_place", "articulated"]
+    # Generated articulated stand-in; required for and exclusive to task="articulated".
+    articulation: ArticulatedObject | None = None
     geometry_source: Literal["configured_simulation_proxy", "measured_task_scene"] = "configured_simulation_proxy"
     evidence: str = Field(min_length=1)
     goal_position_m: Vec3
@@ -48,6 +51,10 @@ class TaskScene(RobotContract):
     goal_tolerance_m: Annotated[FiniteFloat, Field(gt=0, le=.1)] = .025
     required_lift_m: Annotated[FiniteFloat, Field(gt=0, le=.3)] = .04
     success_hold_s: Annotated[FiniteFloat, Field(gt=0, le=2)] = .2
+    # Pick-and-carry variants: success while still holding the object at the goal,
+    # and a generated support under a goal that is above the table.
+    hold_at_goal: bool = False
+    goal_support_m: Annotated[FiniteFloat, Field(ge=0, le=.4)] = 0
     horizon_s: Annotated[FiniteFloat, Field(gt=0, le=120)] = 15
 
     @model_validator(mode="after")
@@ -58,11 +65,17 @@ class TaskScene(RobotContract):
             raise ValueError("Object initial position intersects support surface")
         if self.task == "pick_place" and self.goal_position_m[2] < self.table_top_m:
             raise ValueError("Placement goal must be above support surface")
+        if (self.task == "articulated") != (self.articulation is not None):
+            raise ValueError("articulation is required for, and only valid with, the articulated task")
         return self
 
 
 class RobotizationConfig(RobotContract):
     robot_id: Literal["panda","fr3"] = "panda"
+    # "trajectory" retargets the observed hand path. "skill" infers the object's
+    # joint and replays the process on a generated articulated scene.
+    mode: Literal["trajectory", "skill"] = "trajectory"
+    replication: ReplicationConfig = Field(default_factory=ReplicationConfig)
     hand_id: str = Field(min_length=1)
     object_id: str = Field(min_length=1)
     shot_id: str = Field(min_length=1)
@@ -137,7 +150,8 @@ class RobotFrame(RobotContract):
     collisions: list[str]
     valid: bool
     reasons: list[str]
-    origin: Literal["retargeted", "interpolated"]
+    origin: Literal["retargeted", "interpolated", "planned"]
+    phase: str | None = None
 
 
 class RobotTrajectory(RobotContract):

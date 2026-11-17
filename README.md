@@ -5,6 +5,16 @@ verification commands and evidence. The compiler now supports Panda and an
 explicit FR3/Panda-hand simulation composition, optional official TFDS/RLDS,
 measured point calibration and a [local dataset catalog](http://127.0.0.1:53000/datasets).
 
+**Skill replication (Phase 4):** the compiler infers what was done to an object
+(open or close a lid, door or drawer; pick up, carry and set down; press; twist)
+and has the robot repeat that process on a generated scene in real MuJoCo physics,
+including with the object moved and resized. Run
+`python -m scripts.replicate_demo --demo laptop_lid` and open the printed
+`viewer.html`, or run real footage through the queued stack with
+`scripts.real_video_replication`. Scope, real-footage results and limits are in
+the [skill replication guide](docs/skill-replication.md). Nothing has been
+executed on a physical robot.
+
 For a complete explanation of the architecture, component responsibilities and
 operating procedure, read the [complete workflow guide](docs/complete-workflow.md).
 

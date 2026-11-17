@@ -27,7 +27,10 @@ from packages.video.processing import probe
 app = FastAPI(title="Video-to-Robot-Data · Baseline Compiler", version="0.3.0",
     description="Single-project local API for perception, interaction hypotheses, Franka robotization, simulation diagnostics and review-gated export.",
     responses={422: {"model": ErrorResponse}, 409: {"model": ErrorResponse}})
-app.add_middleware(CORSMiddleware, allow_origins=[settings().web_origin], allow_methods=["*"], allow_headers=["*"])
+# The service is loopback-only. The web port is not fixed (Windows reserves shifting
+# ranges), so any loopback origin may call it in addition to the configured one.
+app.add_middleware(CORSMiddleware, allow_origins=[settings().web_origin], allow_origin_regex=r"^http://(127\.0\.0\.1|localhost)(:\d+)?$",
+    allow_methods=["*"], allow_headers=["*"])
 
 
 @app.exception_handler(DomainError)
@@ -337,6 +340,50 @@ def corrections(video_id: str, body: Correction) -> dict:
             raise DomainError("E_CORRECTION_COORDINATES", "Correction outside normalized image")
         job = schedule(s, video, uid("correction"), {**source.config, "code_hash": run_config()["code_hash"]}, source.id)
         s.add(CorrectionRecord(video_id=video_id, job_id=job.id, data=body.model_dump(mode="json")))
+        return job_view(job)
+
+
+def association_inputs(s, video_id, source_job_id):
+    """Stored tracks and plan of a finished perception run; no model calls."""
+    source = job_or_error(s, source_job_id)
+    if source.video_id != video_id or source.status not in ("COMPLETED", "NEEDS_REVIEW") or source.config.get("pipeline", "perception") != "perception":
+        raise DomainError("E_CORRECTION_SOURCE", "Select a finished perception run of this video", 409)
+    rows = {a.name: a for a in s.scalars(select(Artifact).where(Artifact.job_id == source.id)).all()}
+    if not {"tracks.parquet", "semantic_plan.json"} <= rows.keys():
+        raise DomainError("E_CORRECTION_REFERENCE", "Stored tracks and semantic plan are required", 409)
+    store = Storage()
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory)/"tracks.parquet"
+        store.download(rows["tracks.parquet"].manifest["uri"], path)
+        tracks = pq.read_table(path).to_pylist()
+    return source, tracks, json.loads(store.read(rows["semantic_plan.json"].manifest["uri"]))
+
+
+@app.get("/v1/videos/{video_id}/association-proposals")
+def association_proposals(video_id: str, source_job_id: str) -> dict:
+    from workers.perception.associate import propose
+    with transaction() as s:
+        video_or_error(s, video_id)
+        _, tracks, plan = association_inputs(s, video_id, source_job_id)
+    proposals, reasons = propose(tracks, plan)
+    return {"proposals": proposals, "reasons": reasons, "method": "motion-role heuristic over stored tracks; not human review"}
+
+
+@app.post("/v1/videos/{video_id}/auto-associate", status_code=202, response_model=JobView)
+def auto_associate(video_id: str, source_job_id: str) -> dict:
+    """Apply every separable automatic association as one new run. Original output is preserved."""
+    from workers.perception.associate import propose
+    with transaction() as s:
+        video = video_or_error(s, video_id, True)
+        source, tracks, plan = association_inputs(s, video_id, source_job_id)
+        if source.mode != settings().inference_mode:
+            raise DomainError("E_CORRECTION_MODE", "Select the source run's inference mode before correcting it", 409)
+        proposals, reasons = propose(tracks, plan)
+        if not proposals:
+            raise DomainError("E_ASSOCIATION_UNRESOLVED", "; ".join(reasons) or "No ambiguous association to resolve", 409)
+        batch = [Correction(source_job_id=source.id, **{k: v for k, v in p.items() if k not in ("score", "margin")}).model_dump(mode="json") for p in proposals]
+        job = schedule(s, video, uid("correction"), {**source.config, "code_hash": run_config()["code_hash"]}, source.id)
+        s.add(CorrectionRecord(video_id=video_id, job_id=job.id, data={"batch": batch}))
         return job_view(job)
 
 
